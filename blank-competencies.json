@@ -1,6 +1,7 @@
-{
-    "A1": {
+[]
+    {
         "_comment": "https://stackoverflow.com/company/salary/skills/web-developer",
+        "id": "A1",
         "category": "Skill",
         "competency": "Iteration",
         "examples": {
@@ -11,7 +12,8 @@
         },
         "rating": null
     },
-    "A2": {
+    {
+        "id": "A2",
         "category": "Skill",
         "competency": "Specifies, organizes and anticipates",
         "examples": {
@@ -22,7 +24,8 @@
         },
         "rating": null
     },
-    "A3": {
+    {
+        "id": "A3",
         "category": "Skill",
         "competency": "Self-motivated learning",
         "examples": {

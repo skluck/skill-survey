@@ -1,0 +1,36 @@
+{
+    "A1": {
+        "_comment": "https://stackoverflow.com/company/salary/skills/web-developer",
+        "category": "Skill",
+        "competency": "Iteration",
+        "examples": {
+            "0": "test rating 1",
+            "1": "test rating 2",
+            "2": "test rating 3",
+            "3": "test rating 4"
+        },
+        "rating": null
+    },
+    "A2": {
+        "category": "Skill",
+        "competency": "Specifies, organizes and anticipates",
+        "examples": {
+            "0": "test rating 1",
+            "1": "test rating 2",
+            "2": "test rating 3",
+            "3": "test rating 4"
+        },
+        "rating": null
+    },
+    "A3": {
+        "category": "Skill",
+        "competency": "Self-motivated learning",
+        "examples": {
+            "0": "test rating 1",
+            "1": "test rating 2",
+            "2": "test rating 3",
+            "3": "test rating 4"
+        },
+        "rating": null
+    }
+}

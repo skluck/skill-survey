@@ -1,0 +1,101 @@
+<!doctype html>
+<html data-framework="vue">
+    <head>
+        <meta charset="utf-8">
+        <title>Vue.js • GitHub</title>
+
+        <link rel="stylesheet" href="https://unpkg.com/semantic-ui@2.2.4/dist/semantic.min.css"/>
+        <script src="https://unpkg.com/jquery@3.1.0/dist/jquery.min.js"></script>
+        <script src="https://unpkg.com/semantic-ui@2.2.4/dist/semantic.min.js"></script>
+
+        <script src="https://unpkg.com/vue@2.0.0-rc.6/dist/vue.js"></script>
+        <script src="https://unpkg.com/vue-resource@1.0.2/dist/vue-resource.js"></script>
+        <style>
+            #evaluator {
+                margin: 1rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="evaluator">
+            <h1 class="ui header">Skill Evaluation and Competencies</h1>
+
+            <button type="button" class="ui button active" @click="fetchData">Refresh</button>
+            <div class="ui divider"></div>
+
+            <div>
+                <template v-for="comp in competencies">
+                    <div>
+                        <div class="ui label">
+                            {{ comp.id }}
+                        </div>
+
+                        <b v-if="comp.category == 'Skill'" class="ui red image label">Skill</b>
+                        <b v-if="comp.category == 'Behavior'" class="ui yellow image label">Behavior</b>
+                        <b v-if="comp.category == 'Knowledge'" class="ui blue image label">Knowledge</b>
+
+                        {{ comp.competency }} <b>[{{ form[comp.id] }}]</b>
+
+                        <div v-show="form[comp.id] === 'Not Scored'" class="grouped fields">
+                            <template v-for="score in [0,1,2,3]">
+                                <div class="field">
+                                    <div class="ui radio checkbox">
+                                        <input :id="comp.id + score" type="radio" v-model="form[comp.id]" :value="score">
+                                        <label :for="comp.id + score">{{ comp.examples[score] }}</label>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+
+                    </div>
+                    <div class="ui divider"></div>
+                </template>
+            </div>
+        </div>
+
+        <script>
+            var app = new Vue({
+              el: '#evaluator',
+
+              data: {
+                source: 'https://raw.githubusercontent.com/skluck/skill-survey/master/blank-competencies.json',
+                competencies: null,
+                form: {
+                    "A1": "Not Scored",
+                    "A2": "Not Scored",
+                    "A3": "Not Scored",
+                    "A4": "Not Scored",
+                    "A5": "Not Scored"
+                }
+              },
+              created: function () {
+                this.fetchData()
+              },
+
+              filters: {
+                truncate: function (v) {
+                  var newline = v.indexOf('\n')
+                  return newline > 0 ? v.slice(0, newline) : v
+                },
+                formatDate: function (v) {
+                  return v.replace(/T|Z/g, ' ')
+                }
+              },
+
+              methods: {
+                fetchData: function () {
+                    var onSuccess = function (response) {
+                        this.competencies = JSON.parse(response.data);
+                    },
+                    onError = function(response) {
+                        console.log('uh oh');
+                    };
+
+                    this.$http({ url: this.source, method: 'GET' })
+                        .then(onSuccess, onError);
+                }
+              }
+            })
+        </script>
+    </body>
+</html>

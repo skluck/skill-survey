@@ -14,7 +14,7 @@
     },
     {
         "id": "A2",
-        "category": "Skill",
+        "category": "Behavior",
         "competency": "Specifies, organizes and anticipates",
         "examples": {
             "0": "test rating 1",
@@ -26,8 +26,32 @@
     },
     {
         "id": "A3",
-        "category": "Skill",
+        "category": "Knowledge",
         "competency": "Self-motivated learning",
+        "examples": {
+            "0": "test rating 1",
+            "1": "test rating 2",
+            "2": "test rating 3",
+            "3": "test rating 4"
+        },
+        "rating": null
+    },
+    {
+        "id": "A4",
+        "category": "Behavior",
+        "competency": "Public artifacts",
+        "examples": {
+            "0": "test rating 1",
+            "1": "test rating 2",
+            "2": "test rating 3",
+            "3": "test rating 4"
+        },
+        "rating": null
+    },
+    {
+        "id": "A5",
+        "category": "Behavior",
+        "competency": "Recruiting, mentoring and teaching",
         "examples": {
             "0": "test rating 1",
             "1": "test rating 2",

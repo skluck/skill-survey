@@ -2,6 +2,7 @@
     {
         "_comment": "https://stackoverflow.com/company/salary/skills/web-developer",
         "id": "A1",
+        "section": "Alfa",
         "category": "Skill",
         "competency": "Iteration",
         "examples": {
@@ -10,54 +11,63 @@
             "2": "test rating 3",
             "3": "test rating 4"
         },
-        "rating": null
+        "rating": null,
+        "comment:": null
     },
     {
         "id": "A2",
+        "section": "Alfa",
         "category": "Behavior",
         "competency": "Specifies, organizes and anticipates",
         "examples": {
-            "0": "test rating 1",
-            "1": "test rating 2",
-            "2": "test rating 3",
-            "3": "test rating 4"
+            "0": "test rating 0",
+            "1": "test rating 1",
+            "2": "test rating 2",
+            "3": "test rating 3"
         },
-        "rating": null
+        "rating": null,
+        "comment:": null
     },
     {
-        "id": "A3",
+        "id": "B1",
+        "section": "Bravo",
         "category": "Knowledge",
         "competency": "Self-motivated learning",
         "examples": {
-            "0": "test rating 1",
-            "1": "test rating 2",
-            "2": "test rating 3",
-            "3": "test rating 4"
+            "0": "test rating 0",
+            "1": "test rating 1",
+            "2": "test rating 2",
+            "3": "test rating 3"
         },
-        "rating": null
+        "rating": null,
+        "comment:": null
     },
     {
-        "id": "A4",
+        "id": "B2",
+        "section": "Bravo",
         "category": "Behavior",
         "competency": "Public artifacts",
         "examples": {
-            "0": "test rating 1",
-            "1": "test rating 2",
-            "2": "test rating 3",
-            "3": "test rating 4"
+            "0": "test rating 0",
+            "1": "test rating 1",
+            "2": "test rating 2",
+            "3": "test rating 3"
         },
-        "rating": null
+        "rating": null,
+        "comment:": null
     },
     {
-        "id": "A5",
+        "id": "C1",
+        "section": "Charlie",
         "category": "Behavior",
         "competency": "Recruiting, mentoring and teaching",
         "examples": {
-            "0": "test rating 1",
-            "1": "test rating 2",
-            "2": "test rating 3",
-            "3": "test rating 4"
+            "0": "test rating 0",
+            "1": "test rating 1",
+            "2": "test rating 2",
+            "3": "test rating 3"
         },
-        "rating": null
+        "rating": null,
+        "comment:": null
     }
 ]

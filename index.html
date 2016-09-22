@@ -37,7 +37,6 @@
                 </div>
             </div>
 
-
             <div v-if="last_message" class="ui attached negative icon message">
                 <i class="attention icon"></i>
                 <div class="content">{{ last_message }}</div>
@@ -51,8 +50,11 @@
                         <div class="ui three wide column">
                             <div v-if="form[comp.id] === ''" class="ui label">{{ comp.id }}</div>
                             <div v-else class="ui green label" style="position:relative;">
-                                <span v-if="form[comp.id] !== ''" class="ui floating black circular mini label">{{ form[comp.id] }}</span>
-                                {{ comp.id }}
+                                <template v-if="form[comp.id] !== ''">
+                                    <span v-if="unrating_values.includes(form[comp.id])" class="ui floating basic black circular mini label">{{ form[comp.id] }}</span>
+                                    <span v-else class="ui floating black circular mini label">{{ form[comp.id] }}</span>
+                                    {{ comp.id }}
+                                </template>
                             </div>
 
                             <b v-if="comp.category == 'Skill'" class="ui green basic label">Skill</b>

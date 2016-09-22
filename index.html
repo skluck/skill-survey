@@ -2,7 +2,7 @@
 <html data-framework="vue">
     <head>
         <meta charset="utf-8">
-        <title>Vue.js • GitHub</title>
+        <title>Skill Survey • Vue.js</title>
 
         <link rel="stylesheet" href="https://unpkg.com/semantic-ui@2.2.4/dist/semantic.min.css"/>
         <script src="https://unpkg.com/jquery@3.1.0/dist/jquery.min.js"></script>
@@ -17,40 +17,49 @@
         </style>
     </head>
     <body>
-        <div id="evaluator">
+        <div class="ui container" id="evaluator">
             <h1 class="ui header">Skill Evaluation and Competencies</h1>
 
-            <button type="button" class="ui button active" @click="fetchData">Refresh</button>
-            <div class="ui divider"></div>
+            <button type="button" class="ui primary button" @click="fetchData">Load Survey</button>
+            <button v-if="competencies" type="button" class="ui button" @click="clearData">Clear Survey</button>
 
-            <div>
-                <template v-for="comp in competencies">
-                    <div>
-                        <div class="ui label">
+            <div v-if="lastMessage" class="ui attached negative icon message">
+                <i class="attention icon"></i>
+                <div class="content">{{ lastMessage }}</div>
+            </div>
+
+            <template v-for="comp in competencies" :key="comp.id">
+                <div class="ui divider"></div>
+
+                <div class="ui grid">
+                    <div class="ui three wide column">
+                        <div v-if="form[comp.id] === ''" class="ui label">{{ comp.id }}</div>
+                        <div v-else class="ui green label" style="position:relative;">
+                            <span v-if="form[comp.id] !== ''" class="ui floating black circular mini label">{{ form[comp.id] }}</span>
                             {{ comp.id }}
                         </div>
 
-                        <b v-if="comp.category == 'Skill'" class="ui red image label">Skill</b>
-                        <b v-if="comp.category == 'Behavior'" class="ui yellow image label">Behavior</b>
-                        <b v-if="comp.category == 'Knowledge'" class="ui blue image label">Knowledge</b>
-
-                        {{ comp.competency }} <b>[{{ form[comp.id] }}]</b>
-
-                        <div v-show="form[comp.id] === 'Not Scored'" class="grouped fields">
-                            <template v-for="score in [0,1,2,3]">
-                                <div class="field">
-                                    <div class="ui radio checkbox">
-                                        <input :id="comp.id + score" type="radio" v-model="form[comp.id]" :value="score">
-                                        <label :for="comp.id + score">{{ comp.examples[score] }}</label>
-                                    </div>
-                                </div>
-                            </template>
-                        </div>
-
+                        <b v-if="comp.category == 'Skill'" class="ui red label">Skill</b>
+                        <b v-if="comp.category == 'Behavior'" class="ui yellow label">Behavior</b>
+                        <b v-if="comp.category == 'Knowledge'" class="ui blue label">Knowledge</b>
                     </div>
-                    <div class="ui divider"></div>
-                </template>
-            </div>
+                    <div class="ui thirteen wide column">
+                        <h4>{{ comp.competency }}</h4>
+
+                        <template v-if="form[comp.id] === ''">
+                            <div class="ui three wide column"></div>
+                            <div class="ui thirteen wide column items">
+                                <div class="ui item" v-for="score in [0, 1, 2, 3]">
+                                    <label class="ui compact small message checkbox" @mouseover="hoverRating" @mouseout="hoverRatingOff">
+                                        <input :name="comp.id" type="radio" class="hidden" v-model="form[comp.id]" :value="score" />
+                                        <b>{{ score }}</b> - {{ comp.examples[score] }}
+                                    </label>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </template>
         </div>
 
         <script>
@@ -58,41 +67,48 @@
               el: '#evaluator',
 
               data: {
-                source: 'https://raw.githubusercontent.com/skluck/skill-survey/master/blank-competencies.json',
+                lastMessage: "",
+                source: 'http://kluck.engineering/skill-survey/blank-competencies.json',
                 competencies: null,
-                form: {
-                    "A1": "Not Scored",
-                    "A2": "Not Scored",
-                    "A3": "Not Scored",
-                    "A4": "Not Scored",
-                    "A5": "Not Scored"
-                }
-              },
-              created: function () {
-                this.fetchData()
-              },
-
-              filters: {
-                truncate: function (v) {
-                  var newline = v.indexOf('\n')
-                  return newline > 0 ? v.slice(0, newline) : v
-                },
-                formatDate: function (v) {
-                  return v.replace(/T|Z/g, ' ')
-                }
+                form: null
               },
 
               methods: {
                 fetchData: function () {
+                    this.lastMessage = "";
+
                     var onSuccess = function (response) {
-                        this.competencies = JSON.parse(response.data);
+                        if (response.headers.get('Content-Type') !== 'application/json') {
+                            this.lastMessage = "Blank survey data must be json.";
+                            return;
+                        }
+
+                        this.competencies = response.data;
+                        this.form = {};
+                        this.competencies.forEach(function(entry) {
+                            var val =  entry.rating === null ? "" : entry.rating;
+                            Vue.set(this.form, entry.id, val);
+                        }, this);
                     },
                     onError = function(response) {
-                        console.log('uh oh');
+                        this.lastMessage = "Something terrible happened. Cannot load survey.";
                     };
 
                     this.$http({ url: this.source, method: 'GET' })
                         .then(onSuccess, onError);
+                },
+                clearData: function () {
+                    this.lastMessage = "";
+
+                    this.competencies = [];
+                    this.form = {};
+                },
+
+                hoverRating: function(event) {
+                    $(event.currentTarget).addClass('orange');
+                },
+                hoverRatingOff: function(event) {
+                    $(event.currentTarget).removeClass('orange');
                 }
               }
             })

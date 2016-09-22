@@ -94,7 +94,7 @@
             </template>
 
             <template v-else>
-                <div class="ui icon message">
+                <div class="ui icon info message">
                     <i class="help icon"></i>
                     <div class="content">
                         <div class="header">
@@ -103,6 +103,53 @@
                         <p>There is no survey currently loaded. Load a survey with the toolbar at the top of the page.</p>
                     </div>
                 </div>
+
+                <h2 class="ui top attached block header">Categories</h2>
+                <div class="ui attached segment">
+                    <span class="ui green ribbon label">Skill</span>
+                    These competencies should be primarily scored based on the ability of the person to perform at a high level.
+                </div>
+                <div class="ui attached segment">
+                    <span class="ui blue ribbon label">Knowledge</span>
+                    These competencies should be primarily scored based on retained knowledge and expertise of the person.
+                </div>
+                <div class="ui attached segment">
+                    <span class="ui yellow ribbon label">Behavior</span>
+                    These competencies should be primarily scored based on ongoing behavior of the person.
+                </div>
+
+
+                <h2 class="ui top attached block header">Ratings</h2>
+                <div class="ui attached segment">
+                    <span class="ui grey ribbon label">0</span>
+                    Limited experience or knowledge. May have heard of it but no hands-on or professional experience.
+                </div>
+                <div class="ui attached segment">
+                    <span class="ui grey ribbon label">1</span>
+                    Has some experience. Can mostly perform with limited oversight.
+                </div>
+                <div class="ui attached segment">
+                    <span class="ui grey ribbon label">2</span>
+                    Has production-level experience and deep hands-on knowledge. Can effectively share knowledge and assist others.
+                </div>
+                <div class="ui attached segment">
+                    <span class="ui grey ribbon label">3</span>
+                    Expert-level. Fully autonomous and can deliver consistently with a high degree of quality.
+                </div>
+
+                <div class="ui attached black segment">
+                    <h5 class="ui">Cannot Evaluate?</h5>
+
+                    <p>
+                        <span class="ui basic grey inverted ribbon label">N/A</span> Not applicable or relevant to person's role or team.
+                    </p>
+                    <p>
+                        <span class="ui basic grey inverted ribbon label">IDK</span>
+                        <span class="ui left basic red label"><i class="warning icon"></i>Peer reviews only</span>
+                        Does not have enough knowledge to judge or evaluate.
+                    </p>
+                </div>
+
             </template>
         </div>
 

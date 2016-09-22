@@ -11,8 +11,8 @@
             "2": "Regularly convinces rooms of people to go against their best interests. Was a used car salesman in another life.",
             "3": "May possibly be the antichrist."
         },
-        "rating": null,
-        "comment:": null
+        "rating": "",
+        "comment:": ""
     },
     {
         "id": "A2",
@@ -25,8 +25,8 @@
             "2": "Can complete tasks quickly and with mimimal or no quality assurance failures.",
             "3": "Consistently delivers ahead of schedule and to a degree of quality above most others."
         },
-        "rating": null,
-        "comment:": null
+        "rating": "",
+        "comment:": ""
     },
     {
         "id": "B1",
@@ -39,8 +39,8 @@
             "2": "Stays current on new technology and understands the risks and weighs the benefits on if and when to introduce them.",
             "3": "Has published four thousand node and react packages on NPM."
         },
-        "rating": null,
-        "comment:": null
+        "rating": "",
+        "comment:": ""
     },
     {
         "id": "B2",
@@ -53,8 +53,8 @@
             "2": "Has experience with debuggers, profilers, and other tools used for troubleshooting software.",
             "3": "Know the code at a level most others could only dream of. Obssessed with understanding how things tick."
         },
-        "rating": null,
-        "comment:": null
+        "rating": "",
+        "comment:": ""
     },
     {
         "id": "C1",
@@ -67,7 +67,7 @@
             "2": "Often tells analysts how to do their jobs and create good specs.",
             "3": "Specs? Where we're going we don't need specs."
         },
-        "rating": null,
-        "comment:": null
+        "rating": "",
+        "comment:": ""
     }
 ]

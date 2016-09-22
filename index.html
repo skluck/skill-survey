@@ -62,12 +62,13 @@
                             <b v-if="comp.category == 'Knowledge'" class="ui blue basic label">Knowledge</b>
                         </div>
                         <div class="ui thirteen wide column">
-                            <h4>
+                            <h3>
                                 {{ comp.competency }}
                                 <template v-if="form[comp.id] === ''">
                                     <template v-for="rating in unratings">
                                         <label class="ui compact mini basic button right floated checkbox"
                                             :data-tooltip="rating.tip"
+                                            data-position="bottom center"
                                             @mouseover="hoverRating" @mouseout="hoverRatingOff">
                                             <input :name="comp.id" type="radio" class="hidden" v-model="form[comp.id]" :value="rating.value" />
                                             {{ rating.human }}
@@ -77,7 +78,7 @@
                                 <template v-else>
                                     <button class="ui compact mini negative basic button right floated" @click="clearRating(comp.id)">Clear</button>
                                 </template>
-                            </h4>
+                            </h3>
 
                             <template v-if="form[comp.id] === ''">
                                 <div class="ui three wide column"></div>

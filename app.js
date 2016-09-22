@@ -20,6 +20,13 @@ var app = new Vue({
             }
         ]
     },
+    computed: {
+        unrating_values: function() {
+            return this.unratings.map(function(v) {
+                return v.value;
+            });
+        }
+    },
 
     methods: {
         fetchData: function () {

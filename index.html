@@ -55,9 +55,9 @@
                                 {{ comp.id }}
                             </div>
 
-                            <b v-if="comp.category == 'Skill'" class="ui green label">Skill</b>
-                            <b v-if="comp.category == 'Behavior'" class="ui yellow label">Behavior</b>
-                            <b v-if="comp.category == 'Knowledge'" class="ui blue label">Knowledge</b>
+                            <b v-if="comp.category == 'Skill'" class="ui green basic label">Skill</b>
+                            <b v-if="comp.category == 'Behavior'" class="ui yellow basic label">Behavior</b>
+                            <b v-if="comp.category == 'Knowledge'" class="ui blue basic label">Knowledge</b>
                         </div>
                         <div class="ui thirteen wide column">
                             <h4>
@@ -106,18 +106,17 @@
 
                 <h2 class="ui top attached block header">Categories</h2>
                 <div class="ui attached segment">
-                    <span class="ui green ribbon label">Skill</span>
+                    <span class="ui green ribbon basic label">Skill</span>
                     These competencies should be primarily scored based on the ability of the person to perform at a high level.
                 </div>
                 <div class="ui attached segment">
-                    <span class="ui blue ribbon label">Knowledge</span>
+                    <span class="ui blue ribbon basic label">Knowledge</span>
                     These competencies should be primarily scored based on retained knowledge and expertise of the person.
                 </div>
                 <div class="ui attached segment">
-                    <span class="ui yellow ribbon label">Behavior</span>
+                    <span class="ui yellow ribbon basic label">Behavior</span>
                     These competencies should be primarily scored based on ongoing behavior of the person.
                 </div>
-
 
                 <h2 class="ui top attached block header">Ratings</h2>
                 <div class="ui attached segment">

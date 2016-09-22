@@ -61,28 +61,32 @@
                             <b v-if="comp.category == 'Behavior'" class="ui yellow basic label">Behavior</b>
                             <b v-if="comp.category == 'Knowledge'" class="ui blue basic label">Knowledge</b>
                         </div>
-                        <div class="ui thirteen wide column">
-                            <h3>
-                                {{ comp.competency }}
-                                <template v-if="form[comp.id] === ''">
-                                    <template v-for="rating in unratings">
-                                        <label class="ui compact mini basic button right floated checkbox"
-                                            :data-tooltip="rating.tip"
-                                            data-position="bottom center"
-                                            @mouseover="hoverRating" @mouseout="hoverRatingOff">
-                                            <input :name="comp.id" type="radio" class="hidden" v-model="form[comp.id]" :value="rating.value" />
-                                            {{ rating.human }}
-                                        </label>
-                                    </template>
-                                </template>
-                                <template v-else>
-                                    <button class="ui compact mini negative basic button right floated" @click="clearRating(comp.id)">Clear</button>
-                                </template>
-                            </h3>
+                        <div class="ui thirteen wide column grid">
 
-                            <template v-if="form[comp.id] === ''">
-                                <div class="ui three wide column"></div>
-                                <div class="ui thirteen wide column items">
+                            <div class="ui row">
+                                <div class="ui twelve wide column">
+                                    <h3>{{ comp.competency }}</h3>
+                                </div>
+                                <div class="ui four wide column">
+                                    <template v-if="form[comp.id] === ''">
+                                        <template v-for="rating in unratings">
+                                            <label class="ui compact mini basic button right floated checkbox"
+                                                :data-tooltip="rating.tip"
+                                                data-position="bottom center"
+                                                @mouseover="hoverRating" @mouseout="hoverRatingOff">
+                                                <input :name="comp.id" type="radio" class="hidden" v-model="form[comp.id]" :value="rating.value" />
+                                                {{ rating.human }}
+                                            </label>
+                                        </template>
+                                    </template>
+                                    <template v-else>
+                                        <button class="ui compact mini negative basic button right floated" @click="clearRating(comp.id)">Clear</button>
+                                    </template>
+                                </div>
+                            </div>
+
+                            <div class="ui" v-if="form[comp.id] === ''">
+                                <div class="ui items">
                                     <div class="ui item" v-for="score in ratings">
                                         <label class="ui compact small message checkbox" @mouseover="hoverRating" @mouseout="hoverRatingOff">
                                             <input :name="comp.id" type="radio" class="hidden" v-model="form[comp.id]" :value="score" />
@@ -90,7 +94,7 @@
                                         </label>
                                     </div>
                                 </div>
-                            </template>
+                            </div>
                         </div>
                     </div>
                 </template>

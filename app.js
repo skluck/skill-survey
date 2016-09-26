@@ -53,9 +53,17 @@ Vue.component('competency', {
         'comp_title',
         'categories',
         'ratings',
-        'unratings',
-        'unrating_values'
+        'unratings'
     ],
+
+    computed: {
+        unrating_values: function() {
+            return this.unratings.map(function(v) {
+                return v.value;
+            });
+        }
+    },
+
     methods: {
         onChange: function (value) {
             this.value = value;
@@ -132,13 +140,6 @@ var app = new Vue({
                 extended: "Not applicable or relevant to person's role or team."
             }
         ]
-    },
-    computed: {
-        unrating_values: function() {
-            return this.unratings.map(function(v) {
-                return v.value;
-            });
-        }
     },
 
     methods: {

@@ -18,8 +18,55 @@
         </style>
     </head>
     <body>
-        <div class="ui container" id="evaluator">
+        <div class="ui container" id="ss-app">
+            <navigation
+                v-on:load-survey="fetchData"
+                v-on:clear-survey="clearData"
+                :sections="sections"
+                v-model="source"></navigation>
 
+            <message
+                negative="1"
+                :value="last_message"></message>
+
+            <template v-if="sections">
+                <template v-for="(section, section_title) in sections">
+                    <div class="ui blue inverted clearing segment">
+                        <div class="ui grey inverted progress mb-0" style="width:50%; float: right;">
+                            <div class="bar"></div>
+                        </div>
+
+                        <h2 class="mt-0">{{ section_title }}</h2>
+                    </div>
+
+                    <div class="ui divided items">
+                        <template v-for="(comp, comp_title) in section.competencies">
+                            <competency
+                                v-on:set_competency="setRating(section_title, comp_title, $event)"
+                                :comp="comp"
+                                :comp_title="comp_title"
+                                :categories="categories"
+                                :ratings="ratings"
+                                :unratings="unratings"
+                                :unrating_values="unrating_values"
+                            ></competency>
+                        </template>
+                    </div>
+                </template>
+            </template>
+
+            <template v-else>
+                <message
+                negative="0"
+                header="What is this?"
+                value="There is no survey currently loaded. Load a survey with the toolbar at the top of the page."></message>
+
+                <categories :categories="categories"></categories>
+                <ratings :ratings="ratings" :unratings="unratings"></ratings>
+            </template>
+        </div>
+
+        <script type="text/x-template" id="ss-navigation">
             <div class="ui massive stackable icon menu">
                 <div class="header item">Skill Evaluation and Competencies</div>
 
@@ -27,110 +74,31 @@
 
                 <div class="right menu">
                     <div class="item">
-                        <div v-if="!competencies" class="ui action mini input ">
-                            <input class="ui mini field" type="text" v-model="source">
-                            <button type="button" class="ui primary button" @click="fetchData">Load Survey</button>
+                        <div v-if="!sections" class="ui action mini input">
+                            <input class="ui mini field" type="text" v-bind:value="value" v-on:input="onInput">
+                            <button type="button" class="ui primary button" @click="loadSurvey">Load Survey</button>
                         </div>
                         <div v-else class="ui mini input">
-                            <button type="button" class="ui basic negative button" @click="clearData">Unload Survey</button>
+                            <button type="button" class="ui basic negative button" @click="clearSurvey">Unload Survey</button>
                         </div>
                     </div>
                 </div>
             </div>
+        </script>
 
-            <div v-if="last_message" class="ui attached negative icon message">
-                <i class="attention icon"></i>
-                <div class="content">{{ last_message }}</div>
-            </div>
-
-            <template v-if="competencies">
-                <template v-for="(section, title) in competencies">
-                    <div class="ui blue inverted clearing segment">
-                        <div class="ui grey inverted progress mb-0" style="width:50%; float: right;">
-                            <div class="bar"></div>
-                        </div>
-
-                        <h2 class="mt-0">{{ title }}</h2>
-                    </div>
-
-                    <div class="ui divided items">
-
-                        <template v-for="comp in section" :key="comp.id">
-
-                            <div class="ui item stackable grid">
-                                <div class="ui three wide column">
-                                    <div v-if="form[comp.id] === ''" class="ui label">{{ comp.id }}</div>
-                                    <div v-else class="ui green label position-relative">
-                                        <template v-if="form[comp.id] !== ''">
-                                            <span v-if="unrating_values.includes(form[comp.id])" class="ui floating basic black circular mini label">{{ form[comp.id] }}</span>
-                                            <span v-else class="ui floating black circular mini label">{{ form[comp.id] }}</span>
-                                            {{ comp.id }}
-                                        </template>
-                                    </div>
-
-                                    <b v-if="comp.category == 'Skill'" class="ui green basic label">Skill</b>
-                                    <b v-if="comp.category == 'Behavior'" class="ui yellow basic label">Behavior</b>
-                                    <b v-if="comp.category == 'Knowledge'" class="ui blue basic label">Knowledge</b>
-                                </div>
-                                <div class="ui thirteen wide column stackable grid">
-
-                                    <div class="ui row">
-                                        <div class="ui eleven wide column">
-                                            <h3>{{ comp.competency }}</h3>
-                                        </div>
-                                        <div class="ui five wide column">
-                                            <template v-if="form[comp.id] === ''">
-                                                <template v-for="rating in unratings">
-                                                    <label class="ui compact mini basic button right floated checkbox"
-                                                        :data-tooltip="rating.tip"
-                                                        data-position="bottom center"
-                                                        @mouseover="hoverRating" @mouseout="hoverRatingOff">
-                                                        <input :name="comp.id" type="radio" class="hidden" v-model="form[comp.id]" :value="rating.value" />
-                                                        {{ rating.human }}
-                                                    </label>
-                                                </template>
-                                            </template>
-                                            <template v-else>
-                                                <button class="ui compact mini negative basic button right floated" @click="clearRating(comp.id)">Clear</button>
-                                            </template>
-                                        </div>
-                                    </div>
-
-                                    <div class="ui" v-if="form[comp.id] === ''">
-                                        <div class="ui items">
-                                            <div class="item" v-for="score in ratings">
-                                                <label class="ui compact small message checkbox" @mouseover="hoverRating" @mouseout="hoverRatingOff">
-
-                                                    <b class="ui grey basic label">{{ score.value }}</b>
-
-                                                    <input :name="comp.id" type="radio" class="hidden" v-model="form[comp.id]" :value="score.value" />
-                                                    {{ comp.examples[score.value] }}
-                                                </label>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </template>
-                    </div>
-                </template>
-            </template>
-
-            <template v-else>
-                <div class="ui icon info message">
-                    <i class="help icon"></i>
-                    <div class="content">
-                        <div class="header">What is this?</div>
-                        <p>There is no survey currently loaded. Load a survey with the toolbar at the top of the page.</p>
-                    </div>
+        <script type="text/x-template" id="ss-message">
+            <div v-if="value" class="ui icon message" :class="tone">
+                <i class="icon" :class="icon"></i>
+                <div class="content">
+                    <template v-if="header">
+                        <div class="header">{{ header }}</div>
+                    </template>
+                    <p>{{ value }}</p>
                 </div>
+            </div>
+        </script>
 
-                <categories :categories="categories"></categories>
-                <ratings :ratings="ratings" :unratings="unratings"></ratings>
-            </template>
-        </div>
-
-        <script type="text/x-template" id="categories">
+        <script type="text/x-template" id="ss-categories">
             <div v-if="categories" class="ui segments mt-5">
                 <h2 class="ui top attached block header">Categories</h2>
                 <div class="ui segment" v-for="category in categories">
@@ -140,8 +108,8 @@
             </div>
         </script>
 
-        <script type="text/x-template" id="ratings">
-            <div v-if="ratings" class="ui segments mt-5">
+        <script type="text/x-template" id="ss-ratings">
+            <div v-if="ratings" class="ui segments my-5">
                 <h2 class="ui top attached block header">Ratings</h2>
 
                 <div class="ui segment" v-for="rating in ratings">
@@ -157,6 +125,74 @@
                         <span v-if="rating.warning" class="ui left basic red label"><i class="warning icon"></i>{{ rating.tip }}</span>
                         {{ rating.extended }}
                     </p>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="ss-category">
+            <span>
+                <template v-for="category in categories">
+                    <b v-if="selected_category == category.name" class="ui green basic label" :class="category.style">{{ category.name }}</b>
+                </template>
+            </span>
+        </script>
+
+        <script type="text/x-template" id="ss-competency">
+            <div class="ui item stackable grid pb-0">
+                <div class="ui three wide column">
+                    <div v-if="comp.rating === ''" class="ui label">{{ comp_title }}</div>
+                    <div v-else class="ui green label position-relative">
+                        <template v-if="comp.rating !== ''">
+                            <span v-if="unrating_values.includes(comp.rating)" class="ui floating basic black circular mini label">{{ comp.rating }}</span>
+                            <span v-else class="ui floating black circular mini label">{{ comp.rating }}</span>
+                            {{ comp_title }}
+                        </template>
+                    </div>
+
+                    <category :categories="categories" :selected_category="comp.category"></category>
+                </div>
+                <div class="ui thirteen wide column stackable grid">
+
+                    <div class="ui row">
+                        <div class="ui eleven wide column">
+                            <h3>{{ comp.competency }}</h3>
+                        </div>
+                        <div class="ui five wide column">
+                            <template v-if="comp.rating === ''">
+                                <template v-for="rating in unratings">
+                                    <label class="ui compact mini basic button right floated"
+                                        @click="onChange(rating.value)"
+                                        :data-tooltip="rating.tip"
+                                        data-position="bottom center"
+                                        @mouseover="hoverRating"
+                                        @mouseout="hoverRatingOff">
+                                        {{ rating.human }}
+                                    </label>
+                                </template>
+                            </template>
+                            <template v-else>
+                                <label class="ui compact mini negative basic button right floated" @click="onChange('')">
+                                    Clear
+                                </label>
+                            </template>
+                        </div>
+                    </div>
+
+                    <template v-if="comp.rating === ''">
+                        <div class="ui">
+                            <div class="ui items">
+                                <div class="item" v-for="rating in ratings">
+                                    <label class="ui compact small message"
+                                        @click="onChange(rating.value)"
+                                        @mouseover="hoverRating"
+                                        @mouseout="hoverRatingOff">
+                                        <b class="ui label">{{ rating.value }}</b>
+                                        {{ comp.examples[rating.value] }}
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
                 </div>
             </div>
         </script>

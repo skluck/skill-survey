@@ -1,73 +1,77 @@
-[
-    {
-        "_comment": "https://stackoverflow.com/company/salary/skills/web-developer",
-        "id": "A1",
-        "section": "Alfa",
-        "category": "Skill",
-        "competency": "Expresses ideas and thoughts verbally",
-        "examples": {
-            "0": "Screams a lot, but can on occasion get their points across through a combination of grunts and wild arm waving.",
-            "1": "Can clearly and concisely gump technical issues and lead engineering discussions.",
-            "2": "Regularly convinces rooms of people to go against their best interests. Was a used car salesman in another life.",
-            "3": "May possibly be the antichrist."
+{
+    "_comment": "https://stackoverflow.com/company/salary/skills/web-developer",
+    "sections": {
+        "Alfa": {
+            "competencies": {
+                "A1": {
+                    "category": "Skill",
+                    "competency": "Expresses ideas and thoughts verbally",
+                    "examples": {
+                        "0": "Screams a lot, but can on occasion get their points across through a combination of grunts and wild arm waving.",
+                        "1": "Can clearly and concisely gump technical issues and lead engineering discussions.",
+                        "2": "Regularly convinces rooms of people to go against their best interests. Was a used car salesman in another life.",
+                        "3": "May possibly be the antichrist."
+                    },
+                    "rating": "",
+                    "comment:": ""
+                },
+                "A2": {
+                    "category": "Skill",
+                    "competency": "Expresses ideas and thoughts verbally",
+                    "examples": {
+                        "0": "Screams a lot, but can on occasion get their points across through a combination of grunts and wild arm waving.",
+                        "1": "Can clearly and concisely gump technical issues and lead engineering discussions.",
+                        "2": "Regularly convinces rooms of people to go against their best interests. Was a used car salesman in another life.",
+                        "3": "May possibly be the antichrist."
+                    },
+                    "rating": "",
+                    "comment:": ""
+                }
+            }
         },
-        "rating": "",
-        "comment:": ""
-    },
-    {
-        "id": "A2",
-        "section": "Alfa",
-        "category": "Behavior",
-        "competency": "Meets productivity standards",
-        "examples": {
-            "0": "Has no idea what they are doing. Probably shouldn't be an engineer.",
-            "1": "Commits code and contributes to the team. Needs guidance to meet the quality standards of the team.",
-            "2": "Can complete tasks quickly and with mimimal or no quality assurance failures.",
-            "3": "Consistently delivers ahead of schedule and to a degree of quality above most others."
+        "Bravo": {
+            "competencies": {
+                "B1": {
+                    "category": "Knowledge",
+                    "competency": "Learns and stays up to date on new technologies",
+                    "examples": {
+                        "0": "Is aware of modern technologies such as dial-up modems and fortran",
+                        "1": "Has heard of NodeJS.",
+                        "2": "Stays current on new technology and understands the risks and weighs the benefits on if and when to introduce them.",
+                        "3": "Has published four thousand node and react packages on NPM."
+                    },
+                    "rating": "",
+                    "comment:": ""
+                },
+                "B2": {
+                    "category": "Behavior",
+                    "competency": "Troubleshoots problems",
+                    "examples": {
+                        "0": "Is really good at hitting computers until they do what they want.",
+                        "1": "Can turn it off then on again.",
+                        "2": "Has experience with debuggers, profilers, and other tools used for troubleshooting software.",
+                        "3": "Know the code at a level most others could only dream of. Obssessed with understanding how things tick."
+                    },
+                    "rating": "",
+                    "comment:": ""
+                }
+            }
         },
-        "rating": "",
-        "comment:": ""
-    },
-    {
-        "id": "B1",
-        "section": "Bravo",
-        "category": "Knowledge",
-        "competency": "Learns and stays up to date on new technologies",
-        "examples": {
-            "0": "Is aware of modern technologies such as dial-up modems and fortran",
-            "1": "Has heard of NodeJS.",
-            "2": "Stays current on new technology and understands the risks and weighs the benefits on if and when to introduce them.",
-            "3": "Has published four thousand node and react packages on NPM."
-        },
-        "rating": "",
-        "comment:": ""
-    },
-    {
-        "id": "B2",
-        "section": "Bravo",
-        "category": "Behavior",
-        "competency": "Troubleshoots problems",
-        "examples": {
-            "0": "Is really good at hitting computers until they do what they want.",
-            "1": "Can turn it off then on again.",
-            "2": "Has experience with debuggers, profilers, and other tools used for troubleshooting software.",
-            "3": "Know the code at a level most others could only dream of. Obssessed with understanding how things tick."
-        },
-        "rating": "",
-        "comment:": ""
-    },
-    {
-        "id": "C1",
-        "section": "Charlie",
-        "category": "Behavior",
-        "competency": "Gathers and analyzes information skillfully",
-        "examples": {
-            "0": "Understands the right questions to ask and where to seek the answers.",
-            "1": "Works with analysts to analyze a problem from every angle and dives deep into documentation and problems to find the best solution.",
-            "2": "Often tells analysts how to do their jobs and create good specs.",
-            "3": "Specs? Where we're going we don't need specs."
-        },
-        "rating": "",
-        "comment:": ""
+        "Charlie": {
+            "competencies": {
+                "C1": {
+                    "category": "Behavior",
+                    "competency": "Gathers and analyzes information skillfully",
+                    "examples": {
+                        "0": "Understands the right questions to ask and where to seek the answers.",
+                        "1": "Works with analysts to analyze a problem from every angle and dives deep into documentation and problems to find the best solution.",
+                        "2": "Often tells analysts how to do their jobs and create good specs.",
+                        "3": "Specs? Where we're going we don't need specs."
+                    },
+                    "rating": "",
+                    "comment:": ""
+                }
+            }
+        }
     }
-]
+}

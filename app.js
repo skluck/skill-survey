@@ -1,25 +1,86 @@
 var segment = window.location.hash,
     default_source = "http://kluck.engineering/skill-survey/blank-competencies.json";
 
+Vue.component('message', {
+    template: '#ss-message',
+    props: ['negative', 'header', 'value'],
+    computed: {
+        icon: function() {
+            return (this.negative === '1') ? 'attention' : 'attention';
+        },
+        tone: function() {
+            return (this.negative === '1') ? 'negative' : 'info';
+        }
+    }
+});
+
+Vue.component('navigation', {
+    template: '#ss-navigation',
+    props: ['sections', 'value'],
+    methods: {
+        onInput: function (event) {
+            this.$emit('input', event.target.value)
+        },
+
+        loadSurvey: function () {
+            this.$emit('load-survey')
+        },
+        clearSurvey: function () {
+            this.$emit('clear-survey')
+        }
+    }
+});
+
 Vue.component('ratings', {
-  template: '#ratings',
+  template: '#ss-ratings',
   props: ['ratings', 'unratings']
-})
+});
 
 Vue.component('categories', {
-  template: '#categories',
-  props: ['categories']
-})
+    template: '#ss-categories',
+    props: ['categories']
+});
+
+Vue.component('category', {
+    template: '#ss-category',
+    props: ['categories', 'selected_category']
+});
+
+Vue.component('competency', {
+    template: '#ss-competency',
+    props: [
+        'comp',
+        'comp_title',
+        'categories',
+        'ratings',
+        'unratings',
+        'unrating_values'
+    ],
+    methods: {
+        onChange: function (value) {
+            this.value = value;
+            this.$emit('set_competency', value)
+        },
+
+        hoverRating: function(event) {
+            $(event.currentTarget).addClass('orange')
+              .children('.label').addClass('orange');
+        },
+        hoverRatingOff: function(event) {
+            $(event.currentTarget).removeClass('orange')
+            .children('.label').removeClass('orange');
+        }
+    }
+});
 
 var app = new Vue({
-    el: '#evaluator',
+    el: '#ss-app',
 
     data: {
         last_message: "",
         source:  segment.length > 0 ? segment.slice(1) : default_source,
 
-        competencies: null,
-        form: null,
+        sections: null,
 
         categories: [
             {
@@ -92,17 +153,7 @@ var app = new Vue({
                 return;
             }
 
-            var bySection = {};
-            response.data.forEach(function(entry) {
-                if (!bySection.hasOwnProperty(entry.section)) {
-                    bySection[entry.section] = [];
-                }
-
-                bySection[entry.section].push(entry);
-            });
-
-            this.competencies = bySection;
-            this.buildFormData(response.data);
+            this.sections = response.data.sections;
         },
         fetchError: function(response) {
             this.last_message = "Something terrible happened. Cannot load survey.";
@@ -111,26 +162,12 @@ var app = new Vue({
         clearData: function () {
             this.last_message = "";
 
-            this.competencies = null;
-            this.form = null;
+            this.sections = null;
         },
 
-        clearRating: function(competencyID) {
-            Vue.set(this.form, competencyID, "");
-        },
-
-        buildFormData: function(competencies) {
-            this.form = {};
-            competencies.forEach(function(entry) {
-                Vue.set(this.form, entry.id, entry.rating);
-            }, this);
-        },
-
-        hoverRating: function(event) {
-            $(event.currentTarget).addClass('orange');
-        },
-        hoverRatingOff: function(event) {
-            $(event.currentTarget).removeClass('orange');
+        setRating: function(section, competency, value) {
+            this.sections[section]['competencies'][competency]['rating'] = value;
         }
+
     }
 });

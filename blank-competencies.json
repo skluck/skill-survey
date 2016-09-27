@@ -1,5 +1,7 @@
 {
-    "_comment": "https://stackoverflow.com/company/salary/skills/web-developer",
+    "version": "1.0.0",
+    "type": "Sample Survey",
+
     "sections": {
         "Alfa": {
             "competencies": {

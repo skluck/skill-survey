@@ -81,6 +81,21 @@ Vue.component('competency', {
     }
 });
 
+Vue.directive('sticky', {
+    inserted: function (el) {
+        $(el)
+            .sticky({
+                offset: 20,
+                bottomOffset: 20,
+                observeChanges: true
+            })
+            .sticky('refresh');
+    },
+    componentUpdated: function (el) {
+        $(el).sticky('refresh');
+    }
+})
+
 var app = new Vue({
     el: '#ss-app',
 
@@ -92,6 +107,7 @@ var app = new Vue({
         survey_progress_style: {
             width: '0%'
         },
+        watchers: [],
 
         categories: [
             {
@@ -199,8 +215,13 @@ var app = new Vue({
         },
 
         clearData: function () {
+            this.watchers.forEach(function(unwatch) {
+                unwatch();
+            });
+
             this.last_message = "";
             this.sections = null;
+            this.watchers = [];
         },
 
         saveRating: function(section, competency, value) {
@@ -223,12 +244,14 @@ var app = new Vue({
             return sanitized;
         },
         watchSections: function() {
-            var path = name = '';
+            var path = name = '',
+                unwatch;
 
             for (name in this.sections) {
                 path = ['sections', name, 'competencies'].join('.');
 
-                this.$watch(path, this.sectionWatcher(name), {deep: true});
+                unwatch = this.$watch(path, this.sectionWatcher(name), {deep: true});
+                this.watchers.push(unwatch);
             }
         },
         sectionWatcher: function(section) {

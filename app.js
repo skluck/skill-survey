@@ -82,18 +82,18 @@ Vue.component('competency', {
 });
 
 Vue.directive('sticky', {
-  inserted: function (el) {
-    $(el)
-        .sticky({
-            offset: 20,
-            bottomOffset: 20,
-            observeChanges: true
-        })
-        .sticky('refresh');
-  },
-  componentUpdated: function (el) {
-    $(el).sticky('refresh');
-  }
+    inserted: function (el) {
+        $(el)
+            .sticky({
+                offset: 20,
+                bottomOffset: 20,
+                observeChanges: true
+            })
+            .sticky('refresh');
+    },
+    componentUpdated: function (el) {
+        $(el).sticky('refresh');
+    }
 })
 
 var app = new Vue({

@@ -67,7 +67,7 @@ Vue.component('competency', {
     methods: {
         onChange: function (value) {
             this.value = value;
-            this.$emit('set_competency', value)
+            this.$emit('set-competency', value)
         },
 
         hoverRating: function(event) {
@@ -141,12 +141,28 @@ var app = new Vue({
             }
         ]
     },
+    computed: {
+        countable_ratings: function() {
+            return this.ratings.map(function(v) {
+                return v.value;
+            });
+        },
+        unrating_values: function() {
+            return this.unratings.map(function(v) {
+                return v.value;
+            });
+        }
+    },
 
     methods: {
         fetchData: function () {
             this.last_message = "";
-            this.$http({ url: this.source, method: 'GET' })
-                .then(this.fetchSuccess, this.fetchError);
+
+            this.$http({
+                url: this.source,
+                method: 'GET'
+            })
+            .then(this.fetchSuccess, this.fetchError);
         },
         fetchSuccess: function(response) {
             if (response.headers.get('Content-Type') !== 'application/json') {
@@ -154,7 +170,8 @@ var app = new Vue({
                 return;
             }
 
-            this.sections = response.data.sections;
+            this.sections = this.loadSections(response.data.sections);
+            this.watchSections();
         },
         fetchError: function(response) {
             this.last_message = "Something terrible happened. Cannot load survey.";
@@ -162,13 +179,63 @@ var app = new Vue({
 
         clearData: function () {
             this.last_message = "";
-
             this.sections = null;
         },
 
-        setRating: function(section, competency, value) {
+        saveRating: function(section, competency, value) {
             this.sections[section]['competencies'][competency]['rating'] = value;
-        }
+        },
 
+        loadSections: function(sections) {
+            var sanitized = {},
+                section = id = title = '';
+
+            for (title in sections) {
+                section = sections[title];
+
+                section.name = title;
+                section.score = 0;
+                section.completed = 0;
+                section.total = Object.keys(section.competencies).length;
+
+                id = title.replace(/ /g, "_").toLowerCase();
+
+                sanitized[id] = section;
+            }
+
+            return sanitized;
+        },
+        watchSections: function() {
+            var path = name = '';
+
+            for (name in this.sections) {
+                path = ['sections', name, 'competencies'].join('.');
+
+                this.$watch(path, this.sectionWatcher(name), {deep: true});
+            }
+        },
+        sectionWatcher: function(section) {
+            return function(old, competencies) {
+                this.totalSection(section, competencies);
+            }
+        },
+        totalSection: function(section, competencies) {
+            var completed = total = 0,
+                comp_id = rating = '';
+
+            for (comp_id in competencies) {
+                rating = competencies[comp_id]['rating'];
+                if (this.countable_ratings.includes(rating)) {
+                    total += parseInt(rating);
+                    completed += 1;
+                } else if(this.unrating_values.includes(rating)) {
+                    completed += 1;
+                }
+            }
+            this.sections[section].total = total;
+            this.sections[section].completed = completed;
+
+            console.log(section + ': ' + total + ', completed: ' + completed);
+        }
     }
 });

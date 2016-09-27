@@ -10,11 +10,11 @@ Vue.js / Semantic UI frontend app for skill assessment and evaluation.
 ## TODO
 
 - [ ] MVP
-- [ ] Import blank survey
+- [x] Import blank survey
 - [ ] Export finished survey
 - [ ] Import finished survey (read-only)
-- [ ] Sections
-- [ ] Automatic tabulation / progress
+- [x] Sections
+- [x] Automatic tabulation / progress
 - [ ] "Finished" screen with stats
 
 ### Home page - no survey loaded

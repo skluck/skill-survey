@@ -89,6 +89,9 @@ var app = new Vue({
         source:  segment.length > 0 ? segment.slice(1) : default_source,
 
         sections: null,
+        survey_progress_style: {
+            width: '0%'
+        },
 
         categories: [
             {
@@ -151,6 +154,24 @@ var app = new Vue({
             return this.unratings.map(function(v) {
                 return v.value;
             });
+        },
+        survey_progress: function() {
+            var completed = total = percent = 0,
+                section;
+
+            if (this.sections === null) {
+                return 0;
+            }
+
+            for (section in this.sections) {
+                completed += this.sections[section].completed;
+                total += this.sections[section].total;
+            }
+
+            percent = this.calculateProgress(completed, total);
+            this.survey_progress_style.width = percent + '%';
+
+            return percent;
         }
     },
 
@@ -185,24 +206,18 @@ var app = new Vue({
         saveRating: function(section, competency, value) {
             this.sections[section]['competencies'][competency]['rating'] = value;
         },
+        toggleSection: function(section) {
+            var current = this.sections[section].show_section;
+            this.sections[section].show_section = !current;
+        },
 
         loadSections: function(sections) {
             var sanitized = {},
-                section = id = title = '';
+                id = title = '';
 
             for (title in sections) {
-                section = sections[title];
-
-                section.name = title;
-                section.score = 0;
-                section.completed = 0;
-                section.progress = 0;
-                section.progress_style = { width: section.progress + '%' }
-                section.total = Object.keys(section.competencies).length;
-
                 id = title.replace(/ /g, "_").toLowerCase();
-
-                sanitized[id] = section;
+                sanitized[id] = this.parseSectionState(title, sections[title]);
             }
 
             return sanitized;
@@ -221,6 +236,17 @@ var app = new Vue({
                 this.totalSection(section, competencies);
             }
         },
+        parseSectionState: function(title, section) {
+            section.name = title;
+            section.score = 0;
+            section.completed = 0;
+            section.progress = 0;
+            section.progress_style = { width: section.progress + '%' }
+            section.show_section = true;
+            section.total = Object.keys(section.competencies).length;
+
+            return section;
+        },
         totalSection: function(section, competencies) {
             // @todo load this on survey load - for read-only survey viewing
             var completed = score = 0,
@@ -237,19 +263,19 @@ var app = new Vue({
             }
             this.sections[section].score = score;
             this.sections[section].completed = completed;
-            this.sections[section].progress = this.calculateSectionProgress(completed, this.sections[section].total);
+            this.sections[section].progress = this.calculateProgress(completed, this.sections[section].total);
 
             this.sections[section].progress_style.width = this.sections[section].progress + '%';
         },
-        calculateSectionProgress: function(completed, total) {
+        calculateProgress: function(completed, total) {
             var percent = 0;
 
             if (total === 0) {
                 return percent;
             }
 
-            percent = (completed/total) * 10;
-            percent = Math.round(percent) * 10;
+            percent = (completed/total) * 100;
+            percent = Math.round(percent/5) * 5;
 
             if (percent > 100) {
                 percent = 100;

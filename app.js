@@ -196,6 +196,8 @@ var app = new Vue({
                 section.name = title;
                 section.score = 0;
                 section.completed = 0;
+                section.progress = 0;
+                section.progress_style = { width: section.progress + '%' }
                 section.total = Object.keys(section.competencies).length;
 
                 id = title.replace(/ /g, "_").toLowerCase();
@@ -220,22 +222,40 @@ var app = new Vue({
             }
         },
         totalSection: function(section, competencies) {
-            var completed = total = 0,
+            // @todo load this on survey load - for read-only survey viewing
+            var completed = score = 0,
                 comp_id = rating = '';
 
             for (comp_id in competencies) {
                 rating = competencies[comp_id]['rating'];
                 if (this.countable_ratings.includes(rating)) {
-                    total += parseInt(rating);
+                    score += parseInt(rating);
                     completed += 1;
                 } else if(this.unrating_values.includes(rating)) {
                     completed += 1;
                 }
             }
-            this.sections[section].total = total;
+            this.sections[section].score = score;
             this.sections[section].completed = completed;
+            this.sections[section].progress = this.calculateSectionProgress(completed, this.sections[section].total);
 
-            console.log(section + ': ' + total + ', completed: ' + completed);
+            this.sections[section].progress_style.width = this.sections[section].progress + '%';
+        },
+        calculateSectionProgress: function(completed, total) {
+            var percent = 0;
+
+            if (total === 0) {
+                return percent;
+            }
+
+            percent = (completed/total) * 10;
+            percent = Math.round(percent) * 10;
+
+            if (percent > 100) {
+                percent = 100;
+            }
+
+            return percent;
         }
     }
 });

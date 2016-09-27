@@ -33,7 +33,9 @@
                 <template v-for="(section, section_id) in sections">
                     <div class="ui blue inverted clearing segment">
                         <div class="ui grey inverted progress mb-0" style="width:50%; float: right;">
-                            <div class="bar" style="width:50%;"></div>
+                            <div class="bar" v-bind:style="section.progress_style">
+                                <div class="progress">{{ section.progress }}%</div>
+                            </div>
                         </div>
 
                         <h2 class="mt-0">{{ section.name }}</h2>

@@ -6,11 +6,27 @@
 
         <link rel="stylesheet" href="https://unpkg.com/semantic-ui@2.2.4/dist/semantic.min.css"/>
         <link rel="stylesheet" href="utilities.css"/>
-        <script src="https://unpkg.com/jquery@3.1.0/dist/jquery.min.js"></script>
-        <script src="https://unpkg.com/semantic-ui@2.2.4/dist/semantic.min.js"></script>
 
-        <script src="https://unpkg.com/vue@2.0.0-rc.6/dist/vue.js"></script>
-        <script src="https://unpkg.com/vue-resource@1.0.2/dist/vue-resource.js"></script>
+        <link rel="subresource" href="https://unpkg.com/jquery@3.1.0/dist/jquery.min.js"/>
+        <link rel="subresource" href="https://unpkg.com/semantic-ui@2.2.4/dist/semantic.min.js"/>
+        <link rel="subresource" href="https://unpkg.com/vue@2.0.0-rc.6/dist/vue.js"/>
+        <link rel="subresource" href="https://unpkg.com/vue-resource@1.0.2/dist/vue-resource.js"/>
+        <link rel="subresource" href="app.js"/>
+
+        <script>
+            [
+              'https://unpkg.com/jquery@3.1.0/dist/jquery.min.js',
+              'https://unpkg.com/semantic-ui@2.2.4/dist/semantic.min.js',
+              'https://unpkg.com/vue@2.0.0-rc.6/dist/vue.js',
+              'https://unpkg.com/vue-resource@1.0.2/dist/vue-resource.js',
+              'app.js',
+            ].forEach(function(src) {
+                var script = document.createElement('script');
+                script.src = src;
+                script.async = false;
+                document.head.appendChild(script);
+            });
+        </script>
 
         <style>
             .ui.sticky.bound.bottom {
@@ -221,7 +237,5 @@
                 </div>
             </div>
         </script>
-
-        <script src="app.js"></script>
     </body>
 </html>

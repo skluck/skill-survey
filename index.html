@@ -35,6 +35,11 @@
             .ui.sticky.bound.bottom + div {
                 margin-bottom: 2.5em;
             }
+
+            .ui.button.white {
+                color: black;
+                background: #fff;
+            }
         </style>
     </head>
     <body>
@@ -42,20 +47,33 @@
             <navigation
                 v-on:load-survey="fetchData"
                 v-on:clear-survey="clearData"
-                :sections="sections"
+                :loaded_survey="survey_type"
                 v-model="source"></navigation>
 
             <message
                 negative="1"
                 :value="last_message"></message>
 
-            <template v-if="sections">
+            <template v-if="survey_type">
+
+                <h1 class="ui header">
+                    <i class="edit icon"></i>
+                    <div class="content">
+                        {{ survey_type }}
+                        <span class="ui basic black label">{{ survey_version }}</span>
+                    </div>
+                </h1>
+
                 <template v-for="(section, section_id) in sections">
                     <div class="ui basic segment">
 
                         <div class="ui bound top sticky" v-sticky>
                             <div class="ui blue inverted clearing segment">
-                                <button class="ui mini icon button position-absolute" @click="toggleSection(section_id)">
+                                <button
+                                    class="ui white mini icon button position-absolute"
+                                    v-hover-child="'blue'"
+                                    @click="section.show_section = !section.show_section"
+                                >
                                     <i class="toggle icon" v-bind:class="{ on: section.show_section, off: !section.show_section }"></i>
                                 </button>
 
@@ -115,12 +133,21 @@
 
                 <div class="right menu">
                     <div class="item">
-                        <div v-if="!sections" class="ui action mini input">
+                        <div v-if="!loaded_survey" class="ui action mini input">
                             <input class="ui mini field" type="text" v-bind:value="value" v-on:input="onInput">
-                            <button type="button" class="ui primary button" @click="loadSurvey">Load Survey</button>
+                            <button type="button" class="ui primary button" @click="loadSurvey">
+                                <i class="icon download"></i>
+                                Load Survey
+                            </button>
                         </div>
                         <div v-else class="ui mini input">
-                            <button type="button" class="ui basic negative button" @click="clearSurvey">Unload Survey</button>
+                            <div type="button" class="ui vertical animated basic negative button" @click="clearSurvey">
+                                <div class="visible content">
+                                    <i class="icon trash"></i>
+                                    Unload Survey
+                                </div>
+                                <div class="hidden content">Are you sure?</div>
+                            </div>
                         </div>
                     </div>
                 </div>

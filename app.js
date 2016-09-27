@@ -92,7 +92,12 @@ Vue.directive('sticky', {
             .sticky('refresh');
     },
     componentUpdated: function (el) {
-        $(el).sticky('refresh');
+        // update all stickies when any single one is refreshed - avoids weirdness
+        $('.ui.sticky').sticky('refresh');
+    },
+    update: function (el) {
+        // update all stickies when any single one is refreshed - avoids weirdness
+        $('.ui.sticky').sticky('refresh');
     }
 })
 

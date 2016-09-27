@@ -16,7 +16,7 @@ Vue.component('message', {
 
 Vue.component('navigation', {
     template: '#ss-navigation',
-    props: ['sections', 'value'],
+    props: ['loaded_survey', 'value'],
     methods: {
         onInput: function (event) {
             this.$emit('input', event.target.value)
@@ -99,7 +99,19 @@ Vue.directive('sticky', {
         // update all stickies when any single one is refreshed - avoids weirdness
         $('.ui.sticky').sticky('refresh');
     }
-})
+});
+
+Vue.directive('hover-child', {
+    bind: function (el, binding) {
+        $(el)
+            .on('mouseenter', function(event) {
+                $(el).children('.icon').addClass(binding.value);
+            })
+            .on('mouseleave', function(event) {
+                $(el).children('.icon').removeClass(binding.value);
+            });
+    }
+});
 
 var app = new Vue({
     el: '#ss-app',
@@ -108,10 +120,11 @@ var app = new Vue({
         last_message: "",
         source:  segment.length > 0 ? segment.slice(1) : default_source,
 
+        survey_type: '',
+        survey_version: '',
+
+        surveys: [],
         sections: null,
-        survey_progress_style: {
-            width: '0%'
-        },
         watchers: [],
 
         categories: [
@@ -189,11 +202,13 @@ var app = new Vue({
                 total += this.sections[section].total;
             }
 
-            percent = this.calculateProgress(completed, total);
-            this.survey_progress_style.width = percent + '%';
-
-            return percent;
-        }
+            return this.calculateProgress(completed, total);
+        },
+        survey_progress_style: function() {
+            return {
+                width: this.survey_progress + '%'
+            }
+        },
     },
 
     methods: {
@@ -207,16 +222,26 @@ var app = new Vue({
             .then(this.fetchSuccess, this.fetchError);
         },
         fetchSuccess: function(response) {
-            if (response.headers.get('Content-Type') !== 'application/json') {
-                this.last_message = "Blank survey data must be json.";
+            if (!this.fetchValidate(response)) {
                 return;
             }
+
+            this.survey_type = response.data.type;
+            this.survey_version = response.data.version;
 
             this.sections = this.loadSections(response.data.sections);
             this.watchSections();
         },
         fetchError: function(response) {
             this.last_message = "Something terrible happened. Cannot load survey.";
+        },
+        fetchValidate: function(response) {
+            if (response.headers.get('Content-Type') !== 'application/json') {
+                this.last_message = "Blank survey data must be json.";
+                return false;
+            }
+
+            return true;
         },
 
         clearData: function () {
@@ -226,15 +251,14 @@ var app = new Vue({
 
             this.last_message = "";
             this.sections = null;
+            this.survey_type = '';
+            this.survey_version = '';
+
             this.watchers = [];
         },
 
         saveRating: function(section, competency, value) {
             this.sections[section]['competencies'][competency]['rating'] = value;
-        },
-        toggleSection: function(section) {
-            var current = this.sections[section].show_section;
-            this.sections[section].show_section = !current;
         },
 
         loadSections: function(sections) {

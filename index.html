@@ -30,19 +30,19 @@
                 :value="last_message"></message>
 
             <template v-if="sections">
-                <template v-for="(section, section_title) in sections">
+                <template v-for="(section, section_id) in sections">
                     <div class="ui blue inverted clearing segment">
                         <div class="ui grey inverted progress mb-0" style="width:50%; float: right;">
-                            <div class="bar"></div>
+                            <div class="bar" style="width:50%;"></div>
                         </div>
 
-                        <h2 class="mt-0">{{ section_title }}</h2>
+                        <h2 class="mt-0">{{ section.name }}</h2>
                     </div>
 
                     <div class="ui divided items">
                         <template v-for="(comp, comp_title) in section.competencies">
                             <competency
-                                v-on:set_competency="setRating(section_title, comp_title, $event)"
+                                v-on:set-competency="saveRating(section_id, comp_title, $event)"
                                 :comp="comp"
                                 :comp_title="comp_title"
                                 :categories="categories"

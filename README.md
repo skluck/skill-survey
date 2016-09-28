@@ -20,5 +20,11 @@ Vue.js / Semantic UI frontend app for skill assessment and evaluation.
 ### Home page - no survey loaded
 ![home](img/1.home.png)
 
-### Taking survey
+### Taking new survey
 ![survey](img/2.survey.png)
+
+### Saving surveys
+![saving](img/3.saving.png)
+
+### Loading existing surveys
+![loading](img/4.loading.png)

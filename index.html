@@ -65,7 +65,7 @@
 
                         <h3 v-if="survey.name" class="ui sub header mt-2">
                             {{ survey.name }}
-                            <span class="ui label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
+                            <span v-if="survey.updated" class="ui label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
                         </h3>
                         <template v-else>
                             <span class="ui basic red label"><i class="warning icon"></i> Survey not yet saved</span>

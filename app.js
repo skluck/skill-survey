@@ -1,6 +1,15 @@
 var segment = window.location.hash,
     default_source = "http://kluck.engineering/skill-survey/blank-competencies.json";
 
+var generate_uuid = function() {
+    // only needs to be random enough for local storage
+    // http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+        var r = Math.random()*16|0, v = c == 'x' ? r : (r&0x3|0x8);
+        return v.toString(16);
+    });
+};
+
 Vue.component('message', {
     template: '#ss-message',
     props: ['negative', 'header', 'value'],
@@ -22,7 +31,7 @@ Vue.component('navigation', {
             this.$emit('input', event.target.value)
         },
 
-        loadSurvey: function () {
+        loadBlankSurvey: function () {
             this.$emit('load-survey')
         },
         clearSurvey: function () {
@@ -113,15 +122,37 @@ Vue.directive('hover-child', {
     }
 });
 
+Vue.filter('localdate', function (value) {
+    if (value.length === 0) return '';
+    if (typeof value !== 'string') return '';
+
+    var d = new Date(value);
+
+    return [
+        d.getFullYear(),
+        "0".concat(d.getMonth() + 1).slice(-2),
+        "0".concat(d.getDate()).slice(-2)
+    ].join('-');
+})
+
 var app = new Vue({
     el: '#ss-app',
 
     data: {
         last_message: "",
+        save_last_message: "",
+
         source:  segment.length > 0 ? segment.slice(1) : default_source,
 
-        survey_type: '',
-        survey_version: '',
+        survey: {
+            id: '',
+
+            type: '',
+            version: '',
+
+            name: '',
+            updated: ''
+        },
 
         surveys: [],
         sections: null,
@@ -178,6 +209,10 @@ var app = new Vue({
             }
         ]
     },
+    created: function() {
+        // load surveys from local storage
+        this.loadSavedSurveys();
+    },
     computed: {
         countable_ratings: function() {
             return this.ratings.map(function(v) {
@@ -226,11 +261,7 @@ var app = new Vue({
                 return;
             }
 
-            this.survey_type = response.data.type;
-            this.survey_version = response.data.version;
-
-            this.sections = this.loadSections(response.data.sections);
-            this.watchSections();
+            this.fetchSurvey(response.data);
         },
         fetchError: function(response) {
             this.last_message = "Something terrible happened. Cannot load survey.";
@@ -241,7 +272,47 @@ var app = new Vue({
                 return false;
             }
 
+            var missing = ['type', 'version', 'name', 'updated', 'sections']
+                .filter(function(key) {
+                    return !response.data.hasOwnProperty(key);
+                });
+
+            if (missing.length > 0) {
+                this.last_message = "Survey data is invalid. The following properties are missing: (" + missing.join(', ') + ")";
+                return false;
+            }
+
             return true;
+        },
+
+        fetchSurvey: function(survey) {
+            this.survey.type = survey.type;
+            this.survey.version = survey.version;
+
+            this.survey.name = survey.name;
+            this.survey.updated = survey.updated;
+
+            this.sections = this.loadSections(survey.sections);
+            this.watchSections();
+        },
+
+        loadSurvey: function(survey) {
+            var stored = store.get(survey.survey);
+
+            console.log('loading survey: ' + survey.id);
+            console.log(survey);
+            this.survey.id = survey.id;
+            this.fetchSurvey(stored);
+        },
+
+        attemptDeleteSurvey: function(survey) {
+
+            this.surveys = this.surveys.filter(function(meta) {
+                return (meta.name !== survey.name);
+            });
+
+            store.set('surveys', this.surveys);
+            store.remove(survey.survey);
         },
 
         clearData: function () {
@@ -250,9 +321,15 @@ var app = new Vue({
             });
 
             this.last_message = "";
+            this.save_last_message = "";
             this.sections = null;
-            this.survey_type = '';
-            this.survey_version = '';
+
+            this.survey.type = '';
+            this.survey.version = '';
+
+            this.survey.id = '';
+            this.survey.name = '';
+            this.survey.updated = '';
 
             this.watchers = [];
         },
@@ -334,6 +411,81 @@ var app = new Vue({
             }
 
             return percent;
+        },
+        loadSavedSurveys: function() {
+            var surveys = store.get('surveys');
+
+            if (!Array.isArray(surveys)) {
+                surveys = [];
+            }
+
+            this.surveys = surveys;
+        },
+        saveSurvey: function() {
+            this.save_last_message = '';
+
+            if (!store.enabled) {
+                this.save_last_message = 'Browser storage is not supported by your browser.';
+                return;
+            }
+
+            if (this.survey.name.length === 0) {
+                this.save_last_message = 'Please provide a name for this survey.';
+                return;
+            }
+
+            if (this.survey.name.length > 50) {
+                this.save_last_message = 'Survey name too long.';
+                return;
+            }
+
+            this.survey.updated = new Date().toISOString();
+            if (this.survey.id === undefined || this.survey.id.length === 0) {
+                this.survey.id = generate_uuid();
+            }
+
+            var survey_key = 'survey-' + this.survey.id,
+                serialized = this.serializeSections(),
+                survey = {
+                    type: this.survey.type,
+                    version: this.survey.version,
+
+                    id: this.survey.id,
+                    name: this.survey.name,
+                    updated: this.survey.updated,
+
+                    survey: survey_key
+                };
+
+            // @todo dedupe
+            this.surveys.push(survey);
+
+            store.set('surveys', this.surveys);
+
+            console.log('saving survey: ' + survey.id);
+            store.set(survey_key, {
+                type: survey.type,
+                version: survey.version,
+
+                name: survey.name,
+                updated: survey.updated,
+
+                sections: serialized
+            });
+
+        },
+        serializeSections: function() {
+            var serialized = {},
+                section_id, section;
+
+            for (section_id in this.sections) {
+                section = this.sections[section_id];
+                serialized[section.name] = {
+                    competencies: section.competencies
+                };
+            }
+
+            return serialized;
         }
     }
 });

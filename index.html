@@ -19,6 +19,7 @@
               'https://unpkg.com/semantic-ui@2.2.4/dist/semantic.min.js',
               'https://unpkg.com/vue@2.0.0-rc.6/dist/vue.js',
               'https://unpkg.com/vue-resource@1.0.2/dist/vue-resource.js',
+              'https://unpkg.com/store@1.3.20/store+json2.min.js',
               'app.js',
             ].forEach(function(src) {
                 var script = document.createElement('script');
@@ -47,20 +48,28 @@
             <navigation
                 v-on:load-survey="fetchData"
                 v-on:clear-survey="clearData"
-                :loaded_survey="survey_type"
+                :loaded_survey="survey.type"
                 v-model="source"></navigation>
 
             <message
                 negative="1"
                 :value="last_message"></message>
 
-            <template v-if="survey_type">
+            <template v-if="survey.type">
 
                 <h1 class="ui header">
                     <i class="edit icon"></i>
                     <div class="content">
-                        {{ survey_type }}
-                        <span class="ui basic black label">{{ survey_version }}</span>
+                        {{ survey.type }}
+                        <span class="ui basic black label">{{ survey.version }}</span>
+
+                        <h3 v-if="survey.name" class="ui sub header mt-2">
+                            {{ survey.name }}
+                            <span class="ui label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
+                        </h3>
+                        <template v-else>
+                            <span class="ui basic red label"><i class="warning icon"></i> Survey not yet saved</span>
+                        </template>
                     </div>
                 </h1>
 
@@ -81,7 +90,7 @@
                                     <div class="bar" v-bind:style="survey_progress_style">
                                         <div class="progress">{{ survey_progress }}%</div>
                                     </div>
-                                    <div class="label top-0 text-trans">Survey</div>
+                                    <div class="label top-0 text-trans">Overall</div>
                                 </div>
 
                                 <div class="ui green progress my-0 mx-2 float-right w-30">
@@ -112,6 +121,51 @@
 
                     </div>
                 </template>
+
+                    <div class="ui segments">
+                        <h2 class="ui top attached block header">Store Survey</h2>
+                        <div class="ui segment">
+
+                            <message
+                                negative="1"
+                                :value="save_last_message"></message>
+
+                            <div class="ui form">
+                                <div class="four fields">
+                                        <div class="field">
+                                            <label>Survey name</label>
+                                            <input type="text" name="survey_name" v-model="survey.name" placeholder="Example: John's Survey">
+                                        </div>
+                                        <div class="field">
+                                            <label>Survey type/version</label>
+                                            <div class="ui disabled input">
+                                                <input type="text" :value="survey.type + ' [' + survey.version + ']'">
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label>Last updated</label>
+                                            <div class="ui disabled input">
+                                                <input type="text" :value="survey.updated">
+                                            </div>
+                                        </div>
+                                        <div class="field">
+                                            <label>Status</label>
+                                            <span v-if="survey_progress < 30" class="ui red label">{{ survey_progress }}% complete</span>
+                                            <span v-if="survey_progress >= 30 && survey_progress < 70" class="ui orange label">{{ survey_progress }}% complete</span>
+                                            <span v-if="survey_progress >= 70 && survey_progress < 100" class="ui yellow label">{{ survey_progress }}% complete</span>
+                                            <span v-if="survey_progress >= 100" class="ui green label">{{ survey_progress }}% complete</span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button class="ui green button" @click="saveSurvey">
+                                    <i class="icon save"></i>
+                                    Save to Browser Storage
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
             </template>
 
             <template v-else>
@@ -119,6 +173,39 @@
                 negative="0"
                 header="What is this?"
                 value="There is no survey currently loaded. Load a survey with the toolbar at the top of the page."></message>
+
+                <template v-if="surveys.length">
+                    <table class="ui celled striped table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Survey</th>
+                                <th></th>
+                            </tr>
+                          </thead>
+                        <tbody>
+                            <template v-for="survey in surveys">
+                                <tr>
+                                    <td>{{ survey.name }}</td>
+                                    <td>
+                                        {{ survey.type }}
+                                        <span class="ui tiny basic red label">{{ survey.version }}</span>
+                                        <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
+                                    </td>
+                                    <td class="right aligned">
+                                        <button class="ui primary icon button" @click="loadSurvey(survey)">
+                                            <i class="download icon"></i>
+                                        </button>
+
+                                        <button class="ui icon red button" @click="attemptDeleteSurvey(survey)">
+                                            <i class="trash icon"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </template>
 
                 <categories :categories="categories"></categories>
                 <ratings :ratings="ratings" :unratings="unratings"></ratings>
@@ -135,17 +222,13 @@
                     <div class="item">
                         <div v-if="!loaded_survey" class="ui action mini input">
                             <input class="ui mini field" type="text" v-bind:value="value" v-on:input="onInput">
-                            <button type="button" class="ui primary button" @click="loadSurvey">
-                                <i class="icon download"></i>
-                                Load Survey
+                            <button type="button" class="ui green button" @click="loadBlankSurvey">
+                                <i class="plus icon"></i>New Survey
                             </button>
                         </div>
                         <div v-else class="ui mini input">
                             <div type="button" class="ui vertical animated basic negative button" @click="clearSurvey">
-                                <div class="visible content">
-                                    <i class="icon trash"></i>
-                                    Unload Survey
-                                </div>
+                                <div class="visible content"> <i class="icon trash"></i> Clear</div>
                                 <div class="hidden content">Are you sure?</div>
                             </div>
                         </div>

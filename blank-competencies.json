@@ -1,6 +1,10 @@
 {
-    "type": "Sample Survey",
     "version": "1.0.0",
+    "type": "Sample Survey",
+
+    "id": "",
+    "name": "",
+    "updated": "",
 
     "sections": {
         "Alfa": {

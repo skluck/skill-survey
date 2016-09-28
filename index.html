@@ -122,6 +122,7 @@
                     </div>
                 </template>
 
+                <div class="mb-5">
                     <div class="ui segments">
                         <h2 class="ui top attached block header">Store Survey</h2>
                         <div class="ui segment">
@@ -165,6 +166,7 @@
                             </div>
                         </div>
                     </div>
+                </div>
 
             </template>
 
@@ -222,8 +224,10 @@
                     <div class="item">
                         <div v-if="!loaded_survey" class="ui action mini input">
                             <input class="ui mini field" type="text" v-bind:value="value" v-on:input="onInput">
-                            <button type="button" class="ui green button" @click="loadBlankSurvey">
-                                <i class="plus icon"></i>New Survey
+                            <button type="button" class="ui green icon button" @click="loadBlankSurvey">
+                                <div class="content">
+                                    <i class="plus icon"></i>New Survey
+                                </div>
                             </button>
                         </div>
                         <div v-else class="ui mini input">

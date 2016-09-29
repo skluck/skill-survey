@@ -15,7 +15,7 @@ Vue.component('message', {
     props: ['negative', 'header', 'value'],
     computed: {
         icon: function() {
-            return (this.negative === '1') ? 'attention' : 'attention';
+            return (this.negative === '1') ? 'attention' : 'help';
         },
         tone: function() {
             return (this.negative === '1') ? 'negative' : 'info';
@@ -25,15 +25,8 @@ Vue.component('message', {
 
 Vue.component('navigation', {
     template: '#ss-navigation',
-    props: ['loaded_survey', 'value'],
+    props: ['loaded_survey'],
     methods: {
-        onInput: function (event) {
-            this.$emit('input', event.target.value)
-        },
-
-        loadBlankSurvey: function () {
-            this.$emit('load-survey')
-        },
         clearSurvey: function () {
             this.$emit('clear-survey')
         }
@@ -53,6 +46,28 @@ Vue.component('categories', {
 Vue.component('category', {
     template: '#ss-category',
     props: ['categories', 'selected_category']
+});
+
+Vue.component('surveys', {
+    template: '#ss-surveys',
+    props: ['surveys', 'value'],
+
+    methods: {
+        onInput: function (event) {
+            this.$emit('input', event.target.value)
+        },
+
+        loadSurvey: function (value) {
+            this.$emit('load-survey', value)
+        },
+        deleteSurvey: function (value) {
+            this.$emit('delete-survey', value)
+        },
+
+        loadBlankSurvey: function () {
+            this.$emit('load-new-survey')
+        }
+    }
 });
 
 Vue.component('competency', {
@@ -285,34 +300,31 @@ var app = new Vue({
             return true;
         },
 
-        fetchSurvey: function(survey) {
-            this.survey.type = survey.type;
-            this.survey.version = survey.version;
+        fetchSurvey: function(newSurvey) {
+            this.survey.type = newSurvey.type;
+            this.survey.version = newSurvey.version;
 
-            this.survey.name = survey.name;
-            this.survey.updated = survey.updated;
+            this.survey.name = newSurvey.name;
+            this.survey.updated = newSurvey.updated;
 
-            this.sections = this.loadSections(survey.sections);
+            this.sections = this.loadSections(newSurvey.sections);
             this.watchSections();
         },
 
-        loadSurvey: function(survey) {
-            var stored = store.get(survey.survey);
+        loadSurvey: function(meta) {
+            var stored = store.get(meta.survey);
 
-            console.log('loading survey: ' + survey.id);
-            console.log(survey);
-            this.survey.id = survey.id;
+            this.survey.id = meta.id;
             this.fetchSurvey(stored);
         },
 
-        attemptDeleteSurvey: function(survey) {
-
-            this.surveys = this.surveys.filter(function(meta) {
-                return (meta.name !== survey.name);
+        deleteSurvey: function(meta) {
+            this.surveys = this.surveys.filter(function(stored) {
+                return (stored.id !== meta.id);
             });
 
             store.set('surveys', this.surveys);
-            store.remove(survey.survey);
+            store.remove(meta.survey);
         },
 
         clearData: function () {
@@ -446,7 +458,7 @@ var app = new Vue({
 
             var survey_key = 'survey-' + this.survey.id,
                 serialized = this.serializeSections(),
-                survey = {
+                meta = {
                     type: this.survey.type,
                     version: this.survey.version,
 
@@ -457,18 +469,21 @@ var app = new Vue({
                     survey: survey_key
                 };
 
-            // @todo dedupe
-            this.surveys.push(survey);
+            // Dedupe survey out of list of surveys
+            this.surveys = this.surveys.filter(function(stored) {
+                return (stored.id !== meta.id);
+            });
+
+            this.surveys.push(meta);
 
             store.set('surveys', this.surveys);
 
-            console.log('saving survey: ' + survey.id);
             store.set(survey_key, {
-                type: survey.type,
-                version: survey.version,
+                type: meta.type,
+                version: meta.version,
 
-                name: survey.name,
-                updated: survey.updated,
+                name: meta.name,
+                updated: meta.updated,
 
                 sections: serialized
             });

@@ -11,16 +11,17 @@
         <link rel="subresource" href="https://unpkg.com/semantic-ui@2.2.4/dist/semantic.min.js"/>
         <link rel="subresource" href="https://unpkg.com/vue@2.0.0-rc.6/dist/vue.js"/>
         <link rel="subresource" href="https://unpkg.com/vue-resource@1.0.2/dist/vue-resource.js"/>
+        <link rel="subresource" href="https://unpkg.com/store@1.3.20/store+json2.min.js"/>
         <link rel="subresource" href="app.js"/>
 
         <script>
             [
-              'https://unpkg.com/jquery@3.1.0/dist/jquery.min.js',
-              'https://unpkg.com/semantic-ui@2.2.4/dist/semantic.min.js',
-              'https://unpkg.com/vue@2.0.0-rc.6/dist/vue.js',
-              'https://unpkg.com/vue-resource@1.0.2/dist/vue-resource.js',
-              'https://unpkg.com/store@1.3.20/store+json2.min.js',
-              'app.js',
+                'https://unpkg.com/jquery@3.1.0/dist/jquery.min.js',
+                'https://unpkg.com/semantic-ui@2.2.4/dist/semantic.min.js',
+                'https://unpkg.com/vue@2.0.0-rc.6/dist/vue.js',
+                'https://unpkg.com/vue-resource@1.0.2/dist/vue-resource.js',
+                'https://unpkg.com/store@1.3.20/store+json2.min.js',
+                'app.js',
             ].forEach(function(src) {
                 var script = document.createElement('script');
                 script.src = src;
@@ -47,7 +48,8 @@
         <div class="ui container my-3" id="ss-app">
             <navigation
                 :loaded_survey="survey.type"
-                v-on:clear-survey="clearData"></navigation>
+                v-on:clear-survey="clearData"
+                v-on:toggle-summary="toggleSummary($event)"></navigation>
 
             <message
                 negative="1"
@@ -70,6 +72,48 @@
                         </template>
                     </div>
                 </h1>
+
+                <div v-show="show_summary">
+                    <div class="ui basic segment">
+
+                        <div class="ui orange inverted segment">
+                            <h2 class="ui header">Survey Summary</h2>
+                        </div>
+
+                        <div class="ui segments">
+                            <template v-for="(section, section_id) in sections">
+                                <div class="ui segment grid mt-0">
+                                    <div class="ui three wide column">
+
+                                        <template v-if="section.completed == section.total">
+                                            <div class="ui label">{{ section.score }} / {{ section.total * 3 }}</div>
+                                        </template>
+                                        <template v-else>
+                                            <span class="ui basic red label"><i class="warning icon"></i> Section incomplete</span>
+                                        </template>
+
+                                    </div>
+                                    <div class="ui thirteen wide column">
+                                        <h3 class="ui header">{{ section.name }} </h3>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div class="ui grey segment grid mt-0">
+                                <div class="ui three wide column">
+
+                                    <span class="ui label">total TBD</span>
+
+                                </div>
+                                <div class="ui thirteen wide column">
+                                    <h3 class="ui grey header">Total</h3>
+                                </div>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+
 
                 <template v-for="(section, section_id) in sections">
                     <div class="ui basic segment">
@@ -98,7 +142,7 @@
                                     <div class="label top-0 text-trans">Section</div>
                                 </div>
 
-                                <h2 class="mt-0 pl-5">{{ section.name }}</h2>
+                                <h2 class="ui header mt-0 pl-5">{{ section.name }}</h2>
                             </div>
                         </div>
 
@@ -193,7 +237,22 @@
                     <div class="right menu">
                         <div class="item">
                             <div class="ui mini input">
-                                <div type="button" class="ui vertical animated basic negative button" @click="clearSurvey">
+                                <button
+                                    class="ui blue button"
+                                    @click="toggleSummary()"
+                                >
+                                    <i class="toggle icon" v-bind:class="{ on: show_summary, off: !show_summary }"></i>
+
+                                    <span v-if="show_summary">Hide Summary</span>
+                                    <span v-else>Show Summary</span>
+                                </button>
+
+                            </div>
+
+                        </div>
+                        <div class="item">
+                            <div class="ui mini input">
+                                <div class="ui vertical animated basic negative button" @click="clearSurvey">
                                     <div class="visible content"> <i class="icon trash"></i> Clear</div>
                                     <div class="hidden content">Are you sure?</div>
                                 </div>
@@ -231,7 +290,7 @@
 
                         <div class="ui fluid action mini input my-3">
                             <input class="ui mini field" type="text" v-bind:value="value" v-on:input="onInput">
-                            <button type="button" class="ui green right labeled icon button" @click="loadBlankSurvey">
+                            <button class="ui green right labeled icon button" @click="loadBlankSurvey">
                                 <i class="plus icon"></i>
                                 New Survey
                             </button>
@@ -338,7 +397,7 @@
 
                     <div class="ui row">
                         <div class="ui eleven wide column">
-                            <h3>{{ comp.competency }}</h3>
+                            <h3 class="ui header">{{ comp.competency }}</h3>
                         </div>
                         <div class="ui five wide column">
                             <template v-if="comp.rating === ''">

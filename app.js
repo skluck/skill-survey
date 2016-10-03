@@ -26,10 +26,19 @@ Vue.component('message', {
 Vue.component('navigation', {
     template: '#ss-navigation',
     props: ['loaded_survey'],
+    data: function() {
+        return {
+            show_summary: false
+        };
+    },
     methods: {
         clearSurvey: function () {
             this.$emit('clear-survey')
-        }
+        },
+        toggleSummary: function () {
+            this.show_summary = !this.show_summary;
+            this.$emit('toggle-summary', this.show_summary);
+        },
     }
 });
 
@@ -148,7 +157,17 @@ Vue.filter('localdate', function (value) {
         "0".concat(d.getMonth() + 1).slice(-2),
         "0".concat(d.getDate()).slice(-2)
     ].join('-');
-})
+});
+
+Vue.filter('section_status', function (section) {
+    if (!section.hasOwnProperty('score') || !section.hasOwnProperty('completed')) {
+        return 'Unknown';
+    }
+
+    var maxScore = parseInt(section.completed) * 3;
+
+    return section.score + ' / ' + maxScore;
+});
 
 var app = new Vue({
     el: '#ss-app',
@@ -168,6 +187,8 @@ var app = new Vue({
             name: '',
             updated: ''
         },
+
+        show_summary: false,
 
         surveys: [],
         sections: null,
@@ -308,6 +329,9 @@ var app = new Vue({
             this.survey.updated = newSurvey.updated;
 
             this.sections = this.loadSections(newSurvey.sections);
+            for (var section_title in this.sections) {
+                this.totalSection(section_title, this.sections[section_title].competencies);
+            }
             this.watchSections();
         },
 
@@ -346,6 +370,9 @@ var app = new Vue({
             this.watchers = [];
         },
 
+        toggleSummary: function(show_summary) {
+            this.show_summary = show_summary;
+        },
         saveRating: function(section, competency, value) {
             this.sections[section]['competencies'][competency]['rating'] = value;
         },
@@ -355,7 +382,7 @@ var app = new Vue({
                 id = title = '';
 
             for (title in sections) {
-                id = title.replace(/ /g, "_").toLowerCase();
+                id = title.replace(/\W+/g, "_").toLowerCase();
                 sanitized[id] = this.parseSectionState(title, sections[title]);
             }
 

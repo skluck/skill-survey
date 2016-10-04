@@ -57,65 +57,15 @@
 
             <template v-if="survey.type">
 
-                <h1 class="ui header">
-                    <i class="edit icon"></i>
-                    <div class="content">
-                        {{ survey.type }}
-                        <span class="ui basic black label">{{ survey.version }}</span>
+                <surveyheader :survey="survey"></surveyheader>
 
-                        <h3 v-if="survey.name" class="ui sub header mt-2">
-                            {{ survey.name }}
-                            <span v-if="survey.updated" class="ui label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
-                        </h3>
-                        <template v-else>
-                            <span class="ui basic red label"><i class="warning icon"></i> Survey not yet saved</span>
-                        </template>
-                    </div>
-                </h1>
-
-                <div v-show="show_summary">
-                    <div class="ui basic segment">
-
-                        <div class="ui orange inverted segment">
-                            <h2 class="ui header">Survey Summary</h2>
-                        </div>
-
-                        <div class="ui segments">
-                            <template v-for="(section, section_id) in sections">
-                                <div class="ui segment grid mt-0">
-                                    <div class="ui three wide column">
-
-                                        <template v-if="section.completed == section.total">
-                                            <div class="ui label">{{ section.score }} / {{ section.total * 3 }}</div>
-                                        </template>
-                                        <template v-else>
-                                            <span class="ui basic red label"><i class="warning icon"></i> Section incomplete</span>
-                                        </template>
-
-                                    </div>
-                                    <div class="ui thirteen wide column">
-                                        <h3 class="ui header">{{ section.name }} </h3>
-                                    </div>
-                                </div>
-                            </template>
-
-                            <div class="ui grey segment grid mt-0">
-                                <div class="ui three wide column">
-                                    <template v-if="survey_completed == survey_total">
-                                        <span class="ui label">{{ survey_score }} / {{survey_total * 3 }}</span>
-                                    </template>
-                                    <template v-else>
-                                        <span class="ui basic red label"><i class="warning icon"></i> Survey incomplete</span>
-                                    </template>
-                                </div>
-                                <div class="ui thirteen wide column">
-                                    <h3 class="ui grey header">Total</h3>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
+                <surveysummary
+                    :show_summary="show_summary"
+                    :sections="sections"
+                    :survey_score="survey_score"
+                    :survey_completed="survey_completed"
+                    :survey_total="survey_total"
+                ></surveysummary>
 
                 <template v-for="(section, section_id) in sections">
                     <div class="ui basic segment">
@@ -166,51 +116,16 @@
                     </div>
                 </template>
 
-                <div class="mb-5">
-                    <div class="ui segments">
-                        <h2 class="ui top attached block header">Store Survey</h2>
-                        <div class="ui segment">
-
-                            <message
-                                negative="1"
-                                :value="save_last_message"></message>
-
-                            <div class="ui form">
-                                <div class="four fields">
-                                        <div class="field">
-                                            <label>Survey name</label>
-                                            <input type="text" name="survey_name" v-model="survey.name" placeholder="Example: John's Survey">
-                                        </div>
-                                        <div class="field">
-                                            <label>Survey type/version</label>
-                                            <div class="ui disabled input">
-                                                <input type="text" :value="survey.type + ' [' + survey.version + ']'">
-                                            </div>
-                                        </div>
-                                        <div class="field">
-                                            <label>Last updated</label>
-                                            <div class="ui disabled input">
-                                                <input type="text" :value="survey.updated">
-                                            </div>
-                                        </div>
-                                        <div class="field">
-                                            <label>Status</label>
-                                            <span v-if="survey_progress < 30" class="ui red label">{{ survey_progress }}% complete</span>
-                                            <span v-if="survey_progress >= 30 && survey_progress < 70" class="ui orange label">{{ survey_progress }}% complete</span>
-                                            <span v-if="survey_progress >= 70 && survey_progress < 100" class="ui yellow label">{{ survey_progress }}% complete</span>
-                                            <span v-if="survey_progress >= 100" class="ui green label">{{ survey_progress }}% complete</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <button class="ui green button" @click="saveSurvey">
-                                    <i class="icon save"></i>
-                                    Save to Browser Storage
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                <save
+                    :save_last_message="save_last_message"
+                    :survey_type="survey.type"
+                    :survey_version="survey.version"
+                    :survey_updated="survey.updated"
+                    :survey_progress="survey_progress"
+                    :survey_name="survey.name"
+                    v-on:save-survey="saveSurvey"
+                    v-on:change-survey-name="changeName($event)"
+                ></save>
 
             </template>
 
@@ -337,6 +252,117 @@
                                 </tbody>
                             </table>
                         </template>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="ss-header">
+            <h1 class="ui header">
+                <i class="edit icon"></i>
+                <div class="content">
+                    {{ survey.type }}
+                    <span class="ui basic black label">{{ survey.version }}</span>
+
+                    <h3 v-if="survey.name" class="ui sub header mt-2">
+                        {{ survey.name }}
+                        <span v-if="survey.updated" class="ui label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
+                    </h3>
+                    <template v-else>
+                        <span class="ui basic red label"><i class="warning icon"></i> Survey not yet saved</span>
+                    </template>
+                </div>
+            </h1>
+        </script>
+
+        <script type="text/x-template" id="ss-summary">
+            <div v-show="show_summary">
+                <div class="ui basic segment">
+
+                    <div class="ui orange inverted segment">
+                        <h2 class="ui header">Survey Summary</h2>
+                    </div>
+
+                    <div class="ui segments">
+                        <template v-for="(section, section_id) in sections">
+                            <div class="ui segment grid mt-0">
+                                <div class="ui three wide column">
+
+                                    <template v-if="section.completed == section.total">
+                                        <div class="ui label">{{ section.score }} / {{ section.total * 3 }}</div>
+                                    </template>
+                                    <template v-else>
+                                        <span class="ui basic red label"><i class="warning icon"></i> Section incomplete</span>
+                                    </template>
+
+                                </div>
+                                <div class="ui thirteen wide column">
+                                    <h3 class="ui header">{{ section.name }} </h3>
+                                </div>
+                            </div>
+                        </template>
+
+                        <div class="ui grey segment grid mt-0">
+                            <div class="ui three wide column">
+                                <template v-if="survey_completed == survey_total">
+                                    <span class="ui label">{{ survey_score }} / {{survey_total * 3 }}</span>
+                                </template>
+                                <template v-else>
+                                    <span class="ui basic red label"><i class="warning icon"></i> Survey incomplete</span>
+                                </template>
+                            </div>
+                            <div class="ui thirteen wide column">
+                                <h3 class="ui grey header">Total</h3>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="ss-save">
+            <div class="mb-5">
+                <div class="ui segments">
+                    <h2 class="ui top attached block header">Save Survey</h2>
+                    <div class="ui segment">
+
+                        <message
+                            negative="1"
+                            :value="save_last_message"></message>
+
+                        <div class="ui form">
+                            <div class="four fields">
+                                <div class="field">
+                                    <label>Survey name</label>
+                                    <input type="text" name="survey_name" v-bind:value="survey_name" v-on:input="onInput" placeholder="Example: John's Survey">
+                                </div>
+                                <div class="field">
+                                    <label>Survey type/version</label>
+                                    <div class="ui disabled input">
+                                        <input type="text" :value="survey_type + ' [' + survey_version + ']'">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>Last updated</label>
+                                    <div class="ui disabled input">
+                                        <input type="text" :value="survey_updated">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>Status</label>
+                                    <span v-if="survey_progress < 30" class="ui red label">{{ survey_progress }}% complete</span>
+                                    <span v-if="survey_progress >= 30 && survey_progress < 70" class="ui orange label">{{ survey_progress }}% complete</span>
+                                    <span v-if="survey_progress >= 70 && survey_progress < 100" class="ui yellow label">{{ survey_progress }}% complete</span>
+                                    <span v-if="survey_progress >= 100" class="ui green label">{{ survey_progress }}% complete</span>
+                                </div>
+                            </div>
+
+                            <button class="ui green button" @click="saveSurvey">
+                                <i class="icon save"></i>
+                                Save to Browser Storage
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>

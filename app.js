@@ -42,6 +42,34 @@ Vue.component('navigation', {
     }
 });
 
+Vue.component('surveyheader', {
+    template: '#ss-header',
+    props: ['survey']
+});
+
+Vue.component('surveysummary', {
+    template: '#ss-summary',
+    props: ['show_summary', 'sections', 'survey_score', 'survey_completed', 'survey_total']
+});
+
+// survey.name
+// survey.name
+
+Vue.component('save', {
+    template: '#ss-save',
+    props: ['save_last_message', 'survey_name', 'survey_type', 'survey_version', 'survey_updated', 'survey_progress'],
+
+    methods: {
+        onInput: function (event) {
+            this.$emit('change-survey-name', event.target.value);
+        },
+        saveSurvey: function () {
+            this.$emit('save-survey');
+        }
+    }
+
+});
+
 Vue.component('ratings', {
   template: '#ss-ratings',
   props: ['ratings', 'unratings']
@@ -63,18 +91,18 @@ Vue.component('surveys', {
 
     methods: {
         onInput: function (event) {
-            this.$emit('input', event.target.value)
+            this.$emit('input', event.target.value);
         },
 
         loadSurvey: function (value) {
-            this.$emit('load-survey', value)
+            this.$emit('load-survey', value);
         },
         deleteSurvey: function (value) {
-            this.$emit('delete-survey', value)
+            this.$emit('delete-survey', value);
         },
 
         loadBlankSurvey: function () {
-            this.$emit('load-new-survey')
+            this.$emit('load-new-survey');
         }
     }
 });
@@ -100,7 +128,7 @@ Vue.component('competency', {
     methods: {
         onChange: function (value) {
             this.value = value;
-            this.$emit('set-competency', value)
+            this.$emit('set-competency', value);
         },
 
         hoverRating: function(event) {
@@ -192,7 +220,6 @@ var app = new Vue({
         survey_completed: 0,
         survey_total: 0,
         survey_score: 0,
-
 
         surveys: [],
         sections: null,
@@ -378,6 +405,9 @@ var app = new Vue({
             this.watchers = [];
         },
 
+        changeName: function(name) {
+            this.survey.name = name;
+        },
         toggleSummary: function(show_summary) {
             this.show_summary = show_summary;
             for (var section_title in this.sections) {

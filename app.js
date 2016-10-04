@@ -28,7 +28,8 @@ Vue.component('navigation', {
     props: ['loaded_survey'],
     data: function() {
         return {
-            show_summary: false
+            show_summary: false,
+            view_mode: false,
         };
     },
     methods: {
@@ -39,6 +40,10 @@ Vue.component('navigation', {
             this.show_summary = !this.show_summary;
             this.$emit('toggle-summary', this.show_summary);
         },
+        toggleViewMode: function () {
+            this.view_mode = !this.view_mode;
+            this.$emit('toggle-view-mode', this.view_mode);
+        }
     }
 });
 
@@ -49,15 +54,25 @@ Vue.component('surveyheader', {
 
 Vue.component('surveysummary', {
     template: '#ss-summary',
-    props: ['show_summary', 'sections', 'survey_score', 'survey_completed', 'survey_total']
+    props: [
+        'show_summary',
+        'sections',
+        'survey_score',
+        'survey_completed',
+        'survey_total'
+    ]
 });
-
-// survey.name
-// survey.name
 
 Vue.component('save', {
     template: '#ss-save',
-    props: ['save_last_message', 'survey_name', 'survey_type', 'survey_version', 'survey_updated', 'survey_progress'],
+    props: [
+        'save_last_message',
+        'survey_name',
+        'survey_type',
+        'survey_version',
+        'survey_updated',
+        'survey_progress'
+    ],
 
     methods: {
         onInput: function (event) {
@@ -67,7 +82,6 @@ Vue.component('save', {
             this.$emit('save-survey');
         }
     }
-
 });
 
 Vue.component('ratings', {
@@ -82,7 +96,12 @@ Vue.component('categories', {
 
 Vue.component('category', {
     template: '#ss-category',
-    props: ['categories', 'selected_category']
+    props: ['categories', 'selected_category'],
+    filters: {
+        abbrev: function(v) {
+            return v.slice(0, 1);
+        }
+    }
 });
 
 Vue.component('surveys', {
@@ -114,7 +133,8 @@ Vue.component('competency', {
         'comp_title',
         'categories',
         'ratings',
-        'unratings'
+        'unratings',
+        'view_mode'
     ],
 
     computed: {
@@ -138,6 +158,19 @@ Vue.component('competency', {
         hoverRatingOff: function(event) {
             $(event.currentTarget).removeClass('orange')
             .children('.label').removeClass('orange');
+        },
+        unratingDescription: function(value) {
+            var match = this.unratings.find(function(unrating) {
+                return (value === unrating.value);
+            });
+
+            if (match === undefined) {
+                match = 'Unknown';
+            } else {
+                match = match.human;
+            }
+
+            return match;
         }
     }
 });
@@ -216,7 +249,9 @@ var app = new Vue({
             updated: ''
         },
 
+        view_mode: true,
         show_summary: false,
+
         survey_completed: 0,
         survey_total: 0,
         survey_score: 0,
@@ -270,7 +305,7 @@ var app = new Vue({
             },
             {
                 value: "N/A",
-                human: "Not applicable",
+                human: "Not applicable.",
                 tip: "Not applicable or relevant to person's role or team.",
                 extended: "Not applicable or relevant to person's role or team."
             }
@@ -413,6 +448,9 @@ var app = new Vue({
             for (var section_title in this.sections) {
                 this.sections[section_title].show_section = !show_summary;
             }
+        },
+        toggleViewMode: function(view_mode) {
+            this.view_mode = view_mode;
         },
         saveRating: function(section, competency, value) {
             this.sections[section]['competencies'][competency]['rating'] = value;

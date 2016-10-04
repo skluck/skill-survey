@@ -189,6 +189,10 @@ var app = new Vue({
         },
 
         show_summary: false,
+        survey_completed: 0,
+        survey_total: 0,
+        survey_score: 0,
+
 
         surveys: [],
         sections: null,
@@ -261,17 +265,21 @@ var app = new Vue({
             });
         },
         survey_progress: function() {
-            var completed = total = percent = 0,
-                section;
+            var completed = total = percent = score = 0;
 
             if (this.sections === null) {
                 return 0;
             }
 
-            for (section in this.sections) {
+            for (var section in this.sections) {
                 completed += this.sections[section].completed;
                 total += this.sections[section].total;
+                score += this.sections[section].score;
             }
+
+            this.survey_score = score;
+            this.survey_completed = completed;
+            this.survey_total = total;
 
             return this.calculateProgress(completed, total);
         },
@@ -372,6 +380,9 @@ var app = new Vue({
 
         toggleSummary: function(show_summary) {
             this.show_summary = show_summary;
+            for (var section_title in this.sections) {
+                this.sections[section_title].show_section = !show_summary;
+            }
         },
         saveRating: function(section, competency, value) {
             this.sections[section]['competencies'][competency]['rating'] = value;

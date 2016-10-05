@@ -54,8 +54,8 @@
                 ></navigation>
 
             <message
-                negative="1"
-                :value="last_message"></message>
+                :negative="last_message.error"
+                :value="last_message.message"></message>
 
             <template v-if="survey.type">
 
@@ -204,15 +204,21 @@
         </script>
 
         <script type="text/x-template" id="ss-message">
-            <div v-if="value" class="ui icon message" :class="tone">
-                <i class="icon" :class="icon"></i>
-                <div class="content">
-                    <template v-if="header">
-                        <div class="header">{{ header }}</div>
-                    </template>
-                    <p>{{ value }}</p>
+            <transition name="fade">
+                <div class="mb-3" v-if="value">
+
+                    <div class="ui icon message" :class="tone">
+                        <i class="icon" :class="icon"></i>
+                        <div class="content">
+                            <template v-if="header">
+                                <div class="header">{{ header }}</div>
+                            </template>
+                            <p>{{ value }}</p>
+                        </div>
+                    </div>
+
                 </div>
-            </div>
+            </transition>
         </script>
 
         <script type="text/x-template" id="ss-surveys">
@@ -279,6 +285,37 @@
             </div>
         </script>
 
+        <script type="text/x-template" id="ss-categories">
+            <div v-if="categories" class="ui segments mt-5">
+                <h2 class="ui top attached block header">Categories</h2>
+                <div class="ui segment" v-for="category in categories">
+                    <span :class="category.style" class="ui ribbon basic label">{{ category.name }}</span>
+                    {{ category.description }}
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="ss-ratings">
+            <div v-if="ratings" class="ui segments my-5">
+                <h2 class="ui top attached block header">Ratings</h2>
+
+                <div class="ui segment" v-for="rating in ratings">
+                    <span class="ui grey ribbon label">{{ rating.value }}</span>
+                    {{ rating.human }}
+                </div>
+
+                <div v-if="unratings" class="ui grey segment">
+                    <h5 class="ui">Cannot Evaluate?</h5>
+
+                    <p v-for="rating in unratings">
+                        <span class="ui basic grey inverted ribbon label">{{ rating.value }}</span>
+                        <span v-if="rating.warning" class="ui left basic red label"><i class="warning icon"></i>{{ rating.tip }}</span>
+                        {{ rating.extended }}
+                    </p>
+                </div>
+            </div>
+        </script>
+
         <script type="text/x-template" id="ss-header">
             <h1 class="ui header">
                 <i class="edit icon"></i>
@@ -339,83 +376,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </script>
-
-        <script type="text/x-template" id="ss-save">
-            <div class="mb-5">
-                <div class="ui segments">
-                    <h2 class="ui top attached block header">Save Survey</h2>
-                    <div class="ui segment">
-
-                        <message
-                            negative="1"
-                            :value="save_last_message"></message>
-
-                        <div class="ui form">
-                            <div class="four fields">
-                                <div class="field">
-                                    <label>Survey name</label>
-                                    <input type="text" name="survey_name" v-bind:value="survey_name" v-on:input="onInput" placeholder="Example: John's Survey">
-                                </div>
-                                <div class="field">
-                                    <label>Survey type/version</label>
-                                    <div class="ui disabled input">
-                                        <input type="text" :value="survey_type + ' [' + survey_version + ']'">
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <label>Last updated</label>
-                                    <div class="ui disabled input">
-                                        <input type="text" :value="survey_updated">
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <label>Status</label>
-                                    <span v-if="survey_progress < 30" class="ui red label">{{ survey_progress }}% complete</span>
-                                    <span v-if="survey_progress >= 30 && survey_progress < 70" class="ui orange label">{{ survey_progress }}% complete</span>
-                                    <span v-if="survey_progress >= 70 && survey_progress < 100" class="ui yellow label">{{ survey_progress }}% complete</span>
-                                    <span v-if="survey_progress >= 100" class="ui green label">{{ survey_progress }}% complete</span>
-                                </div>
-                            </div>
-
-                            <button class="ui green button" @click="saveSurvey">
-                                <i class="icon save"></i> Save to Browser Storage
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </script>
-
-        <script type="text/x-template" id="ss-categories">
-            <div v-if="categories" class="ui segments mt-5">
-                <h2 class="ui top attached block header">Categories</h2>
-                <div class="ui segment" v-for="category in categories">
-                    <span :class="category.style" class="ui ribbon basic label">{{ category.name }}</span>
-                    {{ category.description }}
-                </div>
-            </div>
-        </script>
-
-        <script type="text/x-template" id="ss-ratings">
-            <div v-if="ratings" class="ui segments my-5">
-                <h2 class="ui top attached block header">Ratings</h2>
-
-                <div class="ui segment" v-for="rating in ratings">
-                    <span class="ui grey ribbon label">{{ rating.value }}</span>
-                    {{ rating.human }}
-                </div>
-
-                <div v-if="unratings" class="ui grey segment">
-                    <h5 class="ui">Cannot Evaluate?</h5>
-
-                    <p v-for="rating in unratings">
-                        <span class="ui basic grey inverted ribbon label">{{ rating.value }}</span>
-                        <span v-if="rating.warning" class="ui left basic red label"><i class="warning icon"></i>{{ rating.tip }}</span>
-                        {{ rating.extended }}
-                    </p>
                 </div>
             </div>
         </script>
@@ -519,6 +479,52 @@
                         </template>
                     </div>
                 </template>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="ss-save">
+            <div class="mb-5">
+                <div class="ui segments">
+                    <h2 class="ui top attached block header">Save Survey</h2>
+                    <div class="ui segment">
+
+                        <message
+                            :negative="save_last_message.error"
+                            :value="save_last_message.message"></message>
+
+                        <div class="ui form">
+                            <div class="four fields">
+                                <div class="field">
+                                    <label>Survey name</label>
+                                    <input type="text" name="survey_name" v-bind:value="survey_name" v-on:input="onInput" placeholder="Example: John's Survey">
+                                </div>
+                                <div class="field">
+                                    <label>Survey type/version</label>
+                                    <div class="ui disabled input">
+                                        <input type="text" :value="survey_type + ' [' + survey_version + ']'">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>Last updated</label>
+                                    <div class="ui disabled input">
+                                        <input type="text" :value="survey_updated">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label>Status</label>
+                                    <span v-if="survey_progress < 30" class="ui red label">{{ survey_progress }}% complete</span>
+                                    <span v-if="survey_progress >= 30 && survey_progress < 70" class="ui orange label">{{ survey_progress }}% complete</span>
+                                    <span v-if="survey_progress >= 70 && survey_progress < 100" class="ui yellow label">{{ survey_progress }}% complete</span>
+                                    <span v-if="survey_progress >= 100" class="ui green label">{{ survey_progress }}% complete</span>
+                                </div>
+                            </div>
+
+                            <button class="ui green button" @click="saveSurvey">
+                                <i class="icon save"></i> Save to Browser Storage
+                            </button>
+                        </div>
+                    </div>
+                </div>
             </div>
         </script>
     </body>

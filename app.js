@@ -15,10 +15,10 @@ Vue.component('message', {
     props: ['negative', 'header', 'value'],
     computed: {
         icon: function() {
-            return (this.negative === '1') ? 'attention' : 'help';
+            return (this.negative) ? 'attention' : 'checkmark';
         },
         tone: function() {
-            return (this.negative === '1') ? 'negative' : 'info';
+            return (this.negative) ? 'negative' : 'positive';
         }
     }
 });
@@ -234,8 +234,8 @@ var app = new Vue({
     el: '#ss-app',
 
     data: {
-        last_message: "",
-        save_last_message: "",
+        last_message: { message: "", error: false },
+        save_last_message: { message: "", error: false },
 
         source:  segment.length > 0 ? segment.slice(1) : default_source,
 
@@ -354,7 +354,7 @@ var app = new Vue({
 
     methods: {
         fetchData: function () {
-            this.last_message = "";
+            this.setBanner('');
 
             this.$http({
                 url: this.source,
@@ -370,11 +370,11 @@ var app = new Vue({
             this.fetchSurvey(response.data);
         },
         fetchError: function(response) {
-            this.last_message = "Something terrible happened. Cannot load survey.";
+            this.setBanner('Something terrible happened. Cannot load survey.');
         },
         fetchValidate: function(response) {
             if (response.headers.get('Content-Type') !== 'application/json') {
-                this.last_message = "Blank survey data must be json.";
+                this.setBanner('Blank survey data must be json.');
                 return false;
             }
 
@@ -384,7 +384,7 @@ var app = new Vue({
                 });
 
             if (missing.length > 0) {
-                this.last_message = "Survey data is invalid. The following properties are missing: (" + missing.join(', ') + ")";
+                this.setBanner("Survey data is invalid. The following properties are missing: (" + missing.join(', ') + ")");
                 return false;
             }
 
@@ -426,8 +426,8 @@ var app = new Vue({
                 unwatch();
             });
 
-            this.last_message = "";
-            this.save_last_message = "";
+            this.setBanner('');
+            this.setSaveBanner('');
             this.sections = null;
 
             this.survey.type = '';
@@ -540,20 +540,20 @@ var app = new Vue({
             this.surveys = surveys;
         },
         saveSurvey: function() {
-            this.save_last_message = '';
+            this.setSaveBanner('');
 
             if (!store.enabled) {
-                this.save_last_message = 'Browser storage is not supported by your browser.';
+                this.setSaveBannerError('Browser storage is not supported by your browser.', true);
                 return;
             }
 
             if (this.survey.name.length === 0) {
-                this.save_last_message = 'Please provide a name for this survey.';
+                this.setSaveBannerError('Please provide a name for this survey.', true);
                 return;
             }
 
             if (this.survey.name.length > 50) {
-                this.save_last_message = 'Survey name too long.';
+                this.setSaveBannerError('Survey name too long.', true);
                 return;
             }
 
@@ -594,6 +594,7 @@ var app = new Vue({
                 sections: serialized
             });
 
+            this.setSaveBanner('Survey saved.', false, true);
         },
         serializeSections: function() {
             var serialized = {},
@@ -607,6 +608,34 @@ var app = new Vue({
             }
 
             return serialized;
+        },
+
+        setBanner: function(message, error) {
+            if (error === undefined) {
+                error = true;
+            }
+
+            this.save_last_message = {
+                message: message,
+                error: error
+            };
+        },
+        setSaveBanner: function(message, error, shouldPop) {
+            error = (error === undefined) ? true : error;
+            shouldPop = (shouldPop === undefined) ? false : shouldPop;
+
+            this.save_last_message = {
+                message: message,
+                error: error
+            };
+
+            if (shouldPop && message.length > 0) {
+                var clearBanner = this.setSaveBanner;
+                setTimeout(function() { clearBanner(''); }, 3000);
+            }
+        },
+        setSaveBannerError: function(message, shouldPop) {
+            this.setSaveBanner(message, true, shouldPop);
         }
     }
 });

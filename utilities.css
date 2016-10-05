@@ -1,6 +1,21 @@
-/*
-From https://github.com/primer/utilities
-*/
+/**
+ * VueJS helpers
+ */
+
+.fade-enter {
+    opacity: 0;
+}
+.fade-enter-active {
+    opacity: 1;
+}
+.fade-leave-active {
+    transition: opacity 1s linear;
+    opacity: 0;
+}
+
+/**
+ * From https://github.com/primer/utilities
+ */
 
 /* padding utilites */
 .p-0 { padding: 0 !important; }

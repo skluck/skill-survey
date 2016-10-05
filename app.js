@@ -249,7 +249,7 @@ var app = new Vue({
             updated: ''
         },
 
-        view_mode: true,
+        view_mode: false,
         show_summary: false,
 
         survey_completed: 0,

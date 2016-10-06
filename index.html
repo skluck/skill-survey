@@ -71,58 +71,19 @@
                 ></surveysummary>
 
                 <template v-for="(section, section_id) in sections">
-                    <div class="ui basic segment">
-
-                        <div class="ui bound top sticky" v-sticky>
-                            <div class="ui blue inverted clearing segment">
-                                <button
-                                    class="ui white mini icon button position-absolute"
-                                    v-hover-child="'blue'"
-                                    @click="section.show_section = !section.show_section"
-                                >
-                                    <i class="toggle icon" v-bind:class="{ on: section.show_section, off: !section.show_section }"></i>
-                                </button>
-
-                                <template v-if="view_mode">
-                                    <div v-if="section.progress < 100" class="ui label red float-right">Incomplete</div>
-                                </template>
-                                <template v-else>
-                                    <div class="ui teal progress my-0 float-right w-20">
-                                        <div class="bar" v-bind:style="survey_progress_style">
-                                            <div class="progress">{{ survey_progress }}%</div>
-                                        </div>
-                                        <div class="label top-0 text-trans">Overall</div>
-                                    </div>
-
-                                    <div class="ui green progress my-0 mx-2 float-right w-30">
-                                        <div class="bar" v-bind:style="section.progress_style">
-                                            <div class="progress">{{ section.progress }}%</div>
-                                        </div>
-                                        <div class="label top-0 text-trans">Section</div>
-                                    </div>
-                                </template>
-
-                                <h2 class="ui header mt-0 pl-5">{{ section.name }}</h2>
-                            </div>
-                        </div>
-
-                        <div v-show="section.show_section">
-                            <div class="ui divided items">
-                                <template v-for="(comp, comp_title) in section.competencies">
-                                    <competency
-                                        v-on:set-competency="saveRating(section_id, comp_title, $event)"
-                                        :comp="comp"
-                                        :comp_title="comp_title"
-                                        :categories="categories"
-                                        :ratings="ratings"
-                                        :unratings="unratings"
-                                        :view_mode="view_mode"
-                                    ></competency>
-                                </template>
-                            </div>
-                        </div>
-
-                    </div>
+                    <surveysection
+                        :section_id="section_id"
+                        :section="section"
+                        :view_mode="view_mode"
+                        :categories="categories"
+                        :ratings="ratings"
+                        :unratings="unratings"
+                        :survey_name="survey.name"
+                        :survey_progress="survey_progress"
+                        :survey_progress_style="survey_progress_style"
+                        v-on:set-competency="saveRating($event)"
+                        v-on:toggle-section="toggleSection($event)"
+                    ></surveysection>
                 </template>
 
                 <template v-if="!view_mode">
@@ -133,7 +94,7 @@
                         :survey_updated="survey.updated"
                         :survey_progress="survey_progress"
                         :survey_name="survey.name"
-                        v-on:save-survey="saveSurvey"
+                        v-on:save-survey="saveSurvey($event)"
                         v-on:change-survey-name="changeName($event)"
                     ></save>
                 </template>
@@ -394,6 +355,61 @@
             </span>
         </script>
 
+        <script type="text/x-template" id="ss-section">
+            <div class="ui basic segment">
+
+                <div class="ui bound top sticky" v-sticky>
+                    <div class="ui blue inverted clearing segment">
+                        <button
+                            class="ui white mini icon button position-absolute"
+                            v-hover-child="'blue'"
+                            @click="toggleSection(section_id)"
+                        >
+                            <i class="toggle icon" v-bind:class="{ on: section.show_section, off: !section.show_section }"></i>
+                        </button>
+
+                        <template v-if="view_mode">
+                            <div v-if="progress < 100" class="ui label red float-right">Incomplete</div>
+                        </template>
+                        <template v-else>
+                            <div class="ui teal progress my-0 float-right w-20">
+                                <div class="bar" v-bind:style="survey_progress_style">
+                                    <div class="progress">{{ survey_progress }}%</div>
+                                </div>
+                                <div class="label top-0 text-trans">Overall</div>
+                            </div>
+
+                            <div class="ui green progress my-0 mx-2 float-right w-30">
+                                <div class="bar" v-bind:style="progress_style">
+                                    <div class="progress">{{ progress }}%</div>
+                                </div>
+                                <div class="label top-0 text-trans">Section</div>
+                            </div>
+                        </template>
+
+                        <h2 class="ui header mt-0 pl-5">{{ section.name }}</h2>
+                    </div>
+                </div>
+
+                <div v-show="section.show_section">
+                    <div class="ui divided items">
+                        <template v-for="(comp, comp_title) in section.competencies">
+                            <competency
+                                v-on:set-competency="saveRating(section_id, comp_title, $event)"
+                                :comp="comp"
+                                :comp_title="comp_title"
+                                :categories="categories"
+                                :ratings="ratings"
+                                :unratings="unratings"
+                                :view_mode="view_mode"
+                            ></competency>
+                        </template>
+                    </div>
+                </div>
+
+            </div>
+        </script>
+
         <script type="text/x-template" id="ss-competency">
             <div class="ui item stackable grid pb-0">
 
@@ -496,18 +512,18 @@
                             <div class="four fields">
                                 <div class="field">
                                     <label>Survey name</label>
-                                    <input type="text" name="survey_name" v-bind:value="survey_name" v-on:input="onInput" placeholder="Example: John's Survey">
+                                    <input type="text" name="survey_name" v-model="changed_survey_name" placeholder="Example: John's Survey">
                                 </div>
                                 <div class="field">
                                     <label>Survey type/version</label>
                                     <div class="ui disabled input">
-                                        <input type="text" :value="survey_type + ' [' + survey_version + ']'">
+                                        <input type="text" readonly :value="survey_type + ' [' + survey_version + ']'">
                                     </div>
                                 </div>
                                 <div class="field">
                                     <label>Last updated</label>
                                     <div class="ui disabled input">
-                                        <input type="text" :value="survey_updated">
+                                        <input type="text" readonly :value="survey_updated">
                                     </div>
                                 </div>
                                 <div class="field">

@@ -63,65 +63,57 @@ Vue.component('surveysummary', {
     ]
 });
 
-Vue.component('save', {
-    template: '#ss-save',
+Vue.component('surveysection', {
+    template: '#ss-section',
     props: [
-        'save_last_message',
-        'survey_name',
-        'survey_type',
-        'survey_version',
-        'survey_updated',
-        'survey_progress'
+        'section_id',
+        'section',
+        'view_mode',
+        'categories',
+        'ratings',
+        'unratings',
+        'survey_progress',
+        'survey_progress_style'
     ],
-
-    methods: {
-        onInput: function (event) {
-            this.$emit('change-survey-name', event.target.value);
+    data: function() {
+        return {};
+    },
+    computed: {
+        progress: function() {
+            return this.calculateProgress(this.section.completed, this.section.total);
         },
-        saveSurvey: function () {
-            this.$emit('save-survey');
+        progress_style: function() {
+            return {
+                width: this.progress + '%'
+            }
         }
-    }
-});
-
-Vue.component('ratings', {
-  template: '#ss-ratings',
-  props: ['ratings', 'unratings']
-});
-
-Vue.component('categories', {
-    template: '#ss-categories',
-    props: ['categories']
-});
-
-Vue.component('category', {
-    template: '#ss-category',
-    props: ['categories', 'selected_category'],
-    filters: {
-        abbrev: function(v) {
-            return v.slice(0, 1);
-        }
-    }
-});
-
-Vue.component('surveys', {
-    template: '#ss-surveys',
-    props: ['surveys', 'value'],
-
+    },
     methods: {
-        onInput: function (event) {
-            this.$emit('input', event.target.value);
+        toggleSection: function(section) {
+            this.$emit('toggle-section', section);
         },
+        saveRating: function(section, competency, value) {
+            this.$emit('set-competency', {
+                section: section,
+                competency: competency,
+                rating: value
+            });
+        },
+        calculateProgress: function(completed, total) {
+            var percent = 0;
 
-        loadSurvey: function (value) {
-            this.$emit('load-survey', value);
-        },
-        deleteSurvey: function (value) {
-            this.$emit('delete-survey', value);
-        },
+            if (total === 0) {
+                return percent;
+            }
 
-        loadBlankSurvey: function () {
-            this.$emit('load-new-survey');
+            percent = (completed/total) * 100;
+            percent = Math.round(percent/5) * 5;
+
+            if (percent > 100) {
+                percent = 100;
+            }
+
+            return percent;
         }
     }
 });
@@ -171,6 +163,74 @@ Vue.component('competency', {
             }
 
             return match;
+        }
+    }
+});
+
+Vue.component('save', {
+    template: '#ss-save',
+    data: function() {
+        return {
+            changed_survey_name: ''
+        }
+    },
+    created: function() {
+        this.changed_survey_name = this.survey_name;
+    },
+    props: [
+        'save_last_message',
+        'survey_name',
+        'survey_type',
+        'survey_version',
+        'survey_updated',
+        'survey_progress'
+    ],
+
+    methods: {
+        saveSurvey: function () {
+            this.$emit('save-survey', this.changed_survey_name);
+        }
+    }
+});
+
+Vue.component('ratings', {
+  template: '#ss-ratings',
+  props: ['ratings', 'unratings']
+});
+
+Vue.component('categories', {
+    template: '#ss-categories',
+    props: ['categories']
+});
+
+Vue.component('category', {
+    template: '#ss-category',
+    props: ['categories', 'selected_category'],
+    filters: {
+        abbrev: function(v) {
+            return v.slice(0, 1);
+        }
+    }
+});
+
+Vue.component('surveys', {
+    template: '#ss-surveys',
+    props: ['surveys', 'value'],
+
+    methods: {
+        onInput: function (event) {
+            this.$emit('input', event.target.value);
+        },
+
+        loadSurvey: function (value) {
+            this.$emit('load-survey', value);
+        },
+        deleteSurvey: function (value) {
+            this.$emit('delete-survey', value);
+        },
+
+        loadBlankSurvey: function () {
+            this.$emit('load-new-survey');
         }
     }
 });
@@ -443,6 +503,10 @@ var app = new Vue({
         changeName: function(name) {
             this.survey.name = name;
         },
+        toggleSection: function(section_id) {
+            var current_view = this.sections[section_id].show_section;
+            this.sections[section_id].show_section = !current_view
+        },
         toggleSummary: function(show_summary) {
             this.show_summary = show_summary;
             for (var section_title in this.sections) {
@@ -452,8 +516,12 @@ var app = new Vue({
         toggleViewMode: function(view_mode) {
             this.view_mode = view_mode;
         },
-        saveRating: function(section, competency, value) {
-            this.sections[section]['competencies'][competency]['rating'] = value;
+        saveRating: function($event) {
+            var section = $event.section,
+                competency = $event.competency,
+                rating = $event.rating;
+
+            this.sections[section]['competencies'][competency]['rating'] = rating;
         },
 
         loadSections: function(sections) {
@@ -487,15 +555,12 @@ var app = new Vue({
             section.name = title;
             section.score = 0;
             section.completed = 0;
-            section.progress = 0;
-            section.progress_style = { width: section.progress + '%' }
             section.show_section = true;
             section.total = Object.keys(section.competencies).length;
 
             return section;
         },
         totalSection: function(section, competencies) {
-            // @todo load this on survey load - for read-only survey viewing
             var completed = score = 0,
                 comp_id = rating = '';
 
@@ -510,9 +575,6 @@ var app = new Vue({
             }
             this.sections[section].score = score;
             this.sections[section].completed = completed;
-            this.sections[section].progress = this.calculateProgress(completed, this.sections[section].total);
-
-            this.sections[section].progress_style.width = this.sections[section].progress + '%';
         },
         calculateProgress: function(completed, total) {
             var percent = 0;
@@ -539,7 +601,7 @@ var app = new Vue({
 
             this.surveys = surveys;
         },
-        saveSurvey: function() {
+        saveSurvey: function(new_name) {
             this.setSaveBanner('');
 
             if (!store.enabled) {
@@ -547,16 +609,17 @@ var app = new Vue({
                 return;
             }
 
-            if (this.survey.name.length === 0) {
+            if (new_name === 0) {
                 this.setSaveBannerError('Please provide a name for this survey.', true);
                 return;
             }
 
-            if (this.survey.name.length > 50) {
+            if (new_name > 50) {
                 this.setSaveBannerError('Survey name too long.', true);
                 return;
             }
 
+            this.survey.name = new_name;
             this.survey.updated = new Date().toISOString();
             if (this.survey.id === undefined || this.survey.id.length === 0) {
                 this.survey.id = generate_uuid();

@@ -160,5 +160,10 @@
 .w-90   { width: 90% !important; }
 .w-100  { width: 100% !important; }
 
+.t-mini   { font-size: .64285714rem !important; }
+.t-tiny   { font-size: .71428571rem !important; }
+.t-small  { font-size: .78571429rem !important; }
+.t-medium { font-size: .85714286rem !important; }
+
 /* text utilites */
 .text-trans { color: rgba(255, 255, 255, 0.25) !important; }

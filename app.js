@@ -155,9 +155,7 @@ Vue.component('competency', {
         hoverRatingOff: function(event) {
             $(event.currentTarget).removeClass('orange')
             .children('.label').removeClass('orange');
-        }
-    },
-    filters: {
+        },
         unratingDescription: function(value) {
             var match = this.unratings.find(function(unrating) {
                 return (value === unrating.value);

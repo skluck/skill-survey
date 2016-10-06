@@ -428,7 +428,7 @@
                             <template v-else>
                                 <template v-if="unrating_values.includes(comp.rating)">
                                     <span class="ui black circular small label">{{ comp.rating }}</span>
-                                    {{ unratingDescription(comp.rating) }}
+                                    {{ comp.rating | unratingDescription }}
                                 </template>
                                 <template v-else>
                                     <b class="ui green circular small label">{{ comp.rating }}</b>
@@ -437,8 +437,14 @@
                             </template>
                         </div>
 
+                        <div v-if="changed_comment" class="ui basic compact segment p-0 mb-0 mt-1">
+                            <p class="t-small">
+                                <b class="pr-2">Comment:</b> {{ changed_comment }}
+                            </p>
+                        </div>
+
                         <template v-if="comp.references">
-                            <div class="ui basic compact segment p-0 mt-1">
+                            <div class="ui basic compact segment p-0 mb-0 mt-1">
                                 <b class="t-small pr-2">References:</b>
                                 <div class="ui horizontal bulleted link list">
                                     <template v-for="(reference_url, reference_title) in comp.references">
@@ -470,6 +476,28 @@
                         <div class="ui row">
                             <div class="ui eleven wide column">
                                 <h3 class="ui header">{{ comp.competency }}</h3>
+
+                                <template v-if="comp.rating === ''">
+
+                                    <template v-if="comp.references">
+                                        <div class="ui basic compact segment p-0 mb-0 mt-1">
+                                            <b class="t-small pr-2">References:</b>
+                                            <div class="ui horizontal bulleted link list">
+                                                <template v-for="(reference_url, reference_title) in comp.references">
+                                                    <a class="item t-small" :href="reference_url">{{ reference_title }}</a>
+                                                </template>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </template>
+                                <template v-else>
+                                    <div v-if="changed_comment" class="ui basic compact segment p-0 mb-0 mt-1">
+                                        <p class="t-small">
+                                            <b>Comment:</b> {{ changed_comment }}
+                                        </p>
+                                    </div>
+                                </template>
+
                             </div>
                             <div class="ui five wide column">
                                 <template v-if="comp.rating === ''">
@@ -493,28 +521,24 @@
                         </div>
 
                         <template v-if="comp.rating === ''">
-                            <div class="ui items">
-                                <div class="item" v-for="rating in ratings">
-                                    <label class="ui compact small message"
-                                        @click="onChange(rating.value)"
-                                        @mouseover="hoverRating"
-                                        @mouseout="hoverRatingOff">
-                                        <b class="ui label">{{ rating.value }}</b>
-                                        {{ comp.examples[rating.value] }}
-                                    </label>
+                            <div class="ui row p-0">
+                                <div class="ui mini left icon input w-100">
+                                    <i class="comment icon"></i>
+                                    <input type="text" placeholder="Leave comment..." v-model="changed_comment" >
                                 </div>
-                            </div>
 
-                            <template v-if="comp.references">
-                                <div class="ui basic compact segment p-0 mt-1">
-                                    <b class="t-small pr-2">References:</b>
-                                    <div class="ui horizontal bulleted link list">
-                                        <template v-for="(reference_url, reference_title) in comp.references">
-                                            <a class="item t-small" :href="reference_url">{{ reference_title }}</a>
-                                        </template>
+                                <div class="ui items">
+                                    <div class="item" v-for="rating in ratings">
+                                        <label class="ui compact small message"
+                                            @click="onChange(rating.value)"
+                                            @mouseover="hoverRating"
+                                            @mouseout="hoverRatingOff">
+                                            <b class="ui label">{{ rating.value }}</b>
+                                            {{ comp.examples[rating.value] }}
+                                        </label>
                                     </div>
                                 </div>
-                            </template>
+                            </div>
                         </template>
                     </div>
                 </template>

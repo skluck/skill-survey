@@ -75,9 +75,6 @@ Vue.component('surveysection', {
         'survey_progress',
         'survey_progress_style'
     ],
-    data: function() {
-        return {};
-    },
     computed: {
         progress: function() {
             return this.calculateProgress(this.section.completed, this.section.total);
@@ -96,7 +93,8 @@ Vue.component('surveysection', {
             this.$emit('set-competency', {
                 section: section,
                 competency: competency,
-                rating: value
+                rating: value.rating,
+                comment: value.comment
             });
         },
         calculateProgress: function(completed, total) {
@@ -128,6 +126,14 @@ Vue.component('competency', {
         'unratings',
         'view_mode'
     ],
+    data: function() {
+        return {
+            changed_comment: ''
+        }
+    },
+    created: function() {
+        this.changed_comment = this.comp.comment;
+    },
 
     computed: {
         unrating_values: function() {
@@ -139,8 +145,7 @@ Vue.component('competency', {
 
     methods: {
         onChange: function (value) {
-            this.value = value;
-            this.$emit('set-competency', value);
+            this.$emit('set-competency', { rating: value, comment: this.changed_comment });
         },
 
         hoverRating: function(event) {
@@ -150,7 +155,9 @@ Vue.component('competency', {
         hoverRatingOff: function(event) {
             $(event.currentTarget).removeClass('orange')
             .children('.label').removeClass('orange');
-        },
+        }
+    },
+    filters: {
         unratingDescription: function(value) {
             var match = this.unratings.find(function(unrating) {
                 return (value === unrating.value);
@@ -519,9 +526,11 @@ var app = new Vue({
         saveRating: function($event) {
             var section = $event.section,
                 competency = $event.competency,
-                rating = $event.rating;
+                rating = $event.rating,
+                comment = $event.comment;
 
             this.sections[section]['competencies'][competency]['rating'] = rating;
+            this.sections[section]['competencies'][competency]['comment'] = comment;
         },
 
         loadSections: function(sections) {

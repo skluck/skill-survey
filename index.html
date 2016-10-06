@@ -428,7 +428,7 @@
                             <template v-else>
                                 <template v-if="unrating_values.includes(comp.rating)">
                                     <span class="ui black circular small label">{{ comp.rating }}</span>
-                                    {{ comp.rating | unratingDescription }}
+                                    {{ unratingDescription(comp.rating) }}
                                 </template>
                                 <template v-else>
                                     <b class="ui green circular small label">{{ comp.rating }}</b>

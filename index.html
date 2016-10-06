@@ -436,6 +436,18 @@
                                 </template>
                             </template>
                         </div>
+
+                        <template v-if="comp.references">
+                            <div class="ui basic compact segment p-0 mt-1">
+                                <b class="t-small pr-2">References:</b>
+                                <div class="ui horizontal bulleted link list">
+                                    <template v-for="(reference_url, reference_title) in comp.references">
+                                        <a class="item t-small" :href="reference_url">{{ reference_title }}</a>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+
                     </div>
 
                 </template>
@@ -492,6 +504,17 @@
                                     </label>
                                 </div>
                             </div>
+
+                            <template v-if="comp.references">
+                                <div class="ui basic compact segment p-0 mt-1">
+                                    <b class="t-small pr-2">References:</b>
+                                    <div class="ui horizontal bulleted link list">
+                                        <template v-for="(reference_url, reference_title) in comp.references">
+                                            <a class="item t-small" :href="reference_url">{{ reference_title }}</a>
+                                        </template>
+                                    </div>
+                                </div>
+                            </template>
                         </template>
                     </div>
                 </template>

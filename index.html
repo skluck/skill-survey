@@ -209,38 +209,43 @@
                 <div v-if="surveys.length" class="ui segments mt-5">
                     <h2 class="ui top attached block header">Surveys</h2>
                     <div class="ui segment">
-                        <template v-if="surveys.length">
-                            <table class="ui very basic celled table">
-                                <thead>
+                        <table class="ui very basic celled table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Survey</th>
+                                    <th></th>
+                                </tr>
+                              </thead>
+                            <tbody>
+                                <template v-for="survey in surveys">
                                     <tr>
-                                        <th>Name</th>
-                                        <th>Survey</th>
-                                        <th></th>
-                                    </tr>
-                                  </thead>
-                                <tbody>
-                                    <template v-for="survey in surveys">
-                                        <tr>
-                                            <td>{{ survey.name }}</td>
-                                            <td>
-                                                {{ survey.type }}
-                                                <span class="ui tiny basic red label">{{ survey.version }}</span>
-                                                <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
-                                            </td>
-                                            <td class="right aligned">
-                                                <button class="ui primary icon button" @click="loadSurvey(survey)">
-                                                    <i class="download icon"></i>
-                                                </button>
+                                        <td>{{ survey.name }}</td>
+                                        <td>
+                                            {{ survey.type }}
+                                            <span class="ui tiny basic red label">{{ survey.version }}</span>
+                                            <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
+                                        </td>
+                                        <td class="right aligned">
+                                            <button class="ui primary icon button" @click="loadSurvey(survey)">
+                                                <i class="download icon"></i>
+                                            </button>
 
-                                                <button class="ui icon red button" @click="deleteSurvey(survey)">
-                                                    <i class="trash icon"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </template>
+                                            <button class="ui icon red button" @click="deleteSurvey(survey)">
+                                                <i class="trash icon"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+
+                        <p class="t-tiny">
+                            <span class="ui label basic red t-tiny">
+                                <i class="warning icon"></i>Be careful!
+                            </span>
+                            Surveys are stored in browser cache. Clearing your cache will delete your surveys!
+                        </p>
                     </div>
                 </div>
             </div>
@@ -428,7 +433,7 @@
                             <template v-else>
                                 <template v-if="unrating_values.includes(comp.rating)">
                                     <span class="ui black circular small label">{{ comp.rating }}</span>
-                                    {{ comp.rating | unratingDescription }}
+                                    {{ unratingDescription(comp.rating) }}
                                 </template>
                                 <template v-else>
                                     <b class="ui green circular small label">{{ comp.rating }}</b>

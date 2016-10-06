@@ -19,7 +19,7 @@
                         "3": "May possibly be the antichrist."
                     },
                     "rating": "",
-                    "comment:": ""
+                    "comment": ""
                 },
                 "A2": {
                     "category": "Behavior",
@@ -31,7 +31,7 @@
                         "3": "Consistently delivers ahead of schedule and to a degree of quality above most others."
                     },
                     "rating": "",
-                    "comment:": ""
+                    "comment": ""
                 }
             }
         },
@@ -47,7 +47,7 @@
                         "3": "Has published four thousand node and react packages on NPM."
                     },
                     "rating": "",
-                    "comment:": ""
+                    "comment": ""
                 },
                 "B2": {
                     "category": "Behavior",
@@ -59,7 +59,7 @@
                         "3": "Know the code at a level most others could only dream of. Obssessed with understanding how things tick."
                     },
                     "rating": "",
-                    "comment:": ""
+                    "comment": ""
                 }
             }
         },
@@ -75,7 +75,7 @@
                         "3": "Specs? Where we're going we don't need specs."
                     },
                     "rating": "",
-                    "comment:": ""
+                    "comment": ""
                 }
             }
         }

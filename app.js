@@ -294,7 +294,7 @@ var app = new Vue({
     el: '#ss-app',
 
     data: {
-        last_message: { message: "", error: false },
+        last_message:      { message: "", error: false },
         save_last_message: { message: "", error: false },
 
         source:  segment.length > 0 ? segment.slice(1) : default_source,

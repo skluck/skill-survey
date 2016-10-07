@@ -10,6 +10,19 @@ var generate_uuid = function() {
     });
 };
 
+var localdate = function (value) {
+    if (value.length === 0) return '';
+    if (typeof value !== 'string') return '';
+
+    var d = new Date(value);
+
+    return [
+        d.getFullYear(),
+        "0".concat(d.getMonth() + 1).slice(-2),
+        "0".concat(d.getDate()).slice(-2)
+    ].join('-');
+};
+
 Vue.component('message', {
     template: '#ss-message',
     props: ['negative', 'header', 'value'],
@@ -19,6 +32,115 @@ Vue.component('message', {
         },
         tone: function() {
             return (this.negative) ? 'negative' : 'positive';
+        }
+    }
+});
+Vue.component('modalers', {
+    template: '#ss-modals',
+    props: ['upload_trigger'],
+    data: function() {
+        return {
+            error: false,
+            hovering: false,
+            dropped: []
+        };
+    },
+    computed: {
+        icon_style: function () {
+            return {
+                warning: this.error,
+                question: this.hovering && !this.error,
+                'cloud upload': !this.hovering && !this.error
+            }
+        },
+        dropzone_style: function () {
+            return {
+                'dropzone-error': this.error,
+                'dropzone-hovering': this.hovering && !this.error
+            }
+        }
+    },
+    watch: {
+        upload_trigger: function(value) {
+            if (value !== true) {
+                return;
+            }
+
+            this.uploadSurveyConfirmation();
+        }
+    },
+    methods: {
+        uploadSurveyConfirmation: function() {
+            var upload = this.uploadFiles,
+                actuallyClear = this.clearFiles,
+                actuallyUpload = function() { upload(); };
+
+            $('#upload-survey')
+            .modal({ onApprove : actuallyUpload, onDeny: actuallyClear })
+            .modal('show');
+        },
+
+        uploadHover: function() {
+            this.hovering = true;
+            this.error = false;
+        },
+        uploadHoverOff: function() {
+            this.hovering = false;
+        },
+        uploadDrop: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            return this.onFileChange(e.dataTransfer.files);
+        },
+        uploadInputDrop: function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            return this.onFileChange(e.target.files);
+        },
+        onFileChange: function(xfer) {
+            this.hovering = false;
+
+            var files = [];
+            if (xfer.length < 1) {
+                this.error = true;
+                return;
+            }
+
+            for (var i = 0; i < xfer.length; i++) {
+                var file = xfer.item(i);
+
+                if (file.type === 'application/json') {
+                    files.push(file);
+                } else {
+                    this.error = true;
+                    console.log(file.name + ' is invalid type: ' + file.type);
+                    return;
+                }
+            }
+
+            for (var i in files) {
+                var file = files[i];
+                var found = this.dropped.find(function(f) {
+                    return (f.name === file.name);
+                });
+
+                if (found === undefined) {
+                    this.dropped.push(file);
+                }
+            }
+        },
+        removeUpload: function(filename) {
+            console.log(filename);
+            this.dropped = this.dropped.filter(function(f) {
+                return (filename !== f.name);
+            });
+        },
+        clearFiles: function() {
+            this.dropped = [];
+        },
+        uploadFiles: function() {
+            this.$emit('upload-surveys', this.dropped);
+            this.dropped = [];
         }
     }
 });
@@ -226,16 +348,20 @@ Vue.component('surveys', {
         onInput: function (event) {
             this.$emit('input', event.target.value);
         },
-
         loadSurvey: function (value) {
             this.$emit('load-survey', value);
         },
         deleteSurvey: function (value) {
             this.$emit('delete-survey', value);
         },
-
+        downloadSurvey: function (value) {
+            this.$emit('download-survey', value);
+        },
         loadBlankSurvey: function () {
             this.$emit('load-new-survey');
+        },
+        uploadSurvey: function () {
+            this.$emit('upload-survey');
         }
     }
 });
@@ -272,18 +398,7 @@ Vue.directive('hover-child', {
     }
 });
 
-Vue.filter('localdate', function (value) {
-    if (value.length === 0) return '';
-    if (typeof value !== 'string') return '';
-
-    var d = new Date(value);
-
-    return [
-        d.getFullYear(),
-        "0".concat(d.getMonth() + 1).slice(-2),
-        "0".concat(d.getDate()).slice(-2)
-    ].join('-');
-});
+Vue.filter('localdate', localdate);
 
 Vue.filter('section_status', function (section) {
     if (!section.hasOwnProperty('score') || !section.hasOwnProperty('completed')) {
@@ -316,6 +431,7 @@ var app = new Vue({
 
         view_mode: false,
         show_summary: false,
+        toggle_upload: false,
 
         survey_completed: 0,
         survey_total: 0,
@@ -477,6 +593,14 @@ var app = new Vue({
             this.fetchSurvey(stored);
         },
 
+        deleteSurveyConfirmation: function($event) {
+            var deleter = this.deleteSurvey,
+                actuallyDelete = function() { deleter($event); };
+
+            $('#delete-survey')
+            .modal({ onApprove : actuallyDelete })
+            .modal('show');
+        },
         deleteSurvey: function(meta) {
             this.surveys = this.surveys.filter(function(stored) {
                 return (stored.id !== meta.id);
@@ -706,6 +830,88 @@ var app = new Vue({
         },
         setSaveBannerError: function(message, shouldPop) {
             this.setSaveBanner(message, true, shouldPop);
+        },
+        toggleUploader: function() {
+            this.toggle_upload = true;
+            var that = this,
+                setBack = function() { that.toggle_upload = false; };
+
+            setTimeout(setBack, 1000);
+        },
+        uploadSurveys: function(surveys) {
+            var id,
+                reader = new FileReader(),
+                data;
+
+            for (id in surveys) {
+                var survey = surveys[id];
+
+                reader.onload = this.uploadSurvey;
+
+                reader.readAsText(survey);
+            }
+        },
+        uploadSurvey: function(e) {
+
+            var decoded = JSON.parse(e.target.result);
+
+            // @todo error check
+            // @todo validate
+
+            var survey_id = generate_uuid(),
+                survey_key = 'survey-' + survey_id,
+                meta = {
+                    type: decoded.type,
+                    version: decoded.version,
+
+                    id: survey_id,
+                    name: decoded.name,
+                    updated: decoded.updated,
+
+                    survey: survey_key
+                };
+
+            this.surveys.push(meta);
+
+            store.set('surveys', this.surveys);
+
+            store.set(survey_key, {
+                type: meta.type,
+                version: meta.version,
+
+                name: meta.name,
+                updated: meta.updated,
+
+                sections: decoded.sections
+            });
+
+            // this.setBanner('Survey uploaded.', false);
+        },
+        downloadSurvey: function(meta) {
+            var filename = 'trac-' + meta.name.replace(/\W+/g, "_") + '-' + localdate(meta.updated),
+                survey = store.get(meta.survey),
+                blob = JSON.stringify(survey);
+
+            this.download(blob, filename, 'application/json');
+        },
+        download: function download(data, filename, type) {
+            var a = document.createElement('a'),
+                file = new Blob([data], {type: type});
+
+            if (window.navigator.msSaveOrOpenBlob) {
+                // IE10+
+                window.navigator.msSaveOrOpenBlob(file, filename);
+            } else {
+                var url = URL.createObjectURL(file);
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                setTimeout(function() {
+                    document.body.removeChild(a);
+                    window.URL.revokeObjectURL(url);
+                }, 0);
+            }
         }
     }
 });

@@ -19,6 +19,7 @@ Vue.js / Semantic UI frontend app for skill assessment and evaluation.
 - [ ] Import finished survey (read-only)
 - [x] "Completed" screen with stats
 - [ ] Support drop-down / multiple new survey sources
+- [ ] Cross-browser testing (modern browsers only)
 - [ ] MVP Done
 
 ### Home page - no survey loaded

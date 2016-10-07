@@ -57,6 +57,11 @@
                 :negative="last_message.error"
                 :value="last_message.message"></message>
 
+            <modalers
+                :upload_trigger="toggle_upload"
+                v-on:upload-surveys="uploadSurveys"
+            ></modalers>
+
             <template v-if="survey.type">
 
                 <surveyheader :survey="survey"></surveyheader>
@@ -108,7 +113,9 @@
                     v-on:load-new-survey="fetchData"
                     v-model="source"
                     v-on:load-survey="loadSurvey($event)"
-                    v-on:delete-survey="deleteSurvey($event)"
+                    v-on:delete-survey="deleteSurveyConfirmation($event)"
+                    v-on:download-survey="downloadSurvey($event)"
+                    v-on:upload-survey="toggleUploader"
                 ></surveys>
 
                 <categories :categories="categories"></categories>
@@ -197,7 +204,7 @@
 
                         <div class="ui fluid action mini input my-3">
                             <input class="ui mini field" type="text" v-bind:value="value" v-on:input="onInput">
-                            <button class="ui green right labeled icon button" @click="loadBlankSurvey">
+                            <button class="ui primary left labeled icon button" @click="loadBlankSurvey">
                                 <i class="plus icon"></i>
                                 New Survey
                             </button>
@@ -208,7 +215,7 @@
 
                 <div v-if="surveys.length" class="ui segments mt-5">
                     <h2 class="ui top attached block header">Surveys</h2>
-                    <div class="ui segment">
+                    <div class="ui clearing segment">
                         <table class="ui very basic celled table">
                             <thead>
                                 <tr>
@@ -228,10 +235,13 @@
                                         </td>
                                         <td class="right aligned">
                                             <button class="ui primary icon button" @click="loadSurvey(survey)">
-                                                <i class="download icon"></i>
+                                                <i class="download icon"></i> Load
+                                            </button>
+                                            <button class="ui teal icon button" @click="downloadSurvey(survey)">
+                                                <i class="cloud download icon"></i> Backup
                                             </button>
 
-                                            <button class="ui icon red button" @click="deleteSurvey(survey)">
+                                            <button class="ui icon basic red button ml-3" @click="deleteSurvey(survey)">
                                                 <i class="trash icon"></i>
                                             </button>
                                         </td>
@@ -240,12 +250,17 @@
                             </tbody>
                         </table>
 
+                        <button class="ui icon orange button float-right" @click="uploadSurvey">
+                            <i class="cloud upload icon"></i> Upload
+                        </button>
+
                         <p class="t-tiny">
                             <span class="ui label basic red t-tiny">
                                 <i class="warning icon"></i>Be careful!
                             </span>
                             Surveys are stored in browser cache. Clearing your cache will delete your surveys!
                         </p>
+
                     </div>
                 </div>
             </div>
@@ -591,6 +606,57 @@
                                 <i class="icon save"></i> Save to Browser Storage
                             </button>
                         </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="ss-modals">
+            <div>
+                <div id="delete-survey" class="ui small modal">
+                    <div class="header">Delete Survey</div>
+                    <div class="content">
+                        <p>Are you sure you want to delete this survey?</p>
+                    </div>
+                    <div class="actions">
+                        <div class="ui approve negative left labeled icon button"><i class="trash icon"></i> Delete</div>
+                        <div class="ui cancel button">Cancel</div>
+                    </div>
+                </div>
+
+                <div id="upload-survey" class="ui small modal">
+                    <div class="header">Upload Survey</div>
+                    <div class="content">
+
+                        <div v-if="dropped.length > 0">
+                            <template v-for="file in dropped">
+                                <div class="ui basic compact segment p-1 my-0 mb-2">
+                                    <button class="ui mini red button mr-2" @click="removeUpload(file.name)">Cancel</button>
+                                    <span>{{ file.name }}</span>
+                                </div>
+                            </template>
+                        </div>
+
+                        <div class="dropzone" :class="dropzone_style"
+                            @drop="uploadDrop"
+                            @dragover="uploadHover"
+                            @dragenter="uploadHover"
+                            @dragleave="uploadHoverOff"
+                            >
+                            <h3 class="ui icon header w-100">
+                                <i class="icon" :class="icon_style"></i>
+                                <div class="content">
+                                    Drop files here or click to select from filesystem.
+                                    <div class="sub header">Only backups or shared surveys in JSON format are supported.</div>
+                                </div>
+                            </h3>
+
+                            <input type="file" multiple accept="application/json" @change="uploadInputDrop"/>
+                        </div>
+                    </div>
+                    <div class="actions">
+                        <div class="ui approve positive left labeled icon button"><i class="cloud upload icon"></i> Upload</div>
+                        <div class="ui cancel button">Cancel</div>
                     </div>
                 </div>
             </div>

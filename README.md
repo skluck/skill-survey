@@ -15,12 +15,16 @@ Vue.js / Semantic UI frontend app for skill assessment and evaluation.
 - [x] Sections
 - [x] Automatic tabulation / progress
 - [x] Ability to add comments
-- [ ] Export finished survey
-- [ ] Import finished survey (read-only)
+- [x] Export finished survey
+- [x] Import finished survey (read-only)
 - [x] "Completed" screen with stats
 - [ ] Support drop-down / multiple new survey sources
+- [ ] Add documentation in README (features, abilities)
+- [ ] Add better error handling, validation of import/exported surveys
+- [ ] Add better documentation for filling out surveys, creating blanks
 - [ ] Cross-browser testing (modern browsers only)
 - [ ] MVP Done
+- [ ] Ensure responsive-ness
 
 ### Home page - no survey loaded
 ![home](img/1.home.png)

@@ -199,7 +199,7 @@
                             Start a new survey or load an existing survey below.
                         </div>
                         <div v-else class="header">
-                            There are no saved surveys. Start a new survey below.
+                            There are no saved surveys. Start a new survey below or upload a finished survey.
                         </div>
 
                         <div class="ui fluid action mini input my-3">
@@ -213,52 +213,58 @@
                     </div>
                 </div>
 
-                <div v-if="surveys.length" class="ui segments mt-5">
+                <div class="ui segments mt-5">
                     <h2 class="ui top attached block header">Surveys</h2>
                     <div class="ui clearing segment">
-                        <table class="ui very basic celled table">
-                            <thead>
-                                <tr>
-                                    <th>Name</th>
-                                    <th>Survey</th>
-                                    <th></th>
-                                </tr>
-                              </thead>
-                            <tbody>
-                                <template v-for="survey in surveys">
-                                    <tr>
-                                        <td>{{ survey.name }}</td>
-                                        <td>
-                                            {{ survey.type }}
-                                            <span class="ui tiny basic red label">{{ survey.version }}</span>
-                                            <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
-                                        </td>
-                                        <td class="right aligned">
-                                            <button class="ui primary icon button" @click="loadSurvey(survey)">
-                                                <i class="download icon"></i> Load
-                                            </button>
-                                            <button class="ui teal icon button" @click="downloadSurvey(survey)">
-                                                <i class="cloud download icon"></i> Backup
-                                            </button>
 
-                                            <button class="ui icon basic red button ml-3" @click="deleteSurvey(survey)">
-                                                <i class="trash icon"></i>
-                                            </button>
-                                        </td>
+                        <template v-if="surveys.length">
+                            <table class="ui very basic celled table">
+                                <thead>
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Survey</th>
+                                        <th></th>
                                     </tr>
-                                </template>
-                            </tbody>
-                        </table>
+                                  </thead>
+                                <tbody>
+                                    <template v-for="survey in surveys">
+                                        <tr>
+                                            <td>{{ survey.name }}</td>
+                                            <td>
+                                                {{ survey.type }}
+                                                <span class="ui tiny basic red label">{{ survey.version }}</span>
+                                                <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
+                                            </td>
+                                            <td class="right aligned">
+                                                <button class="ui primary icon button" @click="loadSurvey(survey)">
+                                                    <i class="download icon"></i> Load
+                                                </button>
+                                                <button class="ui teal icon button" @click="downloadSurvey(survey)">
+                                                    <i class="cloud download icon"></i> Backup
+                                                </button>
+
+                                                <button class="ui icon basic red button ml-3" @click="deleteSurvey(survey)">
+                                                    <i class="trash icon"></i>
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </template>
 
                         <button class="ui icon orange button float-right" @click="uploadSurvey">
                             <i class="cloud upload icon"></i> Upload
                         </button>
 
-                        <p class="t-tiny">
+                        <p v-if="surveys.length > 0" class="t-tiny">
                             <span class="ui label basic red t-tiny">
                                 <i class="warning icon"></i>Be careful!
                             </span>
                             Surveys are stored in browser cache. Clearing your cache will delete your surveys!
+                        </p>
+                        <p v-else>
+                            No saved surveys found!
                         </p>
 
                     </div>

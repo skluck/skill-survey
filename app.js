@@ -1,5 +1,5 @@
 var segment = window.location.hash,
-    default_source = "http://kluck.engineering/skill-survey/blank-competencies.json";
+    default_source = "http://kluck.engineering/skill-survey/sample-survey.json";
 
 var generate_uuid = function() {
     // only needs to be random enough for local storage

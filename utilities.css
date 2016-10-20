@@ -200,6 +200,7 @@
 .t-tiny   { font-size: .71428571rem !important; }
 .t-small  { font-size: .78571429rem !important; }
 .t-medium { font-size: .85714286rem !important; }
+.t-std    { font-size: 1rem !important; }
 
 /* text utilites */
 .text-trans { color: rgba(255, 255, 255, 0.25) !important; }

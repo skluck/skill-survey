@@ -130,7 +130,6 @@ Vue.component('modalers', {
             }
         },
         removeUpload: function(filename) {
-            console.log(filename);
             this.dropped = this.dropped.filter(function(f) {
                 return (filename !== f.name);
             });
@@ -356,6 +355,9 @@ Vue.component('surveys', {
         },
         downloadSurvey: function (value) {
             this.$emit('download-survey', value);
+        },
+        downloadSurveyCSV: function (value) {
+            this.$emit('download-survey-csv', value);
         },
         loadBlankSurvey: function () {
             this.$emit('load-new-survey');
@@ -888,11 +890,47 @@ var app = new Vue({
             // this.setBanner('Survey uploaded.', false);
         },
         downloadSurvey: function(meta) {
-            var filename = 'trac-' + meta.name.replace(/\W+/g, "_") + '-' + localdate(meta.updated),
+            var filename = 'survey-' + meta.name.replace(/\W+/g, "_") + '-' + localdate(meta.updated),
                 survey = store.get(meta.survey),
                 blob = JSON.stringify(survey);
 
             this.download(blob, filename, 'application/json');
+        },
+        downloadSurveyCSV: function(meta) {
+            var filename = 'survey-' + meta.name.replace(/\W+/g, "_") + '-' + localdate(meta.updated),
+                survey = store.get(meta.survey),
+                rows = [];
+
+            Object.keys(survey.sections).forEach(function(section_title) {
+                var section = survey.sections[section_title];
+
+                Object.keys(section.competencies).forEach(function(competency_id) {
+                    var competency = section.competencies[competency_id];
+
+                    var rating_text = '';
+                    if (competency.examples.hasOwnProperty(competency.rating)) {
+                        rating_text = competency.examples[competency.rating];
+                    }
+
+                    rows.push({
+                        'Name': survey.name,
+                        'Updated': localdate(survey.updated),
+                        'Type': survey.type,
+                        'Version': survey.version,
+                        'Section': section_title,
+                        'Category': competency.category,
+                        'Competency ID': competency_id,
+                        'Competency': competency.competency,
+                        'Rating': competency.rating,
+                        'Rating Text': rating_text,
+                        'Comment': competency.comment
+                    });
+                });
+            });
+
+            var blob = Papa.unparse(rows, { quotes: true });
+
+            this.download(blob, filename, ' text/csv');
         },
         download: function download(data, filename, type) {
             var a = document.createElement('a'),

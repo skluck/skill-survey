@@ -42,7 +42,9 @@ Vue.component('modalers', {
         return {
             error: false,
             hovering: false,
-            dropped: []
+            dropped: [],
+            validated: [],
+            errors: []
         };
     },
     computed: {
@@ -71,12 +73,11 @@ Vue.component('modalers', {
     },
     methods: {
         uploadSurveyConfirmation: function() {
-            var upload = this.uploadFiles,
-                actuallyClear = this.clearFiles,
-                actuallyUpload = function() { upload(); };
-
             $('#upload-survey')
-            .modal({ onApprove : actuallyUpload, onDeny: actuallyClear })
+            .modal({
+                onApprove : this.uploadFiles,
+                onDeny: this.clearFiles
+            })
             .modal('show');
         },
 
@@ -135,12 +136,124 @@ Vue.component('modalers', {
             });
         },
         clearFiles: function() {
+            this.validated = [];
             this.dropped = [];
+            this.errors = [];
         },
-        uploadFiles: function() {
-            this.$emit('upload-surveys', this.dropped);
-            this.dropped = [];
-        }
+        uploadFiles: function($element) {
+            this.validated = [];
+            this.errors = [];
+
+            var onLoader = function(filename) {
+                return function(e) {
+                    return this.uploadSurvey(filename, e);
+                }.bind(this);
+            }.bind(this);
+
+            // Trigger upload and parsing of surveys.
+            for (var id in this.dropped) {
+                var reader = new FileReader(),
+                    survey = this.dropped[id],
+                    filename = survey.name;
+
+                reader.onload = onLoader(filename);
+                reader.readAsText(survey);
+            }
+
+            // Wait until all surveys to be finished.
+            var iterations = 0,
+                finish = function() {
+                    clearInterval(waiterID);
+
+                    if (this.validateUploads()) {
+                        $element.closest('.modal').modal('hide');
+                    }
+                }.bind(this),
+                waiter = function() {
+                    iterations++;
+
+                    var files = this.dropped.length,
+                        finished = this.validated.length + this.errors.length;
+
+                    if (files === finished) {
+                        finish();
+                    } else if (iterations > 10) {
+                        finish();
+                    }
+                }.bind(this);
+
+            var waiterID = setInterval(waiter, 1000);
+            return false;
+
+        },
+        validateUploads: function() {
+
+            // success!
+            if (this.dropped.length === this.validated.length) {
+                this.$emit('upload-surveys', this.validated);
+                this.validated = [];
+                this.dropped = [];
+                this.errors = [];
+                return true;
+            }
+
+            this.validated = [];
+            return false;
+        },
+
+        uploadSurvey: function(filename, e) {
+            try {
+                var decoded = JSON.parse(e.target.result);
+            } catch(exception) {
+                this.errors.push({ file: filename, text: 'JSON Error: ' + exception });
+                return;
+            }
+
+            var err = this.uploadValidate(decoded);
+            if (err !== false) {
+                this.errors.push({ file: filename, text: err });
+                return;
+            }
+
+            var survey_id = generate_uuid(),
+                survey_key = 'survey-' + survey_id,
+                meta = {
+                    type: decoded.type,
+                    version: decoded.version,
+
+                    id: survey_id,
+                    name: decoded.name,
+                    updated: decoded.updated,
+
+                    survey: survey_key
+                },
+                survey = {
+                    type: meta.type,
+                    version: meta.version,
+
+                    name: meta.name,
+                    updated: meta.updated,
+
+                    sections: decoded.sections
+                };
+
+            this.validated.push({
+                meta: meta,
+                survey: survey
+            });
+        },
+        uploadValidate: function(survey) {
+            var missing = ['type', 'version', 'name', 'updated', 'sections']
+                .filter(function(key) {
+                    return !survey.hasOwnProperty(key);
+                });
+
+            if (missing.length > 0) {
+                return "Survey data is invalid. The following properties are missing: (" + missing.join(', ') + ")";
+            }
+
+            return false;
+        },
     }
 });
 
@@ -841,54 +954,16 @@ var app = new Vue({
             setTimeout(setBack, 1000);
         },
         uploadSurveys: function(surveys) {
-            var id,
-                reader = new FileReader(),
-                data;
+            for (var id in surveys) {
+                var uploaded = surveys[id];
+                this.surveys.push(uploaded.meta);
 
-            for (id in surveys) {
-                var survey = surveys[id];
-
-                reader.onload = this.uploadSurvey;
-
-                reader.readAsText(survey);
+                store.set(uploaded.meta.survey, uploaded.survey);
             }
-        },
-        uploadSurvey: function(e) {
-
-            var decoded = JSON.parse(e.target.result);
-
-            // @todo error check
-            // @todo validate
-
-            var survey_id = generate_uuid(),
-                survey_key = 'survey-' + survey_id,
-                meta = {
-                    type: decoded.type,
-                    version: decoded.version,
-
-                    id: survey_id,
-                    name: decoded.name,
-                    updated: decoded.updated,
-
-                    survey: survey_key
-                };
-
-            this.surveys.push(meta);
 
             store.set('surveys', this.surveys);
-
-            store.set(survey_key, {
-                type: meta.type,
-                version: meta.version,
-
-                name: meta.name,
-                updated: meta.updated,
-
-                sections: decoded.sections
-            });
-
-            // this.setBanner('Survey uploaded.', false);
         },
+
         downloadSurvey: function(meta) {
             var filename = 'survey-' + meta.name.replace(/\W+/g, "_") + '-' + localdate(meta.updated),
                 survey = store.get(meta.survey),

@@ -42,9 +42,14 @@ tbd
 - [x] "Completed" screen with stats
 - [ ] Support drop-down / multiple new survey sources
 - [x] Add documentation in README (features, abilities)
+- [x] Download as CSV
+- [ ] Download as PDF
 - [x] Add better error handling, validation of import/exported surveys
 - [ ] Add better documentation for filling out surveys, creating blanks
-- [ ] Cross-browser testing (modern browsers only)
+- [ ] Cross-browser testing
+    - [ ] IE 11
+    - [ ] Firefox
+    - [x] Chrome
 - [ ] MVP Done
 - [ ] Ensure responsive-ness
 

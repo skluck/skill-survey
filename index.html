@@ -127,47 +127,32 @@
         </div>
 
         <script type="text/x-template" id="ss-navigation">
-            <div class="ui massive stackable icon menu">
-                <div class="header item">Skill Assessment and Performance Review Surveys</div>
+            <div class="ui massive stackable container icon menu">
+                <div class="header item">Skill Assessment and<br>Performance Review Surveys</div>
 
                 <a class="item" href="https://github.com/skluck/skill-survey"><i class="large github icon"></i></a>
 
                 <template v-if="loaded_survey">
-                    <div class="right menu">
-                        <div class="item">
-                            <div class="ui mini input">
-                                <button
-                                    class="ui button"
-                                    v-bind:class="{ green: view_mode }"
-                                    @click="toggleViewMode()"
-                                >
-                                    <i class="toggle icon" v-bind:class="{ on: view_mode, off: !view_mode }"></i>
-                                    <span>Viewer</span>
-                                </button>
-                            </div>
-                        </div>
 
-                        <div class="item">
-                            <div class="ui mini input">
-                                <button
-                                    class="ui button"
-                                    v-bind:class="{ blue: show_summary }"
-                                    @click="toggleSummary()"
-                                >
-                                    <i class="toggle icon" v-bind:class="{ on: show_summary, off: !show_summary }"></i>
+                    <div class="ui right item t-std">
 
-                                    <span>Summary</span>
-                                </button>
-                            </div>
-                        </div>
+                        <button class="ui vertical button mr-3"
+                            v-bind:class="{ green: view_mode }"
+                            @click="toggleViewMode()">
+                            <i class="toggle icon" v-bind:class="{ on: view_mode, off: !view_mode }"></i>
+                            Viewer
+                        </button>
 
-                        <div class="item">
-                            <div class="ui mini input">
-                                <div class="ui vertical animated basic negative button" @click="clearSurvey">
-                                    <div class="visible content"> <i class="icon trash"></i> Clear</div>
-                                    <div class="hidden content">Are you sure?</div>
-                                </div>
-                            </div>
+                        <button class="ui vertical button mr-3"
+                            v-bind:class="{ blue: show_summary }"
+                            @click="toggleSummary()">
+                            <i class="toggle icon" v-bind:class="{ on: show_summary, off: !show_summary }"></i>
+                            Summary
+                        </button>
+
+                        <div class="ui vertical animated basic negative button" @click="clearSurvey">
+                            <div class="visible content"> <i class="icon trash"></i> Clear</div>
+                            <div class="hidden content">Are you sure?</div>
                         </div>
                     </div>
                 </template>
@@ -339,7 +324,7 @@
                     <div class="ui segments">
                         <template v-for="(section, section_id) in sections">
                             <div class="ui segment grid mt-0">
-                                <div class="ui two wide column">
+                                <div class="ui three wide column">
 
                                     <template v-if="section.completed == section.total">
                                         <div class="ui label">{{ section.score }} / {{ section.total * 3 }}</div>
@@ -349,14 +334,14 @@
                                     </template>
 
                                 </div>
-                                <div class="ui fourteen wide column">
+                                <div class="ui thirteen wide column">
                                     <h3 class="ui header">{{ section.name }} </h3>
                                 </div>
                             </div>
                         </template>
 
                         <div class="ui grey segment grid mt-0">
-                            <div class="ui two wide column">
+                            <div class="ui three wide column">
                                 <template v-if="survey_completed == survey_total">
                                     <span class="ui label">{{ survey_score }} / {{survey_total * 3 }}</span>
                                 </template>
@@ -364,7 +349,7 @@
                                     <span class="ui basic red label"><i class="warning icon"></i> Incomplete</span>
                                 </template>
                             </div>
-                            <div class="ui fourteen wide column">
+                            <div class="ui thirteen wide column">
                                 <h3 class="ui grey header">Total</h3>
                             </div>
                         </div>

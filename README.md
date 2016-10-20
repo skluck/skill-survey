@@ -1,6 +1,28 @@
-# Skill Survey
+# Skill Assessment and Performance Review Survey Manager
 
-Vue.js / Semantic UI frontend app for skill assessment and evaluation.
+Vue.js / Semantic UI frontend app for skill assessment and performance reviews.
+
+This single-page application allows users to easily fill out peer or self-evaluations for skill assessment.
+
+### Features
+
+- Clean, easy to use user experience and design.
+- Surveys consist of a list of sections and specific asdasd or *competencies* within each section.
+    - Competencies are scored from 0-3.
+    - Competencies can also be marked as **I don't know** or **Not applicable** for peer reviewers.
+    - Extra comments can be made on each competency to provide more context for a rating.
+- Viewing
+    - Read-only and summary modes to optimize experience for reviewing surveys.
+- Taking
+    - Surveys can be partially finished, saved, and resumed at a later time.
+- Saving
+    - Surveys are saved to local browser storage for persistence
+- Exporting
+    - Surveys can be backed up the filesystem and shared or downloaded as CSV.
+
+## Creating a survey
+
+tbd
 
 ## Quick links
 
@@ -19,8 +41,8 @@ Vue.js / Semantic UI frontend app for skill assessment and evaluation.
 - [x] Import finished survey (read-only)
 - [x] "Completed" screen with stats
 - [ ] Support drop-down / multiple new survey sources
-- [ ] Add documentation in README (features, abilities)
-- [ ] Add better error handling, validation of import/exported surveys
+- [x] Add documentation in README (features, abilities)
+- [x] Add better error handling, validation of import/exported surveys
 - [ ] Add better documentation for filling out surveys, creating blanks
 - [ ] Cross-browser testing (modern browsers only)
 - [ ] MVP Done
@@ -37,3 +59,6 @@ Vue.js / Semantic UI frontend app for skill assessment and evaluation.
 
 ### Loading existing surveys
 ![loading](img/4.loading.png)
+
+### Uploading saved surveys
+![loading](img/5.uploading.png)

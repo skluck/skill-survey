@@ -263,7 +263,7 @@
                             <i class="cloud upload icon"></i> Upload
                         </button>
 
-                        <p v-if="surveys.length > 0" class="t-tiny">
+                        <p v-if="surveys.length > 0" class="t-small">
                             <span class="ui label basic red t-tiny">
                                 <i class="warning icon"></i>Be careful!
                             </span>
@@ -639,6 +639,18 @@
                 <div id="upload-survey" class="ui small modal">
                     <div class="header">Upload Survey</div>
                     <div class="content">
+
+                        <template v-if="errors.length > 0">
+                            <div class="ui error message">
+                                <h3 class="header">There are errors with your upload!</h3>
+                                <ul v-for="error in errors" class="list">
+                                    <li>
+                                        <h5>{{ error.file }}</h5>
+                                        {{ error.text }}
+                                    </li>
+                                </ul>
+                            </div>
+                        </template>
 
                         <div v-if="dropped.length > 0">
                             <template v-for="file in dropped">

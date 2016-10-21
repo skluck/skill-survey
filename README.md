@@ -45,12 +45,20 @@ tbd
 - [x] Download as CSV
 - [ ] Download as PDF
 - [x] Add better error handling, validation of import/exported surveys
-- [ ] Add better documentation for filling out surveys, creating blanks
+- [ ] Add editor for creating survey blanks
 - [ ] Cross-browser testing
     - [ ] IE 11
+        - [ ] Cannot click ratings
+        - [ ] Cannot drag and drop files
+        - [ ] Cannot click to upload files
+        - [ ] Typing comments seems slow
+        - [ ] Long competencies do not text wrap
+    - [ ] Edge
     - [ ] Firefox
+        - [ ] Selecting a rating is slow. The further into the survey - the longer it freezes.
     - [x] Chrome
 - [ ] MVP Done
+- [ ] Add better documentation for filling out surveys, creating blanks
 - [ ] Ensure responsive-ness
 
 ### Home page - no survey loaded

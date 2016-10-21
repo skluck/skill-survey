@@ -749,7 +749,7 @@ var app = new Vue({
             var stored = store.get(meta.survey);
 
             this.survey.id = meta.id;
-            this.fetchSurvey(stored);
+            this.loadNewSurvey(stored);
         },
 
         deleteSurveyConfirmation: function($event) {

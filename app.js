@@ -1,6 +1,3 @@
-var segment = window.location.hash,
-    default_source = "http://kluck.engineering/skill-survey/sample-survey.json";
-
 var generate_uuid = function() {
     // only needs to be random enough for local storage
     // http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
@@ -22,6 +19,11 @@ var localdate = function (value) {
         "0".concat(d.getDate()).slice(-2)
     ].join('-');
 };
+
+var getURLParameter = function (name) {
+    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
+    return match && decodeURIComponent(match[1].replace(/\+/g, ' ')).replace('\u200E', '');
+}
 
 Vue.component('message', {
     template: '#ss-message',
@@ -454,12 +456,98 @@ Vue.component('category', {
 
 Vue.component('surveys', {
     template: '#ss-surveys',
-    props: ['surveys', 'value'],
+    props: ['surveys'],
+    data: function() {
+        return {
+            default_source: 'http://kluck.engineering/skill-survey/sample-survey.json',
+            source: '',
+            sources: {},
+            error: ''
+        }
+    },
 
+    created: function() {
+        this.loadSources();
+    },
     methods: {
-        onInput: function (event) {
-            this.$emit('input', event.target.value);
+        loadSources: function() {
+            var segment = window.location.hash,
+                survey = getURLParameter('survey'),
+                sources = getURLParameter('sources');
+
+            if (survey === null) {
+                survey = segment.length > 0 ? segment.slice(1) : this.default_source;
+            }
+
+            if (sources !== null) {
+                this.$http({
+                    url: sources,
+                    method: 'GET'
+                })
+                .then(this.fetchSources);
+            }
+
+            this.source = survey;
         },
+        fetchSources: function(response) {
+            if (response.headers.get('Content-Type') !== 'application/json') {
+                this.setBanner('Survey source list must be json.');
+                return false;
+            }
+
+            var sources = {};
+            for (var title in response.data) {
+                sources[title] = response.data[title];
+            }
+
+            this.sources = sources;
+        },
+
+        fetchBlankSurvey: function (source) {
+            this.setBanner('');
+            if (typeof source !== 'string') {
+                source = this.source;
+            }
+
+            this.$http({
+                url: source,
+                method: 'GET'
+            })
+            .then(this.fetchSuccess, this.fetchError);
+        },
+        fetchSuccess: function(response) {
+            if (!this.fetchBlankValidate(response)) {
+                return;
+            }
+
+            this.$emit('load-new-survey', response.data);
+        },
+        fetchError: function(response) {
+            this.setBanner('Something terrible happened. Cannot load survey.');
+        },
+        fetchBlankValidate: function(response) {
+            if (response.headers.get('Content-Type') !== 'application/json') {
+                this.setBanner('Blank survey data must be json.');
+                return false;
+            }
+
+            var missing = ['type', 'version', 'name', 'updated', 'sections']
+                .filter(function(key) {
+                    return !response.data.hasOwnProperty(key);
+                });
+
+            if (missing.length > 0) {
+                this.setBanner("Survey data is invalid. The following properties are missing: (" + missing.join(', ') + ")");
+                return false;
+            }
+
+            return true;
+        },
+
+        setBanner: function(message) {
+            this.error = message;
+        },
+
         loadSurvey: function (value) {
             this.$emit('load-survey', value);
         },
@@ -471,9 +559,6 @@ Vue.component('surveys', {
         },
         downloadSurveyCSV: function (value) {
             this.$emit('download-survey-csv', value);
-        },
-        loadBlankSurvey: function () {
-            this.$emit('load-new-survey');
         },
         uploadSurvey: function () {
             this.$emit('upload-survey');
@@ -529,10 +614,7 @@ var app = new Vue({
     el: '#ss-app',
 
     data: {
-        last_message:      { message: "", error: false },
         save_last_message: { message: "", error: false },
-
-        source:  segment.length > 0 ? segment.slice(1) : default_source,
 
         survey: {
             id: '',
@@ -649,45 +731,7 @@ var app = new Vue({
     },
 
     methods: {
-        fetchData: function () {
-            this.setBanner('');
-
-            this.$http({
-                url: this.source,
-                method: 'GET'
-            })
-            .then(this.fetchSuccess, this.fetchError);
-        },
-        fetchSuccess: function(response) {
-            if (!this.fetchValidate(response)) {
-                return;
-            }
-
-            this.fetchSurvey(response.data);
-        },
-        fetchError: function(response) {
-            this.setBanner('Something terrible happened. Cannot load survey.');
-        },
-        fetchValidate: function(response) {
-            if (response.headers.get('Content-Type') !== 'application/json') {
-                this.setBanner('Blank survey data must be json.');
-                return false;
-            }
-
-            var missing = ['type', 'version', 'name', 'updated', 'sections']
-                .filter(function(key) {
-                    return !response.data.hasOwnProperty(key);
-                });
-
-            if (missing.length > 0) {
-                this.setBanner("Survey data is invalid. The following properties are missing: (" + missing.join(', ') + ")");
-                return false;
-            }
-
-            return true;
-        },
-
-        fetchSurvey: function(newSurvey) {
+        loadNewSurvey: function(newSurvey) {
             this.survey.type = newSurvey.type;
             this.survey.version = newSurvey.version;
 
@@ -924,7 +968,7 @@ var app = new Vue({
                 error = true;
             }
 
-            this.save_last_message = {
+            this.last_message = {
                 message: message,
                 error: error
             };

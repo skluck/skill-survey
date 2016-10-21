@@ -40,7 +40,7 @@ tbd
 - [x] Export finished survey
 - [x] Import finished survey (read-only)
 - [x] "Completed" screen with stats
-- [ ] Support drop-down / multiple new survey sources
+- [x] Support drop-down / multiple new survey sources
 - [x] Add documentation in README (features, abilities)
 - [x] Download as CSV
 - [ ] Download as PDF
@@ -58,6 +58,7 @@ tbd
         - [ ] Selecting a rating is slow. The further into the survey - the longer it freezes.
     - [x] Chrome
 - [ ] MVP Done
+- [ ] Add build process (so files can be [modularized](https://vuex.vuejs.org/en/structure.html) using `.vue`)
 - [ ] Add better documentation for filling out surveys, creating blanks
 - [ ] Ensure responsive-ness
 

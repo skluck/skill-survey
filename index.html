@@ -55,10 +55,6 @@
                 v-on:toggle-view-mode="toggleViewMode($event)"
                 ></navigation>
 
-            <message
-                :negative="last_message.error"
-                :value="last_message.message"></message>
-
             <modalers
                 :upload_trigger="toggle_upload"
                 v-on:upload-surveys="uploadSurveys"
@@ -112,8 +108,7 @@
                 <surveys
                     :surveys="surveys"
                     :loaded_survey="survey.type"
-                    v-on:load-new-survey="fetchData"
-                    v-model="source"
+                    v-on:load-new-survey="loadNewSurvey($event)"
                     v-on:load-survey="loadSurvey($event)"
                     v-on:delete-survey="deleteSurveyConfirmation($event)"
                     v-on:download-survey="downloadSurvey($event)"
@@ -180,29 +175,64 @@
         <script type="text/x-template" id="ss-surveys">
             <div>
 
-                <div class="ui icon info message">
-                    <i class="help icon"></i>
-                    <div class="content">
-                        <div v-if="surveys.length" class="header">
+                <message
+                    negative="1"
+                    :value="error"></message>
+
+                <div class="ui segments mt-5">
+
+                    <h2 class="ui teal top attached block header">
+                        <i class="help icon"></i>
+                        <div class="content">
                             Start a new survey or load an existing survey below.
                         </div>
-                        <div v-else class="header">
-                            There are no saved surveys. Start a new survey below or upload a finished survey.
-                        </div>
+                    </h2>
 
-                        <div class="ui fluid action mini input my-3">
-                            <input class="ui mini field" type="text" v-bind:value="value" v-on:input="onInput">
-                            <button class="ui primary left labeled icon button" @click="loadBlankSurvey">
-                                <i class="plus icon"></i>
-                                New Survey
-                            </button>
-                        </div>
+                    <div class="ui clearing segment">
 
+                        <div class="ui relaxed divided list">
+
+                            <template v-for="(source_http, source_title) in sources">
+                                <div class="item">
+                                    <div class="right floated content">
+                                        <a class="ui icon green button" @click="fetchBlankSurvey(source_http)">
+                                            <i class="plus icon"></i>
+                                            Start
+                                        </a>
+                                    </div>
+                                    <div class="content">
+                                        <h4 class="header">{{ source_title }}</h4>
+                                        <div class="description t-medium">{{ source_http }}</div>
+                                    </div>
+                                </div>
+                            </template>
+
+                            <div class="item">
+                                <div class="right floated content mt-3">
+                                    <a class="ui icon green button" @click="fetchBlankSurvey">
+                                        <i class="plus icon"></i>
+                                        Start
+                                    </a>
+                                </div>
+                                <div class="content">
+                                    <h4 class="header">Custom</h4>
+                                    <div class="description t-medium">
+                                        <div class="ui fluid input">
+                                            <input type="text" v-model="source">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
+
                 <div class="ui segments mt-5">
-                    <h2 class="ui top attached block header">Surveys</h2>
+                    <h3 class="ui top attached block header">
+                        Surveys
+                        <div class="sub header">Surveys saved to local browser storage</div>
+                    </h3>
                     <div class="ui clearing segment">
 
                         <template v-if="surveys.length">
@@ -265,7 +295,10 @@
 
         <script type="text/x-template" id="ss-categories">
             <div v-if="categories" class="ui segments mt-5">
-                <h2 class="ui top attached block header">Categories</h2>
+                <h3 class="ui top attached block header">
+                    Categories
+                    <div class="sub header">Competencies are categorized. These descriptions may help you understand how different categories should be rated.</div>
+                </h3>
                 <div class="ui segment" v-for="category in categories">
                     <span :class="category.style" class="ui ribbon basic label">{{ category.name }}</span>
                     {{ category.description }}
@@ -275,7 +308,10 @@
 
         <script type="text/x-template" id="ss-ratings">
             <div v-if="ratings" class="ui segments my-5">
-                <h2 class="ui top attached block header">Ratings</h2>
+                <h3 class="ui top attached block header">
+                    Ratings
+                    <div class="sub header">The following legend will describes how ratings translate to skill level.</div>
+                </h3>
 
                 <div class="ui segment" v-for="rating in ratings">
                     <span class="ui grey ribbon label">{{ rating.value }}</span>
@@ -283,7 +319,10 @@
                 </div>
 
                 <div v-if="unratings" class="ui grey segment">
-                    <h5 class="ui">Cannot Evaluate?</h5>
+                    <h4 class="ui header">
+                        Cannot evaluate a competency?
+                        <div class="sub header">Not every competency will apply to every person or role. Use these options if no rating can be accurately specified.</div>
+                    </h4>
 
                     <p v-for="rating in unratings">
                         <span class="ui basic grey inverted ribbon label">{{ rating.value }}</span>
@@ -541,7 +580,7 @@
                             <div class="ui row p-0">
                                 <div class="ui mini left icon input w-100">
                                     <i class="comment icon"></i>
-                                    <input type="text" placeholder="Leave comment..." v-model="changed_comment" >
+                                    <input type="text" placeholder="Leave comment..." v-model="changed_comment">
                                 </div>
 
                                 <div class="ui items">

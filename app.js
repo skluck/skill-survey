@@ -906,7 +906,6 @@ var app = new Vue({
         saveSurvey: function(new_name) {
             this.setSaveBanner('');
 
-            console.log(store.enabled)
             if (!store.enabled) {
                 this.setSaveBannerError('Browser storage is not supported by your browser.', true);
                 return;

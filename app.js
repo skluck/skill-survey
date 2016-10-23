@@ -471,9 +471,10 @@ Vue.component('surveys', {
     props: ['surveys'],
     data: function() {
         return {
-            default_source: 'http://kluck.engineering/skill-survey/sample-survey.json',
-            source: '',
-            sources: {},
+            source: 'http://kluck.engineering/skill-survey/sample-survey.json',
+            sources: {
+                'Sample': 'http://kluck.engineering/skill-survey/sample-survey.json'
+            },
             error: ''
         }
     },
@@ -487,19 +488,21 @@ Vue.component('surveys', {
                 survey = getURLParameter('survey'),
                 sources = getURLParameter('sources');
 
-            if (survey === null) {
-                survey = segment.length > 0 ? segment.slice(1) : this.default_source;
+            if (survey === null && segment.length > 0) {
+                survey = segment.slice(1);
             }
 
-            if (sources !== null) {
+            if (/^http(.*).json$/.test(survey)) {
+                this.source = survey;
+            }
+
+            if (sources !== null && /^http(.*).json$/.test(sources)) {
                 this.$http({
                     url: sources,
                     method: 'GET'
                 })
                 .then(this.fetchSources);
             }
-
-            this.source = survey;
         },
         fetchSources: function(response) {
             if (response.headers.get('Content-Type') !== 'application/json') {

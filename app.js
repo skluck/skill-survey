@@ -404,6 +404,18 @@ Vue.component('competency', {
             }
 
             return match;
+        },
+
+        polyfill_includes: function(arr, search) {
+            if (typeof arr.includes === 'function') {
+                return arr.includes(search);
+            } else {
+                for (var id in arr) {
+                    if (arr[id] === search) return true;
+                }
+            }
+
+            return false;
         }
     }
 });
@@ -856,10 +868,10 @@ var app = new Vue({
 
             for (comp_id in competencies) {
                 rating = competencies[comp_id]['rating'];
-                if (this.countable_ratings.includes(rating)) {
+                if (this.polyfill_includes(this.countable_ratings, rating)) {
                     score += parseInt(rating);
                     completed += 1;
-                } else if(this.unrating_values.includes(rating)) {
+                } else if (this.polyfill_includes(this.unrating_values, rating)) {
                     completed += 1;
                 }
             }
@@ -894,6 +906,7 @@ var app = new Vue({
         saveSurvey: function(new_name) {
             this.setSaveBanner('');
 
+            console.log(store.enabled)
             if (!store.enabled) {
                 this.setSaveBannerError('Browser storage is not supported by your browser.', true);
                 return;
@@ -1069,6 +1082,18 @@ var app = new Vue({
                     window.URL.revokeObjectURL(url);
                 }, 0);
             }
+        },
+
+        polyfill_includes: function(arr, search) {
+            if (typeof arr.includes === 'function') {
+                return arr.includes(search);
+            } else {
+                for (var id in arr) {
+                    if (arr[id] === search) return true;
+                }
+            }
+
+            return false;
         }
     }
 });

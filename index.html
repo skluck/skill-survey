@@ -2,6 +2,8 @@
 <html data-framework="vue">
     <head>
         <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+
         <title>Skill Assessment and Performance Review Surveys</title>
 
         <link rel="stylesheet" href="vendor/semantic-2.2.4.min.css"/>
@@ -482,7 +484,7 @@
                                 <span class="ui label basic red label">Competency not completed.</span>
                             </template>
                             <template v-else>
-                                <template v-if="unrating_values.includes(comp.rating)">
+                                <template v-if="polyfill_includes(unrating_values, comp.rating)">
                                     <span class="ui black circular small label">{{ comp.rating }}</span>
                                     {{ unratingDescription(comp.rating) }}
                                 </template>
@@ -519,7 +521,7 @@
                         <div v-if="comp.rating === ''" class="ui label">{{ comp_title }}</div>
                         <div v-else class="ui green label position-relative">
                             <template v-if="comp.rating !== ''">
-                                <span v-if="unrating_values.includes(comp.rating)" class="ui floating basic black circular mini label">{{ comp.rating }}</span>
+                                <span v-if="polyfill_includes(unrating_values, comp.rating)" class="ui floating basic black circular mini label">{{ comp.rating }}</span>
                                 <span v-else class="ui floating black circular mini label">{{ comp.rating }}</span>
                                 {{ comp_title }}
                             </template>

@@ -55,12 +55,11 @@
                 v-on:clear-survey="clearData"
                 v-on:toggle-summary="toggleSummary($event)"
                 v-on:toggle-view-mode="toggleViewMode($event)"
-                ></navigation>
+                v-on:print-view="printView()"></navigation>
 
             <modalers
                 :upload_trigger="toggle_upload"
-                v-on:upload-surveys="uploadSurveys"
-            ></modalers>
+                v-on:upload-surveys="uploadSurveys"></modalers>
 
             <template v-if="survey.type">
 
@@ -72,8 +71,7 @@
                     :survey_score="survey_score"
                     :survey_completed="survey_completed"
                     :survey_total="survey_total"
-                    :survey_progress="survey_progress"
-                ></surveysummary>
+                    :survey_progress="survey_progress"></surveysummary>
 
                 <template v-for="(section, section_id) in sections">
                     <surveysection
@@ -87,8 +85,7 @@
                         :survey_progress="survey_progress"
                         :survey_progress_style="survey_progress_style"
                         v-on:set-competency="saveRating($event)"
-                        v-on:toggle-section="toggleSection($event)"
-                    ></surveysection>
+                        v-on:toggle-section="toggleSection($event)"></surveysection>
                 </template>
 
                 <template v-if="!view_mode">
@@ -100,8 +97,7 @@
                         :survey_progress="survey_progress"
                         :survey_name="survey.name"
                         v-on:save-survey="saveSurvey($event)"
-                        v-on:change-survey-name="changeName($event)"
-                    ></save>
+                        v-on:change-survey-name="changeName($event)"></save>
                 </template>
 
             </template>
@@ -115,8 +111,7 @@
                     v-on:delete-survey="deleteSurveyConfirmation($event)"
                     v-on:download-survey="downloadSurvey($event)"
                     v-on:download-survey-csv="downloadSurveyCSV($event)"
-                    v-on:upload-survey="toggleUploader"
-                ></surveys>
+                    v-on:upload-survey="toggleUploader"></surveys>
 
                 <categories :categories="categories"></categories>
                 <ratings :ratings="ratings" :unratings="unratings"></ratings>
@@ -124,14 +119,17 @@
         </div>
 
         <script type="text/x-template" id="ss-navigation">
-            <div class="ui massive stackable container icon menu">
+            <div class="ui massive stackable container icon menu no-print">
                 <div class="header item">Skill Assessment and<br>Performance Review Surveys</div>
 
                 <a class="item" href="https://github.com/skluck/skill-survey"><i class="large github icon"></i></a>
 
                 <template v-if="loaded_survey">
-
                     <div class="ui right item t-std">
+
+                        <button class="ui icon orange button mr-3" @click="printView()">
+                            <i class="print icon"></i>
+                        </button>
 
                         <button class="ui vertical button mr-3"
                             v-bind:class="{ green: view_mode }"
@@ -419,10 +417,9 @@
                 <div class="ui bound top sticky" v-sticky>
                     <div class="ui blue inverted clearing segment">
                         <button
-                            class="ui white mini icon button position-absolute"
+                            class="ui white mini icon button position-absolute no-print"
                             v-hover-child="'blue'"
-                            @click="toggleSection(section_id)"
-                        >
+                            @click="toggleSection(section_id)">
                             <i class="toggle icon" v-bind:class="{ on: section.show_section, off: !section.show_section }"></i>
                         </button>
 
@@ -459,8 +456,7 @@
                                 :categories="categories"
                                 :ratings="ratings"
                                 :unratings="unratings"
-                                :view_mode="view_mode"
-                            ></competency>
+                                :view_mode="view_mode"></competency>
                         </template>
                     </div>
                 </div>
@@ -691,8 +687,7 @@
                             @drop="uploadDrop"
                             @dragover="uploadHover"
                             @dragenter="uploadHover"
-                            @dragleave="uploadHoverOff"
-                            >
+                            @dragleave="uploadHoverOff">
                             <h3 class="ui icon header w-100">
                                 <i class="icon" :class="icon_style"></i>
                                 <div class="content">

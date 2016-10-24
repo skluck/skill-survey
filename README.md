@@ -43,7 +43,7 @@ tbd
 - [x] Support drop-down / multiple new survey sources
 - [x] Add documentation in README (features, abilities)
 - [x] Download as CSV
-- [ ] Download as PDF
+- [x] Download as PDF
 - [x] Add better error handling, validation of import/exported surveys
 - [ ] Add editor for creating survey blanks
 - [ ] Cross-browser testing

@@ -279,6 +279,14 @@ Vue.component('navigation', {
         toggleViewMode: function () {
             this.view_mode = !this.view_mode;
             this.$emit('toggle-view-mode', this.view_mode);
+        },
+        printView: function() {
+            this.show_summary = true;
+            this.view_mode = true;
+
+            this.$emit('toggle-summary', this.show_summary);
+            this.$emit('toggle-view-mode', this.view_mode);
+            this.$emit('print-view');
         }
     }
 });
@@ -1084,6 +1092,13 @@ var app = new Vue({
                     window.URL.revokeObjectURL(url);
                 }, 0);
             }
+        },
+        printView: function() {
+            for (var section_title in this.sections) {
+                this.sections[section_title].show_section = true;
+            }
+
+            setTimeout(function() { window.print(); }, 500);
         },
 
         polyfill_includes: function(arr, search) {

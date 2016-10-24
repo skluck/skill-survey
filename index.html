@@ -195,7 +195,7 @@
                             <template v-for="(source_http, source_title) in sources">
                                 <div class="item">
                                     <div class="right floated content">
-                                        <a class="ui icon green button" @click="fetchBlankSurvey(source_http)">
+                                        <a class="ui tiny green icon button" @click="fetchBlankSurvey(source_http)">
                                             <i class="plus icon"></i>
                                             Start
                                         </a>
@@ -208,17 +208,16 @@
                             </template>
 
                             <div class="item">
-                                <div class="right floated content mt-3">
-                                    <a class="ui icon green button" @click="fetchBlankSurvey">
-                                        <i class="plus icon"></i>
-                                        Start
-                                    </a>
-                                </div>
                                 <div class="content">
                                     <h4 class="header">Custom</h4>
                                     <div class="description t-medium">
                                         <div class="ui fluid input">
-                                            <input type="text" v-model="source">
+                                            <input type="text" v-model="source" class="mr-3">
+
+                                            <a class="ui tiny green icon button" @click="fetchBlankSurvey">
+                                                <i class="plus icon"></i>
+                                                Start
+                                            </a>
                                         </div>
                                     </div>
                                 </div>
@@ -239,6 +238,7 @@
                             <table class="ui very basic celled table">
                                 <thead>
                                     <tr>
+                                        <th></th>
                                         <th>Name</th>
                                         <th>Survey</th>
                                         <th></th>
@@ -247,24 +247,26 @@
                                 <tbody>
                                     <template v-for="survey in surveys">
                                         <tr>
+                                            <td>
+                                                <button class="ui tiny primary icon button" @click="loadSurvey(survey)">
+                                                    <i class="download icon"></i> Load
+                                                </button>
+                                            </td>
                                             <td>{{ survey.name }}</td>
                                             <td>
                                                 {{ survey.type }}
-                                                <span class="ui tiny basic red label">{{ survey.version }}</span>
+                                                <span class="ui tiny basic label">{{ survey.version }}</span>
                                                 <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
                                             </td>
                                             <td class="right aligned">
-                                                <button class="ui primary icon button" @click="loadSurvey(survey)">
-                                                    <i class="download icon"></i> Load
-                                                </button>
-                                                <button class="ui teal icon button" @click="downloadSurvey(survey)">
+                                                <button class="ui tiny teal icon button" @click="downloadSurvey(survey)">
                                                     <i class="cloud download icon"></i> Backup
                                                 </button>
-                                                <button class="ui teal icon button" @click="downloadSurveyCSV(survey)">
+                                                <button class="ui tiny teal icon button" @click="downloadSurveyCSV(survey)">
                                                     <i class="cloud download icon"></i> CSV
                                                 </button>
 
-                                                <button class="ui icon basic red button ml-3" @click="deleteSurvey(survey)">
+                                                <button class="ui tiny basic red icon button ml-3" @click="deleteSurvey(survey)">
                                                     <i class="trash icon"></i>
                                                 </button>
                                             </td>

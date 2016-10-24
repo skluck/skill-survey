@@ -56,6 +56,7 @@ tbd
     - [x] Firefox
         - [x] Selecting a rating is slow. The further into the survey - the longer it freezes.
     - [x] Chrome
+    - [x] Safari
 - [ ] MVP Done
 - [ ] Add editor for creating survey blanks
 - [ ] Add build process (so files can be [modularized](https://vuex.vuejs.org/en/structure.html) using `.vue`)

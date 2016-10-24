@@ -60,6 +60,7 @@
 
                 <template v-for="(section, section_id) in sections">
                     <surveysection
+                        v-model="section"
                         :section="section"
                         :categories="categories"
                         :ratings="ratings"
@@ -288,26 +289,12 @@
             </h1>
         </script>
 
-        <script type="text/x-template" id="ss-category">
-            <span>
-                <template v-for="category in categories">
-                    <template v-if="selected_category == category.name">
-                        <b class="ui basic label"
-                        :data-tooltip="category.name"
-                        data-position="top center"
-                        data-inverted=""
-                        :class="category.style">{{ category.name | abbrev }}</b>
-                    </template>
-                </template>
-            </span>
-        </script>
-
         <script type="text/x-template" id="ss-section">
             <div class="ui basic segment">
 
                 <div class="ui blue inverted clearing segment">
                     <div class="ui input w-50">
-                        <input type="text" placeholder="Enter section title..." :value="section.name">
+                        <input type="text" placeholder="Enter section title..." :value="section.name" @input="updateTitle">
                     </div>
 
                     <button class="ui icon red button position-absolute right-0 mr-3" @click="deleteSection()">
@@ -316,11 +303,11 @@
                 </div>
 
                 <div class="ui divided items">
-                    <template v-for="(comp, comp_title) in section.competencies">
+                    <template v-for="comp in section.competencies">
                         <competency
-                            v-on:set-competency="saveRating(section_id, comp_title, $event)"
+                            v-on:set-competency="saveRating(section_id, comp.id, $event)"
                             :comp="comp"
-                            :comp_title="comp_title"
+                            :comp_title="comp.id"
                             :categories="categories"
                             :ratings="ratings"
                             :unratings="unratings"
@@ -328,141 +315,62 @@
                     </template>
                 </div>
 
+                <button class="ui green left labeled icon button" @click="addCompetency()">
+                    <i class="plus icon"></i>
+                    Add Competency
+                </button>
+
             </div>
         </script>
 
         <script type="text/x-template" id="ss-competency">
             <div class="ui item stackable grid pb-0">
 
-                <template v-if="view_mode">
-                    <div class="ui two wide column">
-                        <div class="ui label">{{ comp_title }}</div>
-                        <category :categories="categories" :selected_category="comp.category"></category>
+                <div class="ui two wide column">
+                    <label>ID<label>
+                    <div class="ui fluid input">
+                        <input type="text" placeholder="Enter Unique ID..." maxlength="3" :value="comp.id" @input="updateID">
                     </div>
-                    <div class="ui fourteen wide column">
 
-                        <h3 class="ui header mb-2">{{ comp.competency }}</h3>
-                        <div>
-                            <template v-if="comp.rating === ''">
-                                <span class="ui label basic red label">Competency not completed.</span>
-                            </template>
-                            <template v-else>
-                                <template v-if="unrating_values.includes(comp.rating)">
-                                    <span class="ui black circular small label">{{ comp.rating }}</span>
-                                    {{ unratingDescription(comp.rating) }}
-                                </template>
-                                <template v-else>
-                                    <b class="ui green circular small label">{{ comp.rating }}</b>
-                                    {{ comp.examples[comp.rating] }}
-                                </template>
-                            </template>
-                        </div>
-
-                        <div v-if="changed_comment" class="ui basic compact segment p-0 mb-0 mt-1">
-                            <p class="t-small">
-                                <b class="pr-2">Comment:</b> {{ changed_comment }}
-                            </p>
-                        </div>
-
-                        <template v-if="comp.references">
-                            <div class="ui basic compact segment p-0 mb-0 mt-1">
-                                <b class="t-small pr-2">References:</b>
-                                <div class="ui horizontal bulleted link list">
-                                    <template v-for="(reference_url, reference_title) in comp.references">
-                                        <a class="item t-small" :href="reference_url">{{ reference_title }}</a>
-                                    </template>
-                                </div>
-                            </div>
+                    <label>Category</label>
+                    <select class="ui dropdown" :value="comp.category" @input="updateCategory">
+                        <template v-for="category in categories">
+                            <option :value="category.name">{{ category.name }}</option>
                         </template>
+                    </select>
+                </div>
+                <div class="ui fourteen wide column">
 
+                <label>Competency description<label>
+                    <div class="ui fluid input">
+                        <input type="text" placeholder="Enter competency description..." :value="comp.competency" @input="updateTitle">
                     </div>
 
-                </template>
-                <template v-else>
-
-                    <div class="ui two wide column">
-                        <div v-if="comp.rating === ''" class="ui label">{{ comp_title }}</div>
-                        <div v-else class="ui green label position-relative">
-                            <template v-if="comp.rating !== ''">
-                                <span v-if="unrating_values.includes(comp.rating)" class="ui floating basic black circular mini label">{{ comp.rating }}</span>
-                                <span v-else class="ui floating black circular mini label">{{ comp.rating }}</span>
-                                {{ comp_title }}
-                            </template>
-                        </div>
-
-                        <category :categories="categories" :selected_category="comp.category"></category>
-                    </div>
-                    <div class="ui fourteen wide column stackable grid">
-
-                        <div class="ui row">
-                            <div class="ui eleven wide column">
-                                <h3 class="ui header">{{ comp.competency }}</h3>
-
-                                <template v-if="comp.rating === ''">
-
-                                    <template v-if="comp.references">
-                                        <div class="ui basic compact segment p-0 mb-0 mt-1">
-                                            <b class="t-small pr-2">References:</b>
-                                            <div class="ui horizontal bulleted link list">
-                                                <template v-for="(reference_url, reference_title) in comp.references">
-                                                    <a class="item t-small" :href="reference_url">{{ reference_title }}</a>
-                                                </template>
-                                            </div>
-                                        </div>
-                                    </template>
-                                </template>
-                                <template v-else>
-                                    <div v-if="changed_comment" class="ui basic compact segment p-0 mb-0 mt-1">
-                                        <p class="t-small">
-                                            <b>Comment:</b> {{ changed_comment }}
-                                        </p>
-                                    </div>
-                                </template>
-
-                            </div>
-                            <div class="ui five wide column">
-                                <template v-if="comp.rating === ''">
-                                    <template v-for="rating in unratings">
-                                        <label class="ui compact mini basic button right floated"
-                                            @click="onChange(rating.value)"
-                                            :data-tooltip="rating.tip"
-                                            data-position="bottom center"
-                                            @mouseover="hoverRating"
-                                            @mouseout="hoverRatingOff">
-                                            {{ rating.human }}
-                                        </label>
-                                    </template>
-                                </template>
-                                <template v-else>
-                                    <label class="ui compact mini negative basic button right floated" @click="onChange('')">
-                                        Clear
-                                    </label>
+                    <template v-if="comp.references">
+                        <div class="ui basic compact segment p-0 mb-0 mt-1">
+                            <b class="t-small pr-2">References:</b>
+                            <div class="ui horizontal bulleted link list">
+                                <template v-for="(reference_url, reference_title) in comp.references">
+                                    <a class="item t-small" :href="reference_url">{{ reference_title }}</a>
                                 </template>
                             </div>
                         </div>
+                    </template>
 
-                        <template v-if="comp.rating === ''">
-                            <div class="ui row p-0">
-                                <div class="ui mini left icon input w-100">
-                                    <i class="comment icon"></i>
-                                    <input type="text" placeholder="Leave comment..." v-model="changed_comment">
-                                </div>
-
-                                <div class="ui items">
-                                    <div class="item" v-for="rating in ratings">
-                                        <label class="ui compact small message"
-                                            @click="onChange(rating.value)"
-                                            @mouseover="hoverRating"
-                                            @mouseout="hoverRatingOff">
-                                            <b class="ui label">{{ rating.value }}</b>
-                                            {{ comp.examples[rating.value] }}
-                                        </label>
-                                    </div>
-                                </div>
+                    <div class="ui row p-0">
+                        <div class="ui items">
+                            <div class="item" v-for="rating in ratings">
+                                <label class="ui compact small message"
+                                    @click="onChange(rating.value)"
+                                    @mouseover="hoverRating"
+                                    @mouseout="hoverRatingOff">
+                                    <b class="ui label">{{ rating.value }}</b>
+                                    {{ comp.examples[rating.value] }}
+                                </label>
                             </div>
-                        </template>
+                        </div>
                     </div>
-                </template>
+                </div>
             </div>
         </script>
 

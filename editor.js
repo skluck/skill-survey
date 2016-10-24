@@ -175,9 +175,30 @@ Vue.component('surveysection', {
         'ratings',
         'unratings'
     ],
+    data: function() {
+        return {
+            new_competency: {
+                'id': '',
+                'category': '',
+                'competency': '',
+                'examples': {
+                    '0': '',
+                    '1': '',
+                    '2': '',
+                    '3': ''
+                },
+                'rating': '',
+                'comment': ''
+            }
+        };
+    },
     methods: {
         deleteSection: function() {
             this.$emit('delete-section');
+        },
+        updateTitle: function(event) {
+            this.section.name = event.target.value;
+            this.$emit('input', this.section);
         },
         saveRating: function(section, competency, value) {
             this.$emit('set-competency', {
@@ -186,6 +207,10 @@ Vue.component('surveysection', {
                 rating: value.rating,
                 comment: value.comment
             });
+        },
+        addCompetency: function() {
+            this.section.competencies.push(this.new_competency);
+            this.$emit('input', this.section);
         }
     }
 });
@@ -218,6 +243,15 @@ Vue.component('competency', {
     },
 
     methods: {
+        updateID: function(event) {
+            console.log(event.target.value);
+        },
+        updateTitle: function(event) {
+            console.log(event.target.value);
+        },
+        updateCategory: function(event) {
+            console.log(event.target.value);
+        },
         onChange: function (value) {
             this.$emit('set-competency', { rating: value, comment: this.changed_comment });
         },

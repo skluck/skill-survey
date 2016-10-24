@@ -121,7 +121,7 @@ Vue.component('modalers', {
                 }
             }
 
-            for (var file of files) {
+            var maybeAddDroppedFile = function(file) {
                 var found = this.dropped.find(function(f) {
                     return (f.name === file.name);
                 });
@@ -129,7 +129,9 @@ Vue.component('modalers', {
                 if (found === undefined) {
                     this.dropped.push(file);
                 }
-            }
+            };
+
+            files.forEach(maybeAddDroppedFile.bind(this));
         },
         removeUpload: function(filename) {
             this.dropped = this.dropped.filter(function(f) {
@@ -153,13 +155,13 @@ Vue.component('modalers', {
             };
 
             // Trigger upload and parsing of surveys.
-            for (var survey of this.dropped) {
+            this.dropped.forEach(function(survey) {
                 var reader = new FileReader(),
                     filename = survey.name;
 
                 reader.onload = onLoader(filename);
                 reader.readAsText(survey);
-            };
+            });
 
             // Wait until all surveys to be finished.
             var iterations = 0,
@@ -415,9 +417,11 @@ Vue.component('competency', {
             if (typeof arr.includes === 'function') {
                 return arr.includes(search);
             } else {
-                for (var element of arr) {
-                    if (element === search) return true;
-                }
+                var filtered = arr.filter(function(element) {
+                    return (element === search);
+                });
+
+                return (filtered.length === 1);
             }
 
             return false;
@@ -524,10 +528,7 @@ Vue.component('surveys', {
                 source = this.source;
             }
 
-            this.$http({
-                url: source,
-                method: 'GET'
-            })
+            this.$http({ url: source, method: 'GET' })
             .then(this.fetchSuccess, this.fetchError);
         },
         fetchSuccess: function(response) {
@@ -991,12 +992,12 @@ var app = new Vue({
             setTimeout(setBack, 1000);
         },
         uploadSurveys: function(surveys) {
-            for (var uploaded of surveys) {
+            var storeUploadedFile = function(uploaded) {
                 this.surveys.push(uploaded.meta);
-
                 store.set(uploaded.meta.survey, uploaded.survey);
-            }
+            };
 
+            surveys.forEach(storeUploadedFile.bind(this));
             store.set('surveys', this.surveys);
         },
 
@@ -1061,9 +1062,11 @@ var app = new Vue({
             if (typeof arr.includes === 'function') {
                 return arr.includes(search);
             } else {
-                for (var element of arr) {
-                    if (element === search) return true;
-                }
+                var filtered = arr.filter(function(element) {
+                    return (element === search);
+                });
+
+                return (filtered.length === 1);
             }
 
             return false;

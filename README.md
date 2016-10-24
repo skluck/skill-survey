@@ -46,12 +46,12 @@ tbd
 - [x] Download as PDF
 - [x] Add better error handling, validation of import/exported surveys
 - [ ] Cross-browser testing
-    - [ ] IE 11
-        - [ ] Cannot click ratings
+    - [x] IE 11
+        - [x] Cannot click ratings
         - [ ] Cannot drag and drop files
-        - [ ] Cannot click to upload files
-        - [ ] Typing comments seems slow
-        - [ ] Long competencies do not text wrap
+        - [x] Cannot click to upload files
+        - [x] Typing comments seems slow
+        - [x] Long competencies do not text wrap
     - [ ] Edge
     - [x] Firefox
         - [x] Selecting a rating is slow. The further into the survey - the longer it freezes.

@@ -111,8 +111,10 @@ Vue.component('modalers', {
 
             for (var i = 0; i < xfer.length; i++) {
                 var file = xfer.item(i);
-
                 if (file.type === 'application/json') {
+                    files.push(file);
+                } else if (file.type === '') {
+                    // Allow empty mime type for IE :(
                     files.push(file);
                 } else {
                     this.error = true;
@@ -122,8 +124,11 @@ Vue.component('modalers', {
             }
 
             var maybeAddDroppedFile = function(file) {
-                var found = this.dropped.find(function(f) {
-                    return (f.name === file.name);
+                var found = undefined;
+                this.dropped.forEach(function(f) {
+                    if (f.name === file.name) {
+                        found = f;
+                    }
                 });
 
                 if (found === undefined) {
@@ -400,8 +405,11 @@ Vue.component('competency', {
             .children('.label').removeClass('orange');
         },
         unratingDescription: function(value) {
-            var match = this.unratings.find(function(unrating) {
-                return (value === unrating.value);
+            var match = undefined;
+            this.unratings.forEach(function(unrating) {
+                if (value === unrating.value) {
+                    match = unrating;
+                }
             });
 
             if (match === undefined) {

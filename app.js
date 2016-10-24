@@ -121,8 +121,7 @@ Vue.component('modalers', {
                 }
             }
 
-            for (var i in files) {
-                var file = files[i];
+            for (var file of files) {
                 var found = this.dropped.find(function(f) {
                     return (f.name === file.name);
                 });
@@ -143,24 +142,24 @@ Vue.component('modalers', {
             this.errors = [];
         },
         uploadFiles: function($element) {
+            var that = this;
             this.validated = [];
             this.errors = [];
 
             var onLoader = function(filename) {
                 return function(e) {
-                    return this.uploadSurvey(filename, e);
-                }.bind(this);
-            }.bind(this);
+                    return that.uploadSurvey(filename, e);
+                };
+            };
 
             // Trigger upload and parsing of surveys.
-            for (var id in this.dropped) {
+            for (var survey of this.dropped) {
                 var reader = new FileReader(),
-                    survey = this.dropped[id],
                     filename = survey.name;
 
                 reader.onload = onLoader(filename);
                 reader.readAsText(survey);
-            }
+            };
 
             // Wait until all surveys to be finished.
             var iterations = 0,
@@ -173,23 +172,21 @@ Vue.component('modalers', {
                 }.bind(this),
                 waiter = function() {
                     iterations++;
-
                     var files = this.dropped.length,
                         finished = this.validated.length + this.errors.length;
 
-                    if (files === finished) {
+                    if (finished === files) {
                         finish();
                     } else if (iterations > 10) {
                         finish();
                     }
-                }.bind(this);
+                };
 
-            var waiterID = setInterval(waiter, 1000);
+            var waiterID = setInterval(waiter.bind(this), 1000);
             return false;
 
         },
         validateUploads: function() {
-
             // success!
             if (this.dropped.length === this.validated.length) {
                 this.$emit('upload-surveys', this.validated);
@@ -418,8 +415,8 @@ Vue.component('competency', {
             if (typeof arr.includes === 'function') {
                 return arr.includes(search);
             } else {
-                for (var id in arr) {
-                    if (arr[id] === search) return true;
+                for (var element of arr) {
+                    if (element === search) return true;
                 }
             }
 
@@ -827,11 +824,10 @@ var app = new Vue({
         },
 
         loadSections: function(sections) {
-            var sanitized = {},
-                id = title = '';
+            var sanitized = {};
 
-            for (title in sections) {
-                id = title.replace(/\W+/g, "_").toLowerCase();
+            for (var title in sections) {
+                var id = title.replace(/\W+/g, "_").toLowerCase();
                 sanitized[id] = this.parseSectionState(title, sections[title]);
             }
 
@@ -948,11 +944,10 @@ var app = new Vue({
             this.setSaveBanner('Survey saved.', false, true);
         },
         serializeSections: function() {
-            var serialized = {},
-                section_id, section;
+            var serialized = {};
 
-            for (section_id in this.sections) {
-                section = this.sections[section_id];
+            for (var section_title in this.sections) {
+                var section = this.sections[section_title];
                 serialized[section.name] = {
                     competencies: section.competencies
                 };
@@ -996,8 +991,7 @@ var app = new Vue({
             setTimeout(setBack, 1000);
         },
         uploadSurveys: function(surveys) {
-            for (var id in surveys) {
-                var uploaded = surveys[id];
+            for (var uploaded of surveys) {
                 this.surveys.push(uploaded.meta);
 
                 store.set(uploaded.meta.survey, uploaded.survey);
@@ -1047,26 +1041,13 @@ var app = new Vue({
 
             var blob = Papa.unparse(rows, { quotes: true });
 
-            this.download(blob, filename, ' text/csv');
+            this.download(blob, filename, 'text/csv');
         },
         download: function download(data, filename, type) {
-            var a = document.createElement('a'),
-                file = new Blob([data], {type: type});
+            var options = { type: type },
+                blob = new Blob([data], options);
 
-            if (window.navigator.msSaveOrOpenBlob) {
-                // IE10+
-                window.navigator.msSaveOrOpenBlob(file, filename);
-            } else {
-                var url = URL.createObjectURL(file);
-                a.href = url;
-                a.download = filename;
-                document.body.appendChild(a);
-                a.click();
-                setTimeout(function() {
-                    document.body.removeChild(a);
-                    window.URL.revokeObjectURL(url);
-                }, 0);
-            }
+            saveAs(blob, filename);
         },
         printView: function() {
             for (var section_title in this.sections) {
@@ -1080,8 +1061,8 @@ var app = new Vue({
             if (typeof arr.includes === 'function') {
                 return arr.includes(search);
             } else {
-                for (var id in arr) {
-                    if (arr[id] === search) return true;
+                for (var element of arr) {
+                    if (element === search) return true;
                 }
             }
 

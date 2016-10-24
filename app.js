@@ -1,4 +1,4 @@
-var generate_uuid = function() {
+var generateUUID = function() {
     // only needs to be random enough for local storage
     // http://stackoverflow.com/questions/105034/create-guid-uuid-in-javascript
     return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
@@ -7,7 +7,7 @@ var generate_uuid = function() {
     });
 };
 
-var localdate = function (value) {
+var localDate = function (value) {
     if (value.length === 0) return '';
     if (typeof value !== 'string') return '';
 
@@ -217,7 +217,7 @@ Vue.component('modalers', {
                 return;
             }
 
-            var survey_id = generate_uuid(),
+            var survey_id = generateUUID(),
                 survey_key = 'survey-' + survey_id,
                 meta = {
                     type: decoded.type,
@@ -621,7 +621,7 @@ Vue.directive('hover-child', {
     }
 });
 
-Vue.filter('localdate', localdate);
+Vue.filter('localDate', localDate);
 
 Vue.filter('section_status', function (section) {
     if (!section.hasOwnProperty('score') || !section.hasOwnProperty('completed')) {
@@ -935,7 +935,7 @@ var app = new Vue({
             this.survey.name = new_name;
             this.survey.updated = new Date().toISOString();
             if (this.survey.id === undefined || this.survey.id.length === 0) {
-                this.survey.id = generate_uuid();
+                this.survey.id = generateUUID();
             }
 
             var survey_key = 'survey-' + this.survey.id,
@@ -1032,14 +1032,14 @@ var app = new Vue({
         },
 
         downloadSurvey: function(meta) {
-            var filename = 'survey-' + meta.name.replace(/\W+/g, "_") + '-' + localdate(meta.updated),
+            var filename = 'survey-' + meta.name.replace(/\W+/g, "_") + '-' + localDate(meta.updated),
                 survey = store.get(meta.survey),
                 blob = JSON.stringify(survey);
 
             this.download(blob, filename, 'application/json');
         },
         downloadSurveyCSV: function(meta) {
-            var filename = 'survey-' + meta.name.replace(/\W+/g, "_") + '-' + localdate(meta.updated),
+            var filename = 'survey-' + meta.name.replace(/\W+/g, "_") + '-' + localDate(meta.updated),
                 survey = store.get(meta.survey),
                 rows = [];
 
@@ -1056,7 +1056,7 @@ var app = new Vue({
 
                     rows.push({
                         'Name': survey.name,
-                        'Updated': localdate(survey.updated),
+                        'Updated': localDate(survey.updated),
                         'Type': survey.type,
                         'Version': survey.version,
                         'Section': section_title,

@@ -45,7 +45,6 @@ tbd
 - [x] Download as CSV
 - [x] Download as PDF
 - [x] Add better error handling, validation of import/exported surveys
-- [ ] Add editor for creating survey blanks
 - [ ] Cross-browser testing
     - [ ] IE 11
         - [ ] Cannot click ratings
@@ -58,6 +57,7 @@ tbd
         - [ ] Selecting a rating is slow. The further into the survey - the longer it freezes.
     - [x] Chrome
 - [ ] MVP Done
+- [ ] Add editor for creating survey blanks
 - [ ] Add build process (so files can be [modularized](https://vuex.vuejs.org/en/structure.html) using `.vue`)
 - [ ] Add better documentation for filling out surveys, creating blanks
 - [ ] Ensure responsive-ness

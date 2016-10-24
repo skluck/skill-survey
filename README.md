@@ -53,8 +53,8 @@ tbd
         - [ ] Typing comments seems slow
         - [ ] Long competencies do not text wrap
     - [ ] Edge
-    - [ ] Firefox
-        - [ ] Selecting a rating is slow. The further into the survey - the longer it freezes.
+    - [x] Firefox
+        - [x] Selecting a rating is slow. The further into the survey - the longer it freezes.
     - [x] Chrome
 - [ ] MVP Done
 - [ ] Add editor for creating survey blanks

@@ -82,8 +82,6 @@
                         :ratings="ratings"
                         :unratings="unratings"
                         :survey_name="survey.name"
-                        :survey_progress="survey_progress"
-                        :survey_progress_style="survey_progress_style"
                         v-on:set-competency="saveRating($event)"
                         v-on:toggle-section="toggleSection($event)"></surveysection>
                 </template>
@@ -427,21 +425,6 @@
 
                         <template v-if="view_mode">
                             <div v-if="progress < 100" class="ui label red float-right">Incomplete</div>
-                        </template>
-                        <template v-else>
-                            <div class="ui teal progress my-0 float-right w-20">
-                                <div class="bar" v-bind:style="survey_progress_style">
-                                    <div class="progress">{{ survey_progress }}%</div>
-                                </div>
-                                <div class="label top-0 text-trans">Overall</div>
-                            </div>
-
-                            <div class="ui green progress my-0 mx-2 float-right w-30">
-                                <div class="bar" v-bind:style="progress_style">
-                                    <div class="progress">{{ progress }}%</div>
-                                </div>
-                                <div class="label top-0 text-trans">Section</div>
-                            </div>
                         </template>
 
                         <h2 class="ui header mt-0 pl-5">{{ section.name }}</h2>

@@ -315,15 +315,15 @@ Vue.component('surveysection', {
         'view_mode',
         'categories',
         'ratings',
-        'unratings',
-        'survey_progress',
-        'survey_progress_style'
+        'unratings'
     ],
     computed: {
         progress: function() {
+            // Not currently used
             return this.calculateProgress(this.section.completed, this.section.total);
         },
         progress_style: function() {
+            // Not currently used
             return {
                 width: this.progress + '%'
             }
@@ -659,7 +659,6 @@ var app = new Vue({
 
         surveys: [],
         sections: null,
-        watchers: [],
 
         categories: [
             {
@@ -763,9 +762,8 @@ var app = new Vue({
 
             this.sections = this.loadSections(newSurvey.sections);
             for (var section_title in this.sections) {
-                this.totalSection(section_title, this.sections[section_title].competencies);
+                this.totalSection(section_title);
             }
-            this.watchSections();
         },
 
         loadSurvey: function(meta) {
@@ -793,10 +791,6 @@ var app = new Vue({
         },
 
         clearData: function () {
-            this.watchers.forEach(function(unwatch) {
-                unwatch();
-            });
-
             this.setBanner('');
             this.setSaveBanner('');
             this.sections = null;
@@ -807,8 +801,6 @@ var app = new Vue({
             this.survey.id = '';
             this.survey.name = '';
             this.survey.updated = '';
-
-            this.watchers = [];
         },
 
         changeName: function(name) {
@@ -835,6 +827,8 @@ var app = new Vue({
 
             this.sections[section]['competencies'][competency]['rating'] = rating;
             this.sections[section]['competencies'][competency]['comment'] = comment;
+
+            this.totalSection(section);
         },
 
         loadSections: function(sections) {
@@ -848,22 +842,7 @@ var app = new Vue({
 
             return sanitized;
         },
-        watchSections: function() {
-            var path = name = '',
-                unwatch;
 
-            for (name in this.sections) {
-                path = ['sections', name, 'competencies'].join('.');
-
-                unwatch = this.$watch(path, this.sectionWatcher(name), {deep: true});
-                this.watchers.push(unwatch);
-            }
-        },
-        sectionWatcher: function(section) {
-            return function(old, competencies) {
-                this.totalSection(section, competencies);
-            }
-        },
         parseSectionState: function(title, section) {
             section.name = title;
             section.score = 0;
@@ -873,12 +852,13 @@ var app = new Vue({
 
             return section;
         },
-        totalSection: function(section, competencies) {
-            var completed = score = 0,
-                comp_id = rating = '';
+        totalSection: function(section) {
+            var completed = 0,
+                score = 0,
+                competencies = this.sections[section].competencies;
 
-            for (comp_id in competencies) {
-                rating = competencies[comp_id]['rating'];
+            for (var comp_id in competencies) {
+                var rating = competencies[comp_id]['rating'];
                 if (this.polyfill_includes(this.countable_ratings, rating)) {
                     score += parseInt(rating);
                     completed += 1;

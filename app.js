@@ -505,10 +505,10 @@ Vue.component('surveys', {
             }
 
             if (sources !== null && /^http(.*).json$/.test(sources)) {
-                this.$http({
-                    url: sources,
-                    method: 'GET'
-                })
+                this.$http({ url: sources, method: 'GET' })
+                .then(this.fetchSources);
+            } else {
+                this.$http({ url: 'surveys.json', method: 'GET' })
                 .then(this.fetchSources);
             }
         },

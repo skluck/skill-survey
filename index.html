@@ -256,7 +256,7 @@
                                             <td>
                                                 {{ survey.type }}
                                                 <span class="ui tiny basic label">{{ survey.version }}</span>
-                                                <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
+                                                <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|localDate }}</span>
                                             </td>
                                             <td class="right aligned">
                                                 <button class="ui tiny teal icon button" @click="downloadSurvey(survey)">
@@ -344,7 +344,7 @@
 
                     <h3 v-if="survey.name" class="ui sub header mt-2">
                         {{ survey.name }}
-                        <span v-if="survey.updated" class="ui label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
+                        <span v-if="survey.updated" class="ui label"><i class="clock icon"></i>{{ survey.updated|localDate }}</span>
                     </h3>
 
                     <template v-else>

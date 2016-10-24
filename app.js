@@ -454,14 +454,9 @@ Vue.component('save', {
     }
 });
 
-Vue.component('ratings', {
-  template: '#ss-ratings',
-  props: ['ratings', 'unratings']
-});
-
-Vue.component('categories', {
-    template: '#ss-categories',
-    props: ['categories']
+Vue.component('introduction', {
+    template: '#ss-introduction',
+    props: ['categories', 'ratings', 'unratings']
 });
 
 Vue.component('category', {

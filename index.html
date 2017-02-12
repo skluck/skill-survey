@@ -54,6 +54,8 @@
         <div class="ui container my-3" id="ss-app">
             <navigation
                 :loaded_survey="survey.type"
+                :show_summary="show_summary"
+                :view_mode="view_mode"
                 v-on:clear-survey="clearData"
                 v-on:toggle-summary="toggleSummary($event)"
                 v-on:toggle-view-mode="toggleViewMode($event)"
@@ -97,7 +99,11 @@
                         :survey_progress="survey_progress"
                         :survey_name="survey.name"
                         v-on:save-survey="saveSurvey($event)"
-                        v-on:change-survey-name="changeName($event)"></save>
+                        v-on:change-survey-name="changeName($event)"
+                        v-on:print-view="printView()"
+                        v-on:save-download-survey="saveAndDownloadSurvey($event, 'json')"
+                        v-on:save-download-survey-csv="saveAndDownloadSurvey($event, 'csv')"
+                        ></save>
                 </template>
 
             </template>
@@ -705,6 +711,19 @@
                             <button class="ui green button" @click="saveSurvey">
                                 <i class="icon save"></i> Save to Browser Storage
                             </button>
+
+                            <button class="ui teal icon button ml-3" @click="downloadSurvey()">
+                                <i class="cloud download icon"></i> Backup (JSON)
+                            </button>
+
+                            <button class="ui teal icon button" @click="downloadSurveyCSV()">
+                                <i class="cloud download icon"></i> CSV
+                            </button>
+
+                            <button class="ui teal icon button" @click="printView()">
+                                <i class="print icon"></i> Print
+                            </button>
+
                         </div>
                     </div>
                 </div>

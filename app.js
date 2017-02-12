@@ -265,31 +265,18 @@ Vue.component('modalers', {
 
 Vue.component('navigation', {
     template: '#ss-navigation',
-    props: ['loaded_survey'],
-    data: function() {
-        return {
-            show_summary: false,
-            view_mode: false,
-        };
-    },
+    props: ['loaded_survey', 'show_summary', 'view_mode'],
     methods: {
         clearSurvey: function () {
             this.$emit('clear-survey')
         },
         toggleSummary: function () {
-            this.show_summary = !this.show_summary;
-            this.$emit('toggle-summary', this.show_summary);
+            this.$emit('toggle-summary', !this.show_summary);
         },
         toggleViewMode: function () {
-            this.view_mode = !this.view_mode;
-            this.$emit('toggle-view-mode', this.view_mode);
+            this.$emit('toggle-view-mode', !this.view_mode);
         },
         printView: function() {
-            this.show_summary = true;
-            this.view_mode = true;
-
-            this.$emit('toggle-summary', this.show_summary);
-            this.$emit('toggle-view-mode', this.view_mode);
             this.$emit('print-view');
         }
     }
@@ -459,6 +446,15 @@ Vue.component('save', {
     methods: {
         saveSurvey: function () {
             this.$emit('save-survey', this.changed_survey_name);
+        },
+        printView: function() {
+            this.$emit('print-view');
+        },
+        downloadSurvey: function(value) {
+            this.$emit('save-download-survey', this.changed_survey_name);
+        },
+        downloadSurveyCSV: function(value) {
+            this.$emit('save-download-survey-csv', this.changed_survey_name);
         }
     }
 });
@@ -517,7 +513,7 @@ Vue.component('surveys', {
             }
         },
         fetchSources: function(response) {
-            if (response.headers.get('Content-Type') !== 'application/json') {
+            if (response.headers.get('Content-Type').indexOf('application/json') === -1) {
                 this.setBanner('Survey source list must be json.');
                 return false;
             }
@@ -894,6 +890,19 @@ var app = new Vue({
 
             this.surveys = surveys;
         },
+        saveAndDownloadSurvey: function(new_name, type) {
+            var meta = this.saveSurvey(new_name);
+            if (meta === undefined) {
+                return;
+            }
+
+            if (type === 'csv') {
+                this.downloadSurveyCSV(meta);
+            } else if (type === 'json') {
+                this.downloadSurvey(meta);
+            }
+        },
+
         saveSurvey: function(new_name) {
             this.setSaveBanner('');
 
@@ -902,12 +911,12 @@ var app = new Vue({
                 return;
             }
 
-            if (new_name === 0) {
+            if (new_name.length === 0) {
                 this.setSaveBannerError('Please provide a name for this survey.', true);
                 return;
             }
 
-            if (new_name > 50) {
+            if (new_name.length > 50) {
                 this.setSaveBannerError('Survey name too long.', true);
                 return;
             }
@@ -951,6 +960,7 @@ var app = new Vue({
             });
 
             this.setSaveBanner('Survey saved.', false, true);
+            return meta;
         },
         serializeSections: function() {
             var serialized = {};
@@ -1059,6 +1069,9 @@ var app = new Vue({
             saveAs(blob, filename);
         },
         printView: function() {
+            this.toggleSummary(!this.show_summary);
+            this.toggleViewMode(!this.view_mode);
+
             for (var section_title in this.sections) {
                 this.sections[section_title].show_section = true;
             }

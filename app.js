@@ -550,7 +550,7 @@ Vue.component('surveys', {
             this.setBanner('Something terrible happened. Cannot load survey.');
         },
         fetchBlankValidate: function(response) {
-            if (response.headers.get('Content-Type') !== 'application/json') {
+            if (response.headers.get('Content-Type').indexOf('application/json') === -1) {
                 this.setBanner('Blank survey data must be json.');
                 return false;
             }

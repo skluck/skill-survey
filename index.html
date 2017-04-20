@@ -37,13 +37,13 @@
         </script>
 
         <style>
-            .ui.sticky.bound.bottom {
-                margin-bottom: 1em;
+            .global-sticky {
+                left: 0;
+                right: 0;
+                position: fixed;
+                top: 0;
+                z-index: 100;
             }
-            .ui.sticky.bound.bottom + div {
-                margin-bottom: 2.5em;
-            }
-
             .ui.button.white {
                 color: black;
                 background: #fff;
@@ -500,22 +500,19 @@
 
         <script type="text/x-template" id="ss-section">
             <div class="ui basic segment">
+                <div class="ui blue inverted clearing segment" v-sticky>
+                    <button
+                        class="ui white mini icon button position-absolute no-print"
+                        v-hover-child="'blue'"
+                        @click="toggleSection(section_id)">
+                        <i class="toggle icon" v-bind:class="{ on: section.show_section, off: !section.show_section }"></i>
+                    </button>
 
-                <div class="ui bound top sticky" v-sticky>
-                    <div class="ui blue inverted clearing segment">
-                        <button
-                            class="ui white mini icon button position-absolute no-print"
-                            v-hover-child="'blue'"
-                            @click="toggleSection(section_id)">
-                            <i class="toggle icon" v-bind:class="{ on: section.show_section, off: !section.show_section }"></i>
-                        </button>
+                    <template v-if="view_mode">
+                        <div v-if="progress < 100" class="ui label red float-right">Incomplete</div>
+                    </template>
 
-                        <template v-if="view_mode">
-                            <div v-if="progress < 100" class="ui label red float-right">Incomplete</div>
-                        </template>
-
-                        <h2 class="ui header mt-0 pl-5">{{ section.name }}</h2>
-                    </div>
+                    <h2 class="ui header mt-0 pl-5">{{ section.name }}</h2>
                 </div>
 
                 <div v-show="section.show_section">

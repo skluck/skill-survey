@@ -33,20 +33,18 @@ var betterSticky = (function ($, window, document, undefined) {
     var slice = Function.prototype.call.bind([].slice);
 
     function debounce(fn, delay) {
-      var pending;
+        var pending;
 
-      function deb() {
-        if (pending) { clearTimeout(pending); }
+        function deb() {
+            if (pending) { clearTimeout(pending); }
+            pending = setTimeout.apply(window, [fn, delay].concat(slice(arguments)));
+        }
 
-        pending = setTimeout.apply(window, [fn, delay].concat(slice(arguments)));
-      }
-
-      return deb;
+        return deb;
     }
 
     function offsetTop($el) {
-
-      return $el.offsetParent().position().top;
+        return $el.offsetParent().position().top;
     }
 
     function registerSticky(el) {
@@ -57,38 +55,41 @@ var betterSticky = (function ($, window, document, undefined) {
         var top = $doc.scrollTop();
         var current = sections
             .reduce(function (acc, sect) {
-
-              return top > offsetTop(sect) ? sect : acc;
+                return top > offsetTop(sect) ? sect : acc;
             }, 0)
 
         update(current);
     }
 
-    function updateSticky(current) {
+    function updateSticky (current) {
         var cssClass = 'global-sticky';
 
         $('.' + cssClass).remove();
 
         if (current) {
-          var $clone = $(current)
-              .clone();
+            var $current = $(current),
+                isOn = $current.find('button i.on').length === 1;
 
-          $clone
-              .find('button')
-              .on('click', function () {
-                updateSticky(current);
-                  // a small hack
-                  current.find('button').click();
-              });
+            if (!isOn) return;
 
-          $('<div class="#" />'.replace('#', cssClass))
-              .append($clone)
-              .appendTo(document.body);
+            var $clone = $current.clone();
+
+            $clone
+                .find('button')
+                .on('click', function () {
+                    updateSticky(current);
+                    // a small hack
+                    $current.find('button').click();
+                });
+
+            $('<div class="#" />'.replace('#', cssClass))
+                .append($clone)
+                .appendTo(document.body);
         }
     }
 
     document.addEventListener('scroll', function (event) {
-      scrollHandler(event, debounce(updateSticky, 60));
+        scrollHandler(event, debounce(updateSticky, 60));
     });
 
     return registerSticky;

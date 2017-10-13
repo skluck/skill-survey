@@ -1126,8 +1126,8 @@ var app = new Vue({
             saveAs(blob, filename);
         },
         printView: function() {
-            this.toggleSummary(!this.show_summary);
-            this.toggleViewMode(!this.view_mode);
+            this.toggleSummary(true);
+            this.toggleViewMode(true);
 
             for (var section_title in this.sections) {
                 this.sections[section_title].show_section = true;

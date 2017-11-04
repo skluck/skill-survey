@@ -12,6 +12,7 @@
         <link rel="subresource" href="vendor/vue-2.0.0.js"/>
         <link rel="subresource" href="vendor/vue-resource-1.0.2.js"/>
         <link rel="subresource" href="vendor/store+json2-1.3.20.min.js"/>
+        <link rel="subresource" href="vendor/clipboard-1.7.1.js"/>
         <link rel="subresource" href="editor.js"/>
 
         <script>
@@ -21,6 +22,7 @@
                 'vendor/vue-2.0.0.js',
                 'vendor/vue-resource-1.0.2.js',
                 'vendor/store+json2-1.3.20.min.js',
+                'vendor/clipboard-1.7.1.js',
                 'editor.js',
             ].forEach(function(src) {
                 var script = document.createElement('script');
@@ -35,28 +37,53 @@
                 color: black;
                 background: #fff;
             }
+
+            .json_configuration {
+                margin-bottom: 2em;
+            }
+            .json_configuration textarea {
+                font-family: monospace;
+            }
         </style>
     </head>
     <body>
         <div class="ui container my-3" id="ss-editor">
-            <navigation
-                :loaded_survey="survey.type"
-                v-on:clear-survey="clearData"
-                v-on:toggle-view-mode="toggleViewMode($event)"
-                ></navigation>
+            <div class="ui massive stackable icon menu">
+                <div class="header item">Skill Survey Editor</div>
+                <a class="item" href="https://github.com/skluck/skill-survey"><i class="large github icon"></i></a>
+
+                <template v-if="survey.id">
+                    <div class="ui right item t-std">
+                        <div class="ui vertical animated basic negative button" @click="clearSurvey">
+                            <div class="visible content"> <i class="icon trash"></i> Clear</div>
+                            <div class="hidden content">Are you sure?</div>
+                        </div>
+                    </div>
+                </template>
+
+            </div>
 
             <message
                 :negative="last_message.error"
                 :value="last_message.message"></message>
 
-            <modalers
-                :upload_trigger="toggle_upload"
-                v-on:upload-surveys="uploadSurveys"
-            ></modalers>
-
             <template v-if="survey.id">
 
-                <surveyheader :survey="survey"></surveyheader>
+                <h1 class="ui header">
+                    <i class="edit icon"></i>
+                    <div class="ui content form w-100">
+                        <div class="fields">
+                            <div class="twelve wide field">
+                                <label>Survey Type</label>
+                                <input type="text" placeholder="Enter survey type..." v-model="survey.type">
+                            </div>
+                            <div class="four wide field">
+                                <label>Survey Version</label>
+                                <input type="text" placeholder="Enter survey version..." v-model="survey.version">
+                            </div>
+                        </div>
+                    </div>
+                </h1>
 
                 <template v-for="(section, section_id) in sections">
                     <surveysection
@@ -65,7 +92,6 @@
                         :categories="categories"
                         :ratings="ratings"
                         :unratings="unratings"
-
                         v-on:delete-section="deleteSection(section_id)"
                     ></surveysection>
                 </template>
@@ -77,68 +103,38 @@
                     </button>
                 </div>
 
-                <template v-if="!view_mode">
-                    <save
-                        :save_last_message="save_last_message"
-                        :survey_type="survey.type"
-                        :survey_version="survey.version"
-                        :survey_name="survey.name"
-                        v-on:save-survey="saveSurvey($event)"
-                        v-on:change-survey-name="changeName($event)"
-                    ></save>
-                </template>
+                <div class="mb-5">
+                    <div class="ui segments">
+                        <h2 class="ui top attached block header">Survey Configuration</h2>
+                        <div class="ui segment">
+                            <p>
+                                Save the following <b>JSON</b> configuration into a text editor. No data is backed up in the browser!
+                                <br><button class="ui tiny primary icon button clipboard-btn" data-clipboard-target=".json_configuration textarea">
+                                    <i class="copy icon"></i>
+                                    Copy to clipboard
+                                </button>
+                            </p>
+
+                            <div class="ui form json_configuration">
+                                <div class="field">
+                                    <textarea rows="20">{{ serialized_survey }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </template>
 
             <template v-else>
                 <surveys
-                    :surveys="surveys"
-                    :loaded_survey="survey.type"
                     v-on:load-new-survey="buildNewSurvey"
-                    v-on:load-survey="loadSurvey($event)"
-                    v-on:delete-survey="deleteSurveyConfirmation($event)"
-                    v-on:download-survey="downloadSurvey($event)"
-                    v-on:upload-survey="toggleUploader"
                 ></surveys>
 
                 <categories :categories="categories"></categories>
                 <ratings :ratings="ratings" :unratings="unratings"></ratings>
             </template>
         </div>
-
-        <script type="text/x-template" id="ss-navigation">
-            <div class="ui massive stackable icon menu">
-                <div class="header item">Skill Survey Editor</div>
-
-                <a class="item" href="https://github.com/skluck/skill-survey"><i class="large github icon"></i></a>
-
-                <template v-if="loaded_survey">
-                    <div class="right menu">
-                        <div class="item">
-                            <div class="ui mini input">
-                                <button
-                                    class="ui button"
-                                    v-bind:class="{ green: view_mode }"
-                                    @click="toggleViewMode()"
-                                >
-                                    <i class="toggle icon" v-bind:class="{ on: view_mode, off: !view_mode }"></i>
-                                    <span>Read-only</span>
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="item">
-                            <div class="ui mini input">
-                                <div class="ui vertical animated basic negative button" @click="clearSurvey">
-                                    <div class="visible content"> <i class="icon trash"></i> Clear</div>
-                                    <div class="hidden content">Are you sure?</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </template>
-            </div>
-        </script>
 
         <script type="text/x-template" id="ss-message">
             <transition name="fade">
@@ -160,15 +156,11 @@
 
         <script type="text/x-template" id="ss-surveys">
             <div>
-
                 <div class="ui icon info message">
                     <i class="help icon"></i>
                     <div class="content">
-                        <div v-if="surveys.length" class="header">
-                            Start a new survey or load an existing survey below.
-                        </div>
-                        <div v-else class="header">
-                            There are no saved surveys. Start a new survey below or upload a finished survey.
+                        <div class="header">
+                            Start a new survey below or upload a finished survey.
                         </div>
 
                         <div class="ui fluid action mini input my-3">
@@ -177,63 +169,6 @@
                                 New Survey
                             </button>
                         </div>
-
-                    </div>
-                </div>
-
-                <div class="ui segments mt-5">
-                    <h2 class="ui top attached block header">Surveys</h2>
-                    <div class="ui clearing segment">
-
-                        <template v-if="surveys.length">
-                            <table class="ui very basic celled table">
-                                <thead>
-                                    <tr>
-                                        <th>Name</th>
-                                        <th>Survey</th>
-                                        <th></th>
-                                    </tr>
-                                  </thead>
-                                <tbody>
-                                    <template v-for="survey in surveys">
-                                        <tr>
-                                            <td>{{ survey.name }}</td>
-                                            <td>
-                                                {{ survey.type }}
-                                                <span class="ui tiny basic red label">{{ survey.version }}</span>
-                                                <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|localdate }}</span>
-                                            </td>
-                                            <td class="right aligned">
-                                                <button class="ui primary icon button" @click="loadSurvey(survey)">
-                                                    <i class="download icon"></i> Load
-                                                </button>
-                                                <button class="ui teal icon button" @click="downloadSurvey(survey)">
-                                                    <i class="cloud download icon"></i> Backup
-                                                </button>
-
-                                                <button class="ui icon basic red button ml-3" @click="deleteSurvey(survey)">
-                                                    <i class="trash icon"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    </template>
-                                </tbody>
-                            </table>
-                        </template>
-
-                        <button class="ui icon orange button float-right" @click="uploadSurvey">
-                            <i class="cloud upload icon"></i> Upload
-                        </button>
-
-                        <p v-if="surveys.length > 0" class="t-tiny">
-                            <span class="ui label basic red t-tiny">
-                                <i class="warning icon"></i>Be careful!
-                            </span>
-                            Surveys are stored in browser cache. Clearing your cache will delete your surveys!
-                        </p>
-                        <p v-else>
-                            No saved surveys found!
-                        </p>
 
                     </div>
                 </div>
@@ -271,24 +206,6 @@
             </div>
         </script>
 
-        <script type="text/x-template" id="ss-header">
-            <h1 class="ui header">
-                <i class="edit icon"></i>
-                <div class="ui content form w-100">
-                    <div class="fields">
-                        <div class="twelve wide field">
-                            <label>Survey Type</label>
-                            <input type="text" placeholder="Enter survey type..." :value="survey.type">
-                        </div>
-                        <div class="four wide field">
-                            <label>Survey Version</label>
-                            <input type="text" placeholder="Enter survey version..." :value="survey.version">
-                        </div>
-                    </div>
-                </div>
-            </h1>
-        </script>
-
         <script type="text/x-template" id="ss-section">
             <div class="ui basic segment">
 
@@ -305,12 +222,10 @@
                 <div class="ui divided items">
                     <template v-for="comp in section.competencies">
                         <competency
-                            v-on:set-competency="saveRating(section_id, comp.id, $event)"
+                            v-on:set-competency="updateCompetency(comp.id, $event)"
                             :comp="comp"
-                            :comp_title="comp.id"
                             :categories="categories"
                             :ratings="ratings"
-                            :unratings="unratings"
                         ></competency>
                     </template>
                 </div>
@@ -328,12 +243,12 @@
 
                 <div class="ui two wide column">
                     <label>ID<label>
-                    <div class="ui fluid input">
-                        <input type="text" placeholder="Enter Unique ID..." maxlength="3" :value="comp.id" @input="updateID">
+                    <div class="ui fluid input" data-tooltip="Enter unique ID such as A1 or B2">
+                        <input type="text" placeholder="A#" maxlength="3" :value="changed_comp.id" @input="updateID">
                     </div>
 
                     <label>Category</label>
-                    <select class="ui dropdown" :value="comp.category" @input="updateCategory">
+                    <select class="ui dropdown" :value="changed_comp.category" @input="updateCategory">
                         <template v-for="category in categories">
                             <option :value="category.name">{{ category.name }}</option>
                         </template>
@@ -341,75 +256,28 @@
                 </div>
                 <div class="ui fourteen wide column">
 
-                <label>Competency description<label>
+                    <label>Competency description<label>
                     <div class="ui fluid input">
-                        <input type="text" placeholder="Enter competency description..." :value="comp.competency" @input="updateTitle">
+                        <input type="text" placeholder="Enter competency description..." :value="changed_comp.competency" @input="updateTitle">
                     </div>
 
-                    <template v-if="comp.references">
-                        <div class="ui basic compact segment p-0 mb-0 mt-1">
-                            <b class="t-small pr-2">References:</b>
-                            <div class="ui horizontal bulleted link list">
-                                <template v-for="(reference_url, reference_title) in comp.references">
-                                    <a class="item t-small" :href="reference_url">{{ reference_title }}</a>
-                                </template>
-                            </div>
-                        </div>
-                    </template>
-
                     <div class="ui row p-0">
-                        <div class="ui items">
-                            <div class="item" v-for="rating in ratings">
-                                <label class="ui compact small message"
-                                    @click="onChange(rating.value)"
-                                    @mouseover="hoverRating"
-                                    @mouseout="hoverRatingOff">
-                                    <b class="ui label">{{ rating.value }}</b>
-                                    {{ comp.examples[rating.value] }}
-                                </label>
-                            </div>
+                        <div class="ui relaxed items">
+                            <rating
+                                v-for="(example, index) in changed_comp.examples"
+                                v-on:set-rating="updateRating(index, $event)"
+                                :score="index"
+                                :example="example"></rating>
                         </div>
                     </div>
                 </div>
             </div>
         </script>
 
-        <script type="text/x-template" id="ss-save">
-            <div class="mb-5">
-                <div class="ui segments">
-                    <h2 class="ui top attached block header">Save Survey</h2>
-                    <div class="ui segment">
-
-                        <message
-                            :negative="save_last_message.error"
-                            :value="save_last_message.message"></message>
-
-                        <div class="ui form">
-                            <div class="four fields">
-                                <div class="field">
-                                    <label>Survey name</label>
-                                    <input type="text" name="survey_name" v-model="changed_survey_name" placeholder="Example: John's Survey">
-                                </div>
-                                <div class="field">
-                                    <label>Survey type/version</label>
-                                    <div class="ui disabled input">
-                                        <input type="text" readonly :value="survey_type + ' [' + survey_version + ']'">
-                                    </div>
-                                </div>
-                                <div class="field">
-                                    <label>Last updated</label>
-                                    <div class="ui disabled input">
-                                        <input type="text" readonly :value="survey_updated">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <button class="ui green button" @click="saveSurvey">
-                                <i class="icon save"></i> Save to Browser Storage
-                            </button>
-                        </div>
-                    </div>
-                </div>
+        <script type="text/x-template" id="ss-rating">
+            <div class="ui item fluid labeled input">
+                <label class="ui label">{{ score }}</label>
+                <input type="text" placeholder="Enter rating example..." v-model="changed_rating" @input="emitRating">
             </div>
         </script>
 

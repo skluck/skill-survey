@@ -85,16 +85,13 @@
                     </div>
                 </h1>
 
-                <template v-for="(section, section_id) in sections">
-                    <surveysection
-                        v-model="section"
-                        :section="section"
-                        :categories="categories"
-                        :ratings="ratings"
-                        :unratings="unratings"
-                        v-on:delete-section="deleteSection(section_id)"
-                    ></surveysection>
-                </template>
+                <surveysection v-for="(section, index) in sections" :key="section"
+                    v-model="section"
+                    v-on:delete-section="deleteSection(index)"
+                    :parent_section="section"
+                    :categories="categories"
+                    :ratings="ratings"
+                ></surveysection>
 
                 <div class="my-3">
                     <button class="ui green left labeled icon button" @click="addSection">
@@ -127,14 +124,117 @@
             </template>
 
             <template v-else>
-                <surveys
-                    v-on:load-new-survey="buildNewSurvey"
-                ></surveys>
+                <div class="ui icon info message">
+                    <i class="help icon"></i>
+                    <div class="content">
+                        <div class="header">
+                            Start a new survey below or upload a finished survey.
+                        </div>
+
+                        <div class="ui fluid action mini input my-3">
+                            <button class="ui primary left labeled icon button" @click="buildNewSurvey">
+                                <i class="plus icon"></i>
+                                New Survey
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
 
                 <categories :categories="categories"></categories>
                 <ratings :ratings="ratings" :unratings="unratings"></ratings>
             </template>
         </div>
+
+
+
+        <script type="text/x-template" id="ss-surveysection">
+            <div class="ui basic segment">
+
+                <div class="ui blue inverted clearing segment">
+                    <div class="ui input w-50">
+                        <input type="text" placeholder="Enter section title..." v-model="section.name">
+                    </div>
+
+                    <button class="ui icon red button position-absolute right-0 mr-3" @click="$emit('delete-section')">
+                        <i class="trash icon"></i>
+                        Delete Section
+                    </button>
+                </div>
+
+                <div class="ui divided items">
+                    <competency v-for="(competency, index) in section.competencies" :key="competency"
+                        v-model="competency"
+                        v-on:delete-competency="deleteCompetency(index)"
+                        :parent_competency="competency"
+                        :categories="categories"
+                        :ratings="ratings"
+                    ></competency>
+                </div>
+
+                <button class="ui green left labeled icon button" @click="addCompetency()">
+                    <i class="plus icon"></i>
+                    Add Competency
+                </button>
+
+            </div>
+        </script>
+
+        <script type="text/x-template" id="ss-competency">
+            <div class="ui item stackable grid pb-0">
+
+                <div class="ui two wide column">
+                    <label>ID<label>
+                    <div class="ui fluid input" data-tooltip="Enter unique ID such as A1 or B2">
+                        <input type="text" maxlength="3" v-model="competency.id">
+                    </div>
+
+                    <label>Category</label>
+                    <select class="ui dropdown" v-model="competency.category">
+                        <template v-for="category in categories">
+                            <option :value="category.name">{{ category.name }}</option>
+                        </template>
+                    </select>
+
+                    <button class="ui tiny inverted icon blue fluid button mt-3" @click="resetExamples">
+                        <i class="warning icon"></i>
+                        Use defaults
+                    </button>
+                    <button class="ui tiny inverted icon red fluid button mt-3" @click="$emit('delete-competency')">
+                        <i class="trash icon"></i>
+                        Delete
+                    </button>
+                </div>
+                <div class="ui fourteen wide column">
+
+                    <label>Competency description<label>
+                    <div class="ui fluid input">
+                        <input type="text" placeholder="Enter competency description..." v-model="competency.competency">
+                    </div>
+
+                    <div class="ui row p-0">
+                        <div class="ui relaxed items">
+                            <example v-for="(example, index) in competency.examples" :key="example"
+                                v-model="example"
+                                :parent_example="example"></example>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </script>
+
+        <script type="text/x-template" id="ss-example">
+            <div class="ui item fluid labeled input">
+                <label class="ui label">{{ example.rating }}</label>
+                <input type="text" placeholder="Enter rating example..." v-model="example.example">
+            </div>
+        </script>
+
+
+
+
+
+
 
         <script type="text/x-template" id="ss-message">
             <transition name="fade">
@@ -152,27 +252,6 @@
 
                 </div>
             </transition>
-        </script>
-
-        <script type="text/x-template" id="ss-surveys">
-            <div>
-                <div class="ui icon info message">
-                    <i class="help icon"></i>
-                    <div class="content">
-                        <div class="header">
-                            Start a new survey below or upload a finished survey.
-                        </div>
-
-                        <div class="ui fluid action mini input my-3">
-                            <button class="ui primary left labeled icon button" @click="loadBlankSurvey">
-                                <i class="plus icon"></i>
-                                New Survey
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
-            </div>
         </script>
 
         <script type="text/x-template" id="ss-categories">
@@ -206,130 +285,5 @@
             </div>
         </script>
 
-        <script type="text/x-template" id="ss-section">
-            <div class="ui basic segment">
-
-                <div class="ui blue inverted clearing segment">
-                    <div class="ui input w-50">
-                        <input type="text" placeholder="Enter section title..." :value="section.name" @input="updateTitle">
-                    </div>
-
-                    <button class="ui icon red button position-absolute right-0 mr-3" @click="deleteSection()">
-                        <i class="trash icon"></i>
-                    </button>
-                </div>
-
-                <div class="ui divided items">
-                    <template v-for="comp in section.competencies">
-                        <competency
-                            v-on:set-competency="updateCompetency(comp.id, $event)"
-                            :comp="comp"
-                            :categories="categories"
-                            :ratings="ratings"
-                        ></competency>
-                    </template>
-                </div>
-
-                <button class="ui green left labeled icon button" @click="addCompetency()">
-                    <i class="plus icon"></i>
-                    Add Competency
-                </button>
-
-            </div>
-        </script>
-
-        <script type="text/x-template" id="ss-competency">
-            <div class="ui item stackable grid pb-0">
-
-                <div class="ui two wide column">
-                    <label>ID<label>
-                    <div class="ui fluid input" data-tooltip="Enter unique ID such as A1 or B2">
-                        <input type="text" placeholder="A#" maxlength="3" :value="changed_comp.id" @input="updateID">
-                    </div>
-
-                    <label>Category</label>
-                    <select class="ui dropdown" :value="changed_comp.category" @input="updateCategory">
-                        <template v-for="category in categories">
-                            <option :value="category.name">{{ category.name }}</option>
-                        </template>
-                    </select>
-                </div>
-                <div class="ui fourteen wide column">
-
-                    <label>Competency description<label>
-                    <div class="ui fluid input">
-                        <input type="text" placeholder="Enter competency description..." :value="changed_comp.competency" @input="updateTitle">
-                    </div>
-
-                    <div class="ui row p-0">
-                        <div class="ui relaxed items">
-                            <rating
-                                v-for="(example, index) in changed_comp.examples"
-                                v-on:set-rating="updateRating(index, $event)"
-                                :score="index"
-                                :example="example"></rating>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </script>
-
-        <script type="text/x-template" id="ss-rating">
-            <div class="ui item fluid labeled input">
-                <label class="ui label">{{ score }}</label>
-                <input type="text" placeholder="Enter rating example..." v-model="changed_rating" @input="emitRating">
-            </div>
-        </script>
-
-        <script type="text/x-template" id="ss-modals">
-            <div>
-                <div id="delete-survey" class="ui small modal">
-                    <div class="header">Delete Survey</div>
-                    <div class="content">
-                        <p>Are you sure you want to delete this survey?</p>
-                    </div>
-                    <div class="actions">
-                        <div class="ui approve negative left labeled icon button"><i class="trash icon"></i> Delete</div>
-                        <div class="ui cancel button">Cancel</div>
-                    </div>
-                </div>
-
-                <div id="upload-survey" class="ui small modal">
-                    <div class="header">Upload Survey</div>
-                    <div class="content">
-
-                        <div v-if="dropped.length > 0">
-                            <template v-for="file in dropped">
-                                <div class="ui basic compact segment p-1 my-0 mb-2">
-                                    <button class="ui mini red button mr-2" @click="removeUpload(file.name)">Cancel</button>
-                                    <span>{{ file.name }}</span>
-                                </div>
-                            </template>
-                        </div>
-
-                        <div class="dropzone" :class="dropzone_style"
-                            @drop="uploadDrop"
-                            @dragover="uploadHover"
-                            @dragenter="uploadHover"
-                            @dragleave="uploadHoverOff"
-                            >
-                            <h3 class="ui icon header w-100">
-                                <i class="icon" :class="icon_style"></i>
-                                <div class="content">
-                                    Drop files here or click to select from filesystem.
-                                    <div class="sub header">Only backups or shared surveys in JSON format are supported.</div>
-                                </div>
-                            </h3>
-
-                            <input type="file" multiple accept="application/json" @change="uploadInputDrop"/>
-                        </div>
-                    </div>
-                    <div class="actions">
-                        <div class="ui approve positive left labeled icon button"><i class="cloud upload icon"></i> Upload</div>
-                        <div class="ui cancel button">Cancel</div>
-                    </div>
-                </div>
-            </div>
-        </script>
     </body>
 </html>

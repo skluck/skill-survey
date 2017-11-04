@@ -225,7 +225,6 @@ var app = new Vue({
 
         clearSurvey: function () {
             this.setBanner('');
-            this.setSaveBanner('');
             this.sections = null;
 
             this.survey.type = '';

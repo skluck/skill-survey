@@ -51,6 +51,11 @@ var betterSticky = (function ($, window, document, undefined) {
         sections.push($(el));
     }
 
+    function deregisterSticky() {
+        sections = [];
+        $('.global-sticky').remove();
+    }
+
     function scrollHandler(event, update) {
         var top = $doc.scrollTop();
         var current = sections
@@ -61,10 +66,8 @@ var betterSticky = (function ($, window, document, undefined) {
         update(current);
     }
 
-    function updateSticky (current) {
-        var cssClass = 'global-sticky';
-
-        $('.' + cssClass).remove();
+    function updateSticky(current) {
+        $('.global-sticky').remove();
 
         if (current) {
             var $current = $(current),
@@ -75,14 +78,10 @@ var betterSticky = (function ($, window, document, undefined) {
             var $clone = $current.clone();
 
             $clone
-                .find('button')
-                .on('click', function () {
-                    updateSticky(current);
-                    // a small hack
-                    $current.find('button').click();
-                });
+                .find('h2').removeClass('pl-5').parent()
+                .find('button').remove();
 
-            $('<div class="#" />'.replace('#', cssClass))
+            $('<div class="global-sticky">')
                 .append($clone)
                 .appendTo(document.body);
         }
@@ -92,7 +91,7 @@ var betterSticky = (function ($, window, document, undefined) {
         scrollHandler(event, debounce(updateSticky, 60));
     });
 
-    return registerSticky;
+    return [registerSticky, deregisterSticky];
 }(jQuery, window, document));
 
 Vue.component('message', {
@@ -659,7 +658,7 @@ Vue.component('surveys', {
 
 Vue.directive('sticky', {
     inserted: function (el) {
-        betterSticky(el);
+        betterSticky[0](el);
     }
 });
 
@@ -855,6 +854,8 @@ var app = new Vue({
             this.survey.id = '';
             this.survey.name = '';
             this.survey.updated = '';
+
+            betterSticky[1]();
         },
 
         changeName: function(name) {

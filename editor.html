@@ -128,7 +128,7 @@
                     <i class="help icon"></i>
                     <div class="content">
                         <div class="header">
-                            Start a new survey below or upload a finished survey.
+                            Click the button below to start creating a new survey.
                         </div>
 
                         <div class="ui fluid action mini input my-3">
@@ -141,8 +141,11 @@
                     </div>
                 </div>
 
-                <categories :categories="categories"></categories>
-                <ratings :ratings="ratings" :unratings="unratings"></ratings>
+                <introduction
+                    :categories="categories"
+                    :ratings="ratings"
+                    :unratings="unratings"></introduction>
+
             </template>
         </div>
 
@@ -254,34 +257,62 @@
             </transition>
         </script>
 
-        <script type="text/x-template" id="ss-categories">
-            <div v-if="categories" class="ui segments mt-5">
-                <h2 class="ui top attached block header">Categories</h2>
-                <div class="ui segment" v-for="category in categories">
-                    <span :class="category.style" class="ui ribbon basic label">{{ category.name }}</span>
-                    {{ category.description }}
+        <script type="text/x-template" id="ss-introduction">
+            <div>
+
+                <div class="ui segments my-5">
+                    <h3 class="ui top attached block header">
+                        Frequently Asked Questions
+                        <div class="sub header">How do I use this thing?</div>
+                    </h3>
+
+                    <div class="ui segment">
+                        <h4 class="ui header">
+                            <i class="help circle icon"></i>
+                            <div class="content">How do I take surveys?</div>
+                        </h4>
+                        <p>
+                            This is the <b>Visual Survey Editor</b>. Please see <a href="index.html">Skill Survey</a> for taking and managing surveys.
+                        </p>
+                    </div>
                 </div>
-            </div>
-        </script>
 
-        <script type="text/x-template" id="ss-ratings">
-            <div v-if="ratings" class="ui segments my-5">
-                <h2 class="ui top attached block header">Ratings</h2>
-
-                <div class="ui segment" v-for="rating in ratings">
-                    <span class="ui grey ribbon label">{{ rating.value }}</span>
-                    {{ rating.human }}
+                <div class="ui segments mt-5">
+                    <h3 class="ui top attached block header">
+                        Categories
+                        <div class="sub header">Competencies are categorized. These descriptions may help you understand how different categories should be rated.</div>
+                    </h3>
+                    <div class="ui segment" v-for="category in categories">
+                        <span :class="category.style" class="ui ribbon basic label">{{ category.name }}</span>
+                        {{ category.description }}
+                    </div>
                 </div>
 
-                <div v-if="unratings" class="ui grey segment">
-                    <h5 class="ui">Cannot Evaluate?</h5>
+                <div class="ui segments my-5">
+                    <h3 class="ui top attached block header">
+                        Ratings
+                        <div class="sub header">The following legend describes how ratings translate to skill level.</div>
+                    </h3>
 
-                    <p v-for="rating in unratings">
-                        <span class="ui basic grey inverted ribbon label">{{ rating.value }}</span>
-                        <span v-if="rating.warning" class="ui left basic red label"><i class="warning icon"></i>{{ rating.tip }}</span>
-                        {{ rating.extended }}
-                    </p>
+                    <div class="ui segment" v-for="rating in ratings">
+                        <span class="ui grey ribbon label">{{ rating.value }}</span>
+                        {{ rating.human }}
+                    </div>
+
+                    <div v-if="unratings" class="ui grey segment">
+                        <h4 class="ui header">
+                            Cannot evaluate a competency?
+                            <div class="sub header">Not every competency will apply to every person or role. Use these options if no rating can be accurately specified.</div>
+                        </h4>
+
+                        <p v-for="rating in unratings">
+                            <span class="ui basic grey inverted ribbon label">{{ rating.value }}</span>
+                            <span v-if="rating.warning" class="ui left basic red label"><i class="warning icon"></i>{{ rating.tip }}</span>
+                            {{ rating.extended }}
+                        </p>
+                    </div>
                 </div>
+
             </div>
         </script>
 

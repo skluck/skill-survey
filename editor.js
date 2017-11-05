@@ -27,10 +27,10 @@ var clipboard = new Clipboard('.clipboard-btn'),
             category: 'Skill',
             competency: '',
             examples: [
-                { rating: '0', example: ''},
-                { rating: '1', example: ''},
-                { rating: '2', example: ''},
-                { rating: '3', example: ''}
+                { rating: '0', example: '' },
+                { rating: '1', example: '' },
+                { rating: '2', example: '' },
+                { rating: '3', example: '' }
             ],
             rating: '',
             comment: ''
@@ -169,14 +169,9 @@ Vue.component('message', {
     }
 });
 
-Vue.component('categories', {
-    template: '#ss-categories',
-    props: ['categories']
-});
-
-Vue.component('ratings', {
-  template: '#ss-ratings',
-  props: ['ratings', 'unratings']
+Vue.component('introduction', {
+    template: '#ss-introduction',
+    props: ['categories', 'ratings', 'unratings']
 });
 
 var app = new Vue({

@@ -19,7 +19,7 @@
 
 <script>
 export default {
-    name: 'survey-header',
+    name: 'SurveyHeader',
 
     props: ['survey']
 };

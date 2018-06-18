@@ -37,7 +37,7 @@
 import competency from './competency';
 
 export default {
-    name: 'survey-section',
+    name: 'SurveySection',
 
     components: {
       competency

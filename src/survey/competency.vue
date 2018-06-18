@@ -134,6 +134,7 @@
 </template>
 
 <script>
+import $ from 'jquery';
 import category from './category'
 
 export default {

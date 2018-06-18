@@ -61,7 +61,7 @@
 import message from '../util/message';
 
 export default {
-    name: 'save',
+    name: 'SaveOptions',
 
     components: {
       message

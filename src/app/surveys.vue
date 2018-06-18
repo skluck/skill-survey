@@ -130,7 +130,7 @@ function getURLParameter(name) {
 }
 
 export default {
-    name: 'surveys',
+    name: 'Surveys',
 
     components: {
       message

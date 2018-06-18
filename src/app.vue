@@ -1,5 +1,5 @@
 <template>
-    <div class="ui container my-3" id="ss-app">
+    <div class="ui container my-3">
         <navigation
             :loaded_survey="survey.type"
             :show_summary="show_summary"
@@ -15,18 +15,18 @@
 
         <template v-if="survey.type">
 
-            <survey-header :survey="survey"></survey-header>
+            <SurveyHeader :survey="survey"></SurveyHeader>
 
-            <survey-summary
+            <SurveySummary
                 :show_summary="show_summary"
                 :sections="sections"
                 :survey_score="survey_score"
                 :survey_completed="survey_completed"
                 :survey_total="survey_total"
-                :survey_progress="survey_progress"></survey-summary>
+                :survey_progress="survey_progress"></SurveySummary>
 
             <template v-for="(section, section_id) in sections">
-                <survey-section
+                <SurveySection
                     :section_id="section_id"
                     :section="section"
                     :view_mode="view_mode"
@@ -35,11 +35,11 @@
                     :unratings="unratings"
                     :survey_name="survey.name"
                     v-on:set-competency="saveRating($event)"
-                    v-on:toggle-section="toggleSection($event)"></survey-section>
+                    v-on:toggle-section="toggleSection($event)"></SurveySection>
             </template>
 
             <template v-if="!view_mode">
-                <save-options
+                <SaveOptions
                     :save_last_message="save_last_message"
                     :survey_type="survey.type"
                     :survey_version="survey.version"
@@ -51,13 +51,13 @@
                     v-on:print-view="printView()"
                     v-on:save-download-survey="saveAndDownloadSurvey($event, 'json')"
                     v-on:save-download-survey-csv="saveAndDownloadSurvey($event, 'csv')"
-                    ></save-options>
+                    ></SaveOptions>
             </template>
 
         </template>
 
         <template v-else>
-            <surveys
+            <Surveys
                 :surveys="surveys"
                 :loaded_survey="survey.type"
                 v-on:load-new-survey="loadNewSurvey($event)"
@@ -65,114 +65,122 @@
                 v-on:delete-survey="deleteSurveyConfirmation($event)"
                 v-on:download-survey="downloadSurvey($event)"
                 v-on:download-survey-csv="downloadSurveyCSV($event)"
-                v-on:upload-survey="toggleUploader"></surveys>
+                v-on:upload-survey="toggleUploader"></Surveys>
 
-            <introduction
+            <Introduction
                 :categories="categories"
                 :ratings="ratings"
-                :unratings="unratings"></introduction>
+                :unratings="unratings"></Introduction>
         </template>
     </div>
-
 </template>
 
 <script>
-import 'survey-header' from './survey/survey-header';
-import 'survey-summary' from './survey/survey-summary';
-import 'survey-section' from './survey/survey-section';
-import introduction from './app/introduction';
-import modals from './app/modals';
-import navigation from './app/navigation';
-import 'save-options' from './app/save-options';
+import $ from 'jquery';
+import Papa from 'papaparse';
+import saveAs from 'file-saver';
+import store from 'store';
 
-import betterSticky from './util/better-sticky';
+import SurveyHeader from './survey/survey-header';
+import SurveySummary from './survey/survey-summary';
+import SurveySection from './survey/survey-section';
+import Introduction from './app/introduction';
+import Surveys from './app/surveys';
+import Modals from './app/modals';
+import Navigation from './app/navigation';
+import SaveOptions from './app/save-options';
+
+import { betterSticky } from './util/better-sticky';
 
 export default {
     name: 'app',
 
     components: {
-        introduction,
-        navigation,
-        modals,
-        'save-options',
-        'survey-header',
-        'survey-summary',
-        'survey-section'
+        Introduction,
+        Navigation,
+        Modals,
+        Surveys,
+        SurveyHeader,
+        SurveySummary,
+        SurveySection,
+        SaveOptions
     },
-    data: {
-        save_last_message: { message: "", error: false },
+    data: function() {
+        return {
+            save_last_message: { message: "", error: false },
 
-        survey: {
-            id: '',
+            survey: {
+                id: '',
 
-            type: '',
-            version: '',
+                type: '',
+                version: '',
 
-            name: '',
-            updated: ''
-        },
+                name: '',
+                updated: ''
+            },
 
-        view_mode: false,
-        show_summary: false,
-        toggle_upload: false,
+            view_mode: false,
+            show_summary: false,
+            toggle_upload: false,
 
-        survey_completed: 0,
-        survey_total: 0,
-        survey_score: 0,
+            survey_completed: 0,
+            survey_total: 0,
+            survey_score: 0,
 
-        surveys: [],
-        sections: null,
+            surveys: [],
+            sections: null,
 
-        categories: [
-            {
-                "name": "Skill",
-                "description": "These competencies should be primarily scored based on the ability of the person to perform at a high level.",
-                "style": "green"
-            },
-            {
-                "name": "Knowledge",
-                "description": "These competencies should be primarily scored based on retained knowledge and expertise of the person.",
-                "style": "blue"
-            },
-            {
-                "name": "Behavior",
-                "description": "These competencies should be primarily scored based on ongoing behavior of the person.",
-                "style": "yellow"
-            }
-        ],
-        ratings: [
-            {
-                value: "0",
-                human: "Limited experience or knowledge. May have some familiarity but no hands-on or professional experience."
-            },
-            {
-                value: "1",
-                human: "Has some experience or knowledge. Can perform with limited oversight and guidance."
-            },
-            {
-                value: "2",
-                human: "Has production-level experience and deep hands-on knowledge. Can effectively share knowledge and assist others."
-            },
-            {
-                value: "3",
-                human: "Expert-level. Fully autonomous and can deliver consistently with an exceptional degree of quality."
-            },
-        ],
-        unratings: [
-            {
-                value: "IDK",
-                human: "I don't know.",
-                tip: "Peer reviews only!",
-                extended: 'Does not have enough knowledge to judge or evaluate.',
-                warning: true
-            },
-            {
-                value: "N/A",
-                human: "Not applicable.",
-                tip: "Not applicable or relevant to person's role or team.",
-                extended: "Not applicable or relevant to person's role or team."
-            }
-        ]
+            categories: [
+                {
+                    "name": "Skill",
+                    "description": "These competencies should be primarily scored based on the ability of the person to perform at a high level.",
+                    "style": "green"
+                },
+                {
+                    "name": "Knowledge",
+                    "description": "These competencies should be primarily scored based on retained knowledge and expertise of the person.",
+                    "style": "blue"
+                },
+                {
+                    "name": "Behavior",
+                    "description": "These competencies should be primarily scored based on ongoing behavior of the person.",
+                    "style": "yellow"
+                }
+            ],
+            ratings: [
+                {
+                    value: "0",
+                    human: "Limited experience or knowledge. May have some familiarity but no hands-on or professional experience."
+                },
+                {
+                    value: "1",
+                    human: "Has some experience or knowledge. Can perform with limited oversight and guidance."
+                },
+                {
+                    value: "2",
+                    human: "Has production-level experience and deep hands-on knowledge. Can effectively share knowledge and assist others."
+                },
+                {
+                    value: "3",
+                    human: "Expert-level. Fully autonomous and can deliver consistently with an exceptional degree of quality."
+                },
+            ],
+            unratings: [
+                {
+                    value: "IDK",
+                    human: "I don't know.",
+                    tip: "Peer reviews only!",
+                    extended: 'Does not have enough knowledge to judge or evaluate.',
+                    warning: true
+                },
+                {
+                    value: "N/A",
+                    human: "Not applicable.",
+                    tip: "Not applicable or relevant to person's role or team.",
+                    extended: "Not applicable or relevant to person's role or team."
+                }
+            ]
+        }
     },
     created: function() {
         // load surveys from local storage

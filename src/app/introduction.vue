@@ -117,7 +117,7 @@
 
 <script>
 export default {
-    name: 'introduction',
+    name: 'Introduction',
 
     props: ['categories', 'ratings', 'unratings']
 };

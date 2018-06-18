@@ -45,7 +45,7 @@
 
 <script>
 export default {
-    name: 'survey-summary',
+    name: 'SurveySummary',
 
     props: [
         'show_summary',

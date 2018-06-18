@@ -1,8 +1,15 @@
+import $ from 'jquery';
+import 'semantic-ui-css/semantic.js';
+import 'semantic-ui-css/semantic.css';
+import './sass/utilities.scss';
+import './sass/overrides.scss';
+
 import Vue from 'vue';
+import VueResource from 'vue-resource';
 import app from './app.vue';
 
-import localDate from './util/local-date';
-import betterSticky from './util/better-sticky';
+import { localDate } from './util/local-date';
+import { betterSticky } from './util/better-sticky';
 
 Vue.directive('sticky', {
     inserted: function (el) {
@@ -33,6 +40,8 @@ Vue.filter('section_status', function (section) {
 
     return section.score + ' / ' + maxScore;
 });
+
+Vue.use(VueResource);
 
 new Vue({
   el: '#app',

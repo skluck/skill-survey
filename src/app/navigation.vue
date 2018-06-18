@@ -36,7 +36,7 @@
 
 <script>
 export default {
-    name: 'navigation',
+    name: 'Navigation',
 
     props: ['loaded_survey', 'show_summary', 'view_mode'],
     methods: {

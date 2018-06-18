@@ -1,5 +1,6 @@
 var path = require('path')
-var webpack = require('webpack')
+var webpack = require('webpack'),
+    ProvidePlugin = webpack.ProvidePlugin;
 
 module.exports = {
   entry: './src/main.js',
@@ -66,6 +67,10 @@ module.exports = {
         options: {
           name: '[name].[ext]?[hash]'
         }
+      },
+      {
+        test: /\.(woff|woff2|ttf|svg|eot)$/,
+        loader: 'file-loader?name=/dist/fonts/[name].[ext]'
       }
     ]
   },
@@ -84,7 +89,15 @@ module.exports = {
   performance: {
     hints: false
   },
-  devtool: '#eval-source-map'
+  devtool: '#eval-source-map',
+
+  plugins: [
+    new ProvidePlugin({
+      $: 'jquery',
+      jQuery: 'jquery',
+      'window.jQuery': 'jquery'
+    })
+  ]
 }
 
 if (process.env.NODE_ENV === 'production') {

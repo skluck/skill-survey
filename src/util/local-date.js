@@ -1,4 +1,4 @@
-var localDate = function (value) {
+function localDate(value) {
     if (value.length === 0) return '';
     if (typeof value !== 'string') return '';
 
@@ -9,6 +9,6 @@ var localDate = function (value) {
         "0".concat(d.getMonth() + 1).slice(-2),
         "0".concat(d.getDate()).slice(-2)
     ].join('-');
-};
+}
 
 export { localDate };

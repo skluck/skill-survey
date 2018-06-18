@@ -61,8 +61,10 @@
 </template>
 
 <script>
+import $ from 'jquery';
+
 export default {
-    name: 'modals',
+    name: 'Modals',
 
     props: ['upload_trigger'],
     data: function() {

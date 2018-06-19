@@ -1,6 +1,7 @@
 <template>
     <div class="ui basic segment">
-        <div class="ui blue inverted clearing segment" v-sticky>
+
+        <div class="ui sticky blue inverted clearing segment">
             <button
                 class="ui white mini icon button position-absolute no-print"
                 v-hover-child="'blue'"

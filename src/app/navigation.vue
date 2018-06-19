@@ -1,8 +1,7 @@
 <template>
     <div class="ui massive stackable container icon menu no-print">
-        <div class="header item">Skill Assessment and<br>Performance Review Surveys</div>
-
-        <a class="item" href="https://github.com/skluck/skill-survey"><i class="large github icon"></i></a>
+        <a class="item" :href="app_github_url"><i class="large github icon"></i></a>
+        <div class="header item">{{ app_title }}</div>
 
         <template v-if="loaded_survey">
             <div class="ui right item t-std">
@@ -38,7 +37,13 @@
 export default {
     name: 'Navigation',
 
-    props: ['loaded_survey', 'show_summary', 'view_mode'],
+    props: [
+        'app_title',
+        'app_github_url',
+        'loaded_survey',
+        'show_summary',
+        'view_mode'
+    ],
     methods: {
         clearSurvey: function () {
             this.$emit('clear-survey')

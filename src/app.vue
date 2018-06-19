@@ -1,6 +1,8 @@
 <template>
     <div class="ui container my-3">
         <navigation
+            :app_title="app_title"
+            :app_github_url="app_github_url"
             :loaded_survey="survey.type"
             :show_summary="show_summary"
             :view_mode="view_mode"
@@ -78,7 +80,7 @@
 <script>
 import $ from 'jquery';
 import Papa from 'papaparse';
-import saveAs from 'file-saver';
+import { saveAs } from 'file-saver';
 import store from 'store';
 
 import SurveyHeader from './survey/survey-header';
@@ -90,7 +92,71 @@ import Modals from './app/modals';
 import Navigation from './app/navigation';
 import SaveOptions from './app/save-options';
 
-import { betterSticky } from './util/better-sticky';
+import { generateUUID } from './util/generate-uuid';
+import { localDate } from './util/local-date';
+
+const DEFAULT_SURVEY = {
+    id: '',
+
+    type: '',
+    version: '',
+
+    name: '',
+    updated: ''
+};
+
+const CATGEGORIES_LIST = [
+    {
+        "name": "Skill",
+        "description": "These competencies should be primarily scored based on the ability of the person to perform at a high level.",
+        "style": "green"
+    },
+    {
+        "name": "Knowledge",
+        "description": "These competencies should be primarily scored based on retained knowledge and expertise of the person.",
+        "style": "blue"
+    },
+    {
+        "name": "Behavior",
+        "description": "These competencies should be primarily scored based on ongoing behavior of the person.",
+        "style": "yellow"
+    }
+];
+
+const RATINGS_LIST = [
+    {
+        value: "0",
+        human: "Limited experience or knowledge. May have some familiarity but no hands-on or professional experience."
+    },
+    {
+        value: "1",
+        human: "Has some experience or knowledge. Can perform with limited oversight and guidance."
+    },
+    {
+        value: "2",
+        human: "Has production-level experience and deep hands-on knowledge. Can effectively share knowledge and assist others."
+    },
+    {
+        value: "3",
+        human: "Expert-level. Fully autonomous and can deliver consistently with an exceptional degree of quality."
+    },
+];
+
+const UNRATINGS_LIST = [
+    {
+        value: "IDK",
+        human: "I don't know.",
+        tip: "Peer reviews only!",
+        extended: 'Does not have enough knowledge to judge or evaluate.',
+        warning: true
+    },
+    {
+        value: "N/A",
+        human: "Not applicable.",
+        tip: "Not applicable or relevant to person's role or team.",
+        extended: "Not applicable or relevant to person's role or team."
+    }
+];
 
 export default {
     name: 'app',
@@ -109,15 +175,10 @@ export default {
         return {
             save_last_message: { message: "", error: false },
 
-            survey: {
-                id: '',
+            app_title: "Skill Assessment and Performance Review Surveys",
+            app_github_url: "https://github.com/skluck/skill-survey",
 
-                type: '',
-                version: '',
-
-                name: '',
-                updated: ''
-            },
+            survey: DEFAULT_SURVEY,
 
             view_mode: false,
             show_summary: false,
@@ -130,56 +191,9 @@ export default {
             surveys: [],
             sections: null,
 
-            categories: [
-                {
-                    "name": "Skill",
-                    "description": "These competencies should be primarily scored based on the ability of the person to perform at a high level.",
-                    "style": "green"
-                },
-                {
-                    "name": "Knowledge",
-                    "description": "These competencies should be primarily scored based on retained knowledge and expertise of the person.",
-                    "style": "blue"
-                },
-                {
-                    "name": "Behavior",
-                    "description": "These competencies should be primarily scored based on ongoing behavior of the person.",
-                    "style": "yellow"
-                }
-            ],
-            ratings: [
-                {
-                    value: "0",
-                    human: "Limited experience or knowledge. May have some familiarity but no hands-on or professional experience."
-                },
-                {
-                    value: "1",
-                    human: "Has some experience or knowledge. Can perform with limited oversight and guidance."
-                },
-                {
-                    value: "2",
-                    human: "Has production-level experience and deep hands-on knowledge. Can effectively share knowledge and assist others."
-                },
-                {
-                    value: "3",
-                    human: "Expert-level. Fully autonomous and can deliver consistently with an exceptional degree of quality."
-                },
-            ],
-            unratings: [
-                {
-                    value: "IDK",
-                    human: "I don't know.",
-                    tip: "Peer reviews only!",
-                    extended: 'Does not have enough knowledge to judge or evaluate.',
-                    warning: true
-                },
-                {
-                    value: "N/A",
-                    human: "Not applicable.",
-                    tip: "Not applicable or relevant to person's role or team.",
-                    extended: "Not applicable or relevant to person's role or team."
-                }
-            ]
+            categories: CATGEGORIES_LIST,
+            ratings: RATINGS_LIST,
+            unratings: UNRATINGS_LIST
         }
     },
     created: function() {
@@ -198,7 +212,10 @@ export default {
             });
         },
         survey_progress: function() {
-            var completed = total = percent = score = 0;
+            let completed = 0,
+                total = 0,
+                percent = 0,
+                score = 0;
 
             if (this.sections === null) {
                 return 0;
@@ -235,6 +252,10 @@ export default {
             for (var section_title in this.sections) {
                 this.totalSection(section_title);
             }
+
+            setTimeout(() => {
+                $('.ui.sticky').sticky({debug: false});
+            }, 1000);
         },
 
         loadSurvey: function(meta) {
@@ -272,8 +293,6 @@ export default {
             this.survey.id = '';
             this.survey.name = '';
             this.survey.updated = '';
-
-            betterSticky[1]();
         },
 
         changeName: function(name) {

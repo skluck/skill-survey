@@ -9,13 +9,6 @@ import VueResource from 'vue-resource';
 import app from './app.vue';
 
 import { localDate } from './util/local-date';
-import { betterSticky } from './util/better-sticky';
-
-Vue.directive('sticky', {
-    inserted: function (el) {
-        betterSticky[0](el);
-    }
-});
 
 Vue.directive('hover-child', {
     bind: function (el, binding) {

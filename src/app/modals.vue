@@ -62,6 +62,7 @@
 
 <script>
 import $ from 'jquery';
+import { generateUUID } from '../util/generate-uuid';
 
 export default {
     name: 'Modals',

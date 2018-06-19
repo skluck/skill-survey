@@ -129,6 +129,11 @@ function getURLParameter(name) {
     return match && decodeURIComponent(match[1].replace(/\+/g, ' ')).replace('\u200E', '');
 }
 
+const DEFAULT_SURVEY = window.location.origin + window.location.pathname + '/sample-survey.json';
+const DEFAULT_SOURCES = {
+    'Sample': DEFAULT_SURVEY
+};
+
 export default {
     name: 'Surveys',
 
@@ -140,10 +145,8 @@ export default {
 
     data: function() {
         return {
-            source: 'http://kluck.engineering/skill-survey/sample-survey.json',
-            sources: {
-                'Sample': 'http://kluck.engineering/skill-survey/sample-survey.json'
-            },
+            source: DEFAULT_SURVEY,
+            sources: DEFAULT_SOURCES,
             error: ''
         }
     },

@@ -1,12 +1,16 @@
-.global-sticky {
-    left: 0;
-    right: 0;
-    position: fixed;
-    top: 0;
-    z-index: 100;
+.ui.menu .header.item {
+    max-width: 17em;
 }
 
 .ui.button.white {
     color: black;
     background: #fff;
+}
+
+.ui.sticky.blue.inverted {
+    height: 4rem;
+}
+
+.ui.fixed.sticky + div {
+    margin-top: 5rem;
 }

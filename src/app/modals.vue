@@ -67,7 +67,9 @@ import { generateUUID } from '../util/generate-uuid';
 export default {
     name: 'Modals',
 
-    props: ['upload_trigger'],
+    props: [
+        'upload_trigger'
+    ],
     data: function() {
         return {
             error: false,
@@ -78,14 +80,14 @@ export default {
         };
     },
     computed: {
-        icon_style: function () {
+        icon_style: function() {
             return {
                 warning: this.error,
                 question: this.hovering && !this.error,
                 'cloud upload': !this.hovering && !this.error
             }
         },
-        dropzone_style: function () {
+        dropzone_style: function() {
             return {
                 'dropzone-error': this.error,
                 'dropzone-hovering': this.hovering && !this.error

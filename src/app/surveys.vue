@@ -141,7 +141,9 @@ export default {
       message
     },
 
-    props: ['surveys'],
+    props: [
+        'surveys'
+    ],
 
     data: function() {
         return {

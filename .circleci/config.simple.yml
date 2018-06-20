@@ -1,0 +1,8 @@
+version: 2
+
+jobs:
+    build:
+        working_directory: '~/project'
+        docker: [{image: 'circleci/buildpack-deps:jessie'}]
+        steps:
+            - run: 'echo "Hello World"'

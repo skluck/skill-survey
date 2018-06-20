@@ -119,6 +119,10 @@
 export default {
     name: 'Introduction',
 
-    props: ['categories', 'ratings', 'unratings']
+    props: [
+        'categories',
+        'ratings',
+        'unratings'
+    ]
 };
 </script>

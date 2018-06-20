@@ -6,7 +6,7 @@ module.exports = {
   entry: './src/main.js',
   output: {
     path: path.resolve(__dirname, './dist'),
-    publicPath: '/dist/',
+    publicPath: './dist/',
     filename: 'build.js'
   },
   module: {
@@ -69,8 +69,8 @@ module.exports = {
         }
       },
       {
-        test: /\.(woff|woff2|ttf|svg|eot)$/,
-        loader: 'file-loader?name=/dist/fonts/[name].[ext]'
+        test: /\.(woff|woff2|ttf|eot)$/,
+        loader: 'file-loader?name=./fonts/[name].[ext]'
       }
     ]
   },
@@ -89,7 +89,6 @@ module.exports = {
   performance: {
     hints: false
   },
-  devtool: '#eval-source-map',
 
   plugins: [
     new ProvidePlugin({
@@ -101,7 +100,6 @@ module.exports = {
 }
 
 if (process.env.NODE_ENV === 'production') {
-  module.exports.devtool = '#source-map'
   // http://vue-loader.vuejs.org/en/workflow/production.html
   module.exports.plugins = (module.exports.plugins || []).concat([
     new webpack.DefinePlugin({
@@ -110,7 +108,7 @@ if (process.env.NODE_ENV === 'production') {
       }
     }),
     new webpack.optimize.UglifyJsPlugin({
-      sourceMap: true,
+      sourceMap: false,
       compress: {
         warnings: false
       }
@@ -119,4 +117,7 @@ if (process.env.NODE_ENV === 'production') {
       minimize: true
     })
   ])
+
+} else {
+  module.exports.devtool = '#eval-source-map';
 }

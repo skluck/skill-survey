@@ -1,0 +1,105 @@
+version: 2
+
+attach_workspace: &attach_workspace
+    attach_workspace:
+        at: '.'
+
+persist_workspace: &persist_workspace
+    persist_to_workspace:
+        root: '.'
+        paths: [ '.' ]
+
+workflows:
+
+    version: 2
+
+    pipeline:
+        jobs:
+            - fetch_code:
+                filters:
+                    branches: { only: ['development'] }
+            - install_node_dependencies:
+                requires: [ fetch_code ]
+            - build_site:
+                requires: [ install_node_dependencies ]
+            - deploy_site:
+                requires: [ build_site ]
+
+jobs:
+    fetch_code:
+        working_directory: '~/project'
+        docker: [{image: 'circleci/buildpack-deps:jessie'}]
+        steps:
+            - checkout
+            - *persist_workspace
+
+    install_node_dependencies:
+        working_directory: '~/project'
+        docker: [{image: 'circleci/node:10.4'}]
+        steps:
+            - *attach_workspace
+
+            - restore_cache:
+                keys: [ 'v1-yarn-deps-{{ checksum "yarn.lock" }}', 'v1-yarn-deps' ]
+
+            - run: 'yarn install'
+
+            - save_cache:
+                key: 'v1-yarn-deps-{{ checksum "yarn.lock" }}'
+                paths: [ 'node_modules' ]
+
+            - *persist_workspace
+
+    build_site:
+        working_directory: '~/project'
+        docker: [{image: 'circleci/node:10.4'}]
+        steps:
+            - *attach_workspace
+            - run: 'yarn build'
+            - run:
+                name: 'Clean up built website'
+                command: |
+                    mv dist dist2
+                    mkdir -p dist/.circleci && cp .circleci/config.simple.yml dist/.circleci/config.yml
+                    mv dist2 dist/dist
+                    mv index.html dist/
+                    mv sample-survey.json dist/
+                    mv survey-schema.json dist/
+                    touch dist/.nojekyll
+            - persist_to_workspace:
+                root: '.'
+                paths: [ 'dist' ]
+
+    deploy_site:
+        working_directory: '~/project'
+        docker: [{image: 'circleci/buildpack-deps:jessie'}]
+        steps:
+            - *attach_workspace
+            - add_ssh_keys:
+                fingerprints:
+                    - "05:2f:c1:e7:f6:61:91:b4:c6:b6:1a:c3:0d:b9:c6:d3"
+            - run:
+                name: 'Prepare environment'
+                command: |
+                    mkdir -p ~/.ssh
+                    ssh-keyscan github.com > ~/.ssh/known_hosts
+                    sudo apt-get install -y rsync
+            - run:
+                name: 'Deploy'
+                command: |
+                    git clone ${CIRCLE_REPOSITORY_URL} publish
+                    cd publish
+                    git checkout master
+
+                    rsync -va --delete --exclude=.git \
+                      ../dist/ \
+                      ./
+
+                    git status
+                    git add .
+
+                    git config --global user.email "steve@kluck.engineering"
+                    git config --global user.name "Steve Kluck"
+                    git commit -m "Building page for ${CIRCLE_SHA1}"
+
+                    git push origin master

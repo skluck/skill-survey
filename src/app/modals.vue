@@ -62,15 +62,13 @@
 
 <script>
 import $ from 'jquery';
+import { mapGetters } from 'vuex';
 import { generateUUID } from '../util/generate-uuid';
 
 export default {
     name: 'Modals',
 
-    props: [
-        'upload_trigger'
-    ],
-    data: function() {
+    data: () => {
         return {
             error: false,
             hovering: false,
@@ -80,6 +78,10 @@ export default {
         };
     },
     computed: {
+        ...mapGetters('modes', {
+            uploadTrigger: 'getUploadStatus'
+        }),
+
         icon_style: function() {
             return {
                 warning: this.error,
@@ -95,7 +97,7 @@ export default {
         }
     },
     watch: {
-        upload_trigger: function(value) {
+        uploadTrigger (value) {
             if (value !== true) {
                 return;
             }

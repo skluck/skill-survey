@@ -82,7 +82,7 @@
                                     <td>
                                         {{ survey.type }}
                                         <span class="ui tiny basic label">{{ survey.version }}</span>
-                                        <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|localDate }}</span>
+                                        <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|local_date }}</span>
                                     </td>
                                     <td class="right aligned">
                                         <button class="ui tiny teal icon button" @click="downloadSurvey(survey)">
@@ -102,7 +102,7 @@
                     </table>
                 </template>
 
-                <button class="ui icon orange button float-right" @click="uploadSurvey">
+                <button class="ui icon orange button float-right" @click="toggleUploader">
                     <i class="cloud upload icon"></i> Upload
                 </button>
 
@@ -122,6 +122,7 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex';
 import message from '../util/message'
 
 function getURLParameter(name) {
@@ -157,6 +158,9 @@ export default {
         this.loadSources();
     },
     methods: {
+        ...mapActions('modes', [
+            'toggleUploader'
+        ]),
         loadSources: function() {
             var segment = window.location.hash,
                 survey = getURLParameter('survey'),
@@ -245,9 +249,6 @@ export default {
         },
         downloadSurveyCSV: function (value) {
             this.$emit('download-survey-csv', value);
-        },
-        uploadSurvey: function () {
-            this.$emit('upload-survey');
         }
     }
 };

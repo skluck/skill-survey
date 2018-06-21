@@ -12,7 +12,6 @@
             v-on:print-view="printView()"></navigation>
 
         <modals
-            :upload_trigger="toggle_upload"
             v-on:upload-surveys="uploadSurveys"></modals>
 
         <template v-if="survey.type">
@@ -66,8 +65,7 @@
                 v-on:load-survey="loadSurvey($event)"
                 v-on:delete-survey="deleteSurveyConfirmation($event)"
                 v-on:download-survey="downloadSurvey($event)"
-                v-on:download-survey-csv="downloadSurveyCSV($event)"
-                v-on:upload-survey="toggleUploader"></Surveys>
+                v-on:download-survey-csv="downloadSurveyCSV($event)"></Surveys>
 
             <Introduction
                 :categories="categories"
@@ -94,69 +92,9 @@ import SaveOptions from './app/save-options';
 
 import { generateUUID } from './util/generate-uuid';
 import { localDate } from './util/local-date';
-
-const DEFAULT_SURVEY = {
-    id: '',
-
-    type: '',
-    version: '',
-
-    name: '',
-    updated: ''
-};
-
-const CATGEGORIES_LIST = [
-    {
-        "name": "Skill",
-        "description": "These competencies should be primarily scored based on the ability of the person to perform at a high level.",
-        "style": "green"
-    },
-    {
-        "name": "Knowledge",
-        "description": "These competencies should be primarily scored based on retained knowledge and expertise of the person.",
-        "style": "blue"
-    },
-    {
-        "name": "Behavior",
-        "description": "These competencies should be primarily scored based on ongoing behavior of the person.",
-        "style": "yellow"
-    }
-];
-
-const RATINGS_LIST = [
-    {
-        value: "0",
-        human: "Limited experience or knowledge. May have some familiarity but no hands-on or professional experience."
-    },
-    {
-        value: "1",
-        human: "Has some experience or knowledge. Can perform with limited oversight and guidance."
-    },
-    {
-        value: "2",
-        human: "Has production-level experience and deep hands-on knowledge. Can effectively share knowledge and assist others."
-    },
-    {
-        value: "3",
-        human: "Expert-level. Fully autonomous and can deliver consistently with an exceptional degree of quality."
-    },
-];
-
-const UNRATINGS_LIST = [
-    {
-        value: "IDK",
-        human: "I don't know.",
-        tip: "Peer reviews only!",
-        extended: 'Does not have enough knowledge to judge or evaluate.',
-        warning: true
-    },
-    {
-        value: "N/A",
-        human: "Not applicable.",
-        tip: "Not applicable or relevant to person's role or team.",
-        extended: "Not applicable or relevant to person's role or team."
-    }
-];
+import { CATEGORIES } from './types/categories';
+import { RATINGS, UNRATINGS } from './types/ratings';
+import { DEFAULT_SURVEY } from './types/default-survey';
 
 export default {
     name: 'app',
@@ -182,7 +120,6 @@ export default {
 
             view_mode: false,
             show_summary: false,
-            toggle_upload: false,
 
             survey_completed: 0,
             survey_total: 0,
@@ -191,9 +128,9 @@ export default {
             surveys: [],
             sections: null,
 
-            categories: CATGEGORIES_LIST,
-            ratings: RATINGS_LIST,
-            unratings: UNRATINGS_LIST
+            categories: CATEGORIES,
+            ratings: RATINGS,
+            unratings: UNRATINGS
         }
     },
     created: function() {
@@ -497,13 +434,7 @@ export default {
         setSaveBannerError: function(message, shouldPop) {
             this.setSaveBanner(message, true, shouldPop);
         },
-        toggleUploader: function() {
-            this.toggle_upload = true;
-            var that = this,
-                setBack = function() { that.toggle_upload = false; };
 
-            setTimeout(setBack, 1000);
-        },
         uploadSurveys: function(surveys) {
             var storeUploadedFile = function(uploaded) {
                 this.surveys.push(uploaded.meta);

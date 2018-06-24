@@ -24,10 +24,6 @@
                 <SurveySection
                     :section_id="section_id"
                     :section="section"
-                    :categories="categories"
-                    :ratings="ratings"
-                    :unratings="unratings"
-                    :survey_name="survey.name"
                     v-on:set-competency="saveRating($event)"></SurveySection>
             </template>
 
@@ -58,10 +54,7 @@
                 v-on:download-survey="downloadSurvey($event)"
                 v-on:download-survey-csv="downloadSurveyCSV($event)"></Surveys>
 
-            <Introduction
-                :categories="categories"
-                :ratings="ratings"
-                :unratings="unratings"></Introduction>
+            <Introduction></Introduction>
         </template>
     </div>
 </template>
@@ -85,8 +78,6 @@ import SaveOptions from './app/save-options';
 
 import { generateUUID } from './util/generate-uuid';
 import { localDate } from './util/local-date';
-import { CATEGORIES } from './types/categories';
-import { RATINGS, UNRATINGS } from './types/ratings';
 import { DEFAULT_SURVEY } from './types/default-survey';
 
 export default {
@@ -117,10 +108,6 @@ export default {
 
             surveys: [],
             sections: null,
-
-            categories: CATEGORIES,
-            ratings: RATINGS,
-            unratings: UNRATINGS
         }
     },
     created: function() {
@@ -131,17 +118,11 @@ export default {
         ...mapGetters('modes', [
             'isViewMode'
         ]),
+        ...mapGetters('copy', [
+            'rating_values',
+            'unrating_values'
+        ]),
 
-        countable_ratings: function() {
-            return this.ratings.map(function(v) {
-                return v.value;
-            });
-        },
-        unrating_values: function() {
-            return this.unratings.map(function(v) {
-                return v.value;
-            });
-        },
         survey_progress: function() {
             let completed = 0,
                 total = 0,
@@ -163,12 +144,7 @@ export default {
             this.survey_total = total;
 
             return this.calculateProgress(completed, total);
-        },
-        survey_progress_style: function() {
-            return {
-                width: this.survey_progress + '%'
-            }
-        },
+        }
     },
 
     methods: {
@@ -273,7 +249,7 @@ export default {
 
             for (var comp_id in competencies) {
                 var rating = competencies[comp_id]['rating'];
-                if (this.countable_ratings.includes(rating)) {
+                if (this.rating_values.includes(rating)) {
                     score += parseInt(rating);
                     completed += 1;
                 } else if (this.unrating_values.includes(rating)) {

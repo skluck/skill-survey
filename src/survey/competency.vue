@@ -16,7 +16,7 @@
                     <template v-else>
                         <template v-if="unrating_values.includes(comp.rating)">
                             <span class="ui black circular small label">{{ comp.rating }}</span>
-                            {{ unratingDescription(comp.rating) }}
+                            {{ unrating_description(comp.rating) }}
                         </template>
                         <template v-else>
                             <b class="ui green circular small label">{{ comp.rating }}</b>
@@ -135,7 +135,7 @@
 
 <script>
 import $ from 'jquery';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapState } from 'vuex';
 import category from './category'
 
 export default {
@@ -148,9 +148,6 @@ export default {
     props: [
         'comp',
         'comp_title',
-        'categories',
-        'ratings',
-        'unratings'
     ],
 
     data: function() {
@@ -163,15 +160,20 @@ export default {
     },
 
     computed: {
+        ...mapState('copy', [
+            'unratings'
+        ]),
         ...mapGetters('modes', [
             'isViewMode'
         ]),
-
-        unrating_values: function() {
-            return this.unratings.map(function(v) {
-                return v.value;
-            });
-        }
+        ...mapGetters('copy', [
+            'unrating_values',
+            'unrating_description'
+        ]),
+        ...mapState('copy', {
+            categories: state => state.categories,
+            ratings: state => state.ratings,
+        })
     },
 
     methods: {
@@ -186,22 +188,6 @@ export default {
         hoverRatingOff: function(event) {
             $(event.currentTarget).removeClass('orange')
             .children('.label').removeClass('orange');
-        },
-        unratingDescription: function(value) {
-            var match = undefined;
-            this.unratings.forEach(function(unrating) {
-                if (value === unrating.value) {
-                    match = unrating;
-                }
-            });
-
-            if (match === undefined) {
-                match = 'Unknown';
-            } else {
-                match = match.human;
-            }
-
-            return match;
         }
     }
 }

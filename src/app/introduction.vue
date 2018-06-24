@@ -116,13 +116,18 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
     name: 'Introduction',
 
-    props: [
-        'categories',
-        'ratings',
-        'unratings'
-    ]
+    computed: {
+        ...mapState('copy', {
+            categories: state => state.categories,
+            ratings: state => state.ratings,
+            unratings: state => state.unratings
+        })
+    }
 };
 </script>
+

@@ -22,10 +22,7 @@
                     <competency
                         v-on:set-competency="saveRating(section_id, comp_title, $event)"
                         :comp="comp"
-                        :comp_title="comp_title"
-                        :categories="categories"
-                        :ratings="ratings"
-                        :unratings="unratings"></competency>
+                        :comp_title="comp_title"></competency>
                 </template>
             </div>
         </div>
@@ -46,10 +43,7 @@ export default {
 
     props: [
         'section_id',
-        'section',
-        'categories',
-        'ratings',
-        'unratings'
+        'section'
     ],
     computed: {
         ...mapGetters('modes', [

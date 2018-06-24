@@ -21,7 +21,6 @@ const getters = {
 
         return false;
     }
-
 }
 
 // actions

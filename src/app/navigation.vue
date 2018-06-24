@@ -6,21 +6,21 @@
         <template v-if="loaded_survey">
             <div class="ui right item t-std">
 
-                <button class="ui icon orange button mr-3" @click="printView()">
+                <button class="ui icon orange button mr-3" @click="enablePrintView()">
                     <i class="print icon"></i>
                 </button>
 
                 <button class="ui vertical button mr-3"
-                    v-bind:class="{ green: view_mode }"
+                    v-bind:class="{ green: isViewMode }"
                     @click="toggleViewMode()">
-                    <i class="toggle icon" v-bind:class="{ on: view_mode, off: !view_mode }"></i>
+                    <i class="toggle icon" v-bind:class="{ on: isViewMode, off: !isViewMode }"></i>
                     Viewer
                 </button>
 
                 <button class="ui vertical button mr-3"
-                    v-bind:class="{ blue: show_summary }"
-                    @click="toggleSummary()">
-                    <i class="toggle icon" v-bind:class="{ on: show_summary, off: !show_summary }"></i>
+                    v-bind:class="{ blue: isSummaryMode }"
+                    @click="toggleSummaryMode()">
+                    <i class="toggle icon" v-bind:class="{ on: isSummaryMode, off: !isSummaryMode }"></i>
                     Summary
                 </button>
 
@@ -34,6 +34,8 @@
 </template>
 
 <script>
+import { mapGetters, mapActions, mapMutations } from 'vuex';
+
 export default {
     name: 'Navigation',
 
@@ -41,21 +43,26 @@ export default {
         'app_title',
         'app_github_url',
         'loaded_survey',
-        'show_summary',
-        'view_mode'
     ],
+
+    computed: {
+        ...mapGetters('modes', [
+            'isViewMode',
+            'isSummaryMode'
+        ])
+    },
+
     methods: {
+        ...mapMutations('modes', [
+            'toggleViewMode',
+            'toggleSummaryMode',
+        ]),
+        ...mapActions('modes', [
+            'enablePrintView',
+        ]),
+
         clearSurvey: function () {
             this.$emit('clear-survey')
-        },
-        toggleSummary: function () {
-            this.$emit('toggle-summary', !this.show_summary);
-        },
-        toggleViewMode: function () {
-            this.$emit('toggle-view-mode', !this.view_mode);
-        },
-        printView: function() {
-            this.$emit('print-view');
         }
     }
 };

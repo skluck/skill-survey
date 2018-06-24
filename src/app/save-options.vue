@@ -47,7 +47,7 @@
                         <i class="cloud download icon"></i> CSV
                     </button>
 
-                    <button class="ui teal icon button" @click="printView()">
+                    <button class="ui teal icon button" @click="enablePrintView()">
                         <i class="print icon"></i> Print
                     </button>
 
@@ -58,6 +58,8 @@
 </template>
 
 <script>
+import { mapMutations } from 'vuex';
+
 import message from '../util/message';
 
 export default {
@@ -85,11 +87,12 @@ export default {
     ],
 
     methods: {
+        ...mapMutations('modes', [
+            'enablePrintView',
+        ]),
+
         saveSurvey: function () {
             this.$emit('save-survey', this.changed_survey_name);
-        },
-        printView: function() {
-            this.$emit('print-view');
         },
         downloadSurvey: function(value) {
             this.$emit('save-download-survey', this.changed_survey_name);

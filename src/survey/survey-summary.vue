@@ -1,5 +1,5 @@
 <template>
-    <div v-show="show_summary">
+    <div v-show="isSummaryMode">
         <div class="ui basic segment">
 
             <div class="ui orange inverted segment">
@@ -44,15 +44,22 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+
 export default {
     name: 'SurveySummary',
 
     props: [
-        'show_summary',
         'sections',
         'survey_score',
         'survey_completed',
         'survey_total'
-    ]
+    ],
+
+    computed: {
+        ...mapGetters('modes', [
+            'isSummaryMode'
+        ])
+    },
 };
 </script>

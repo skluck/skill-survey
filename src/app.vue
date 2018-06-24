@@ -4,12 +4,7 @@
             :app_title="app_title"
             :app_github_url="app_github_url"
             :loaded_survey="survey.type"
-            :show_summary="show_summary"
-            :view_mode="view_mode"
-            v-on:clear-survey="clearData"
-            v-on:toggle-summary="toggleSummary($event)"
-            v-on:toggle-view-mode="toggleViewMode($event)"
-            v-on:print-view="printView()"></navigation>
+            v-on:clear-survey="clearData"></navigation>
 
         <modals
             v-on:upload-surveys="uploadSurveys"></modals>
@@ -19,7 +14,6 @@
             <SurveyHeader :survey="survey"></SurveyHeader>
 
             <SurveySummary
-                :show_summary="show_summary"
                 :sections="sections"
                 :survey_score="survey_score"
                 :survey_completed="survey_completed"
@@ -30,16 +24,14 @@
                 <SurveySection
                     :section_id="section_id"
                     :section="section"
-                    :view_mode="view_mode"
                     :categories="categories"
                     :ratings="ratings"
                     :unratings="unratings"
                     :survey_name="survey.name"
-                    v-on:set-competency="saveRating($event)"
-                    v-on:toggle-section="toggleSection($event)"></SurveySection>
+                    v-on:set-competency="saveRating($event)"></SurveySection>
             </template>
 
-            <template v-if="!view_mode">
+            <template v-if="!isViewMode">
                 <SaveOptions
                     :save_last_message="save_last_message"
                     :survey_type="survey.type"
@@ -49,7 +41,6 @@
                     :survey_name="survey.name"
                     v-on:save-survey="saveSurvey($event)"
                     v-on:change-survey-name="changeName($event)"
-                    v-on:print-view="printView()"
                     v-on:save-download-survey="saveAndDownloadSurvey($event, 'json')"
                     v-on:save-download-survey-csv="saveAndDownloadSurvey($event, 'csv')"
                     ></SaveOptions>
@@ -80,6 +71,8 @@ import $ from 'jquery';
 import Papa from 'papaparse';
 import { saveAs } from 'file-saver';
 import store from 'store';
+
+import { mapGetters, mapMutations } from 'vuex';
 
 import SurveyHeader from './survey/survey-header';
 import SurveySummary from './survey/survey-summary';
@@ -118,9 +111,6 @@ export default {
 
             survey: DEFAULT_SURVEY,
 
-            view_mode: false,
-            show_summary: false,
-
             survey_completed: 0,
             survey_total: 0,
             survey_score: 0,
@@ -138,6 +128,10 @@ export default {
         this.loadSavedSurveys();
     },
     computed: {
+        ...mapGetters('modes', [
+            'isViewMode'
+        ]),
+
         countable_ratings: function() {
             return this.ratings.map(function(v) {
                 return v.value;
@@ -178,6 +172,10 @@ export default {
     },
 
     methods: {
+        ...mapMutations('modes', [
+            'showSection',
+        ]),
+
         loadNewSurvey: function(newSurvey) {
             this.survey.type = newSurvey.type;
             this.survey.version = newSurvey.version;
@@ -188,6 +186,7 @@ export default {
             this.sections = this.loadSections(newSurvey.sections);
             for (var section_title in this.sections) {
                 this.totalSection(section_title);
+                this.showSection({ section_id: section_title });
             }
 
             setTimeout(() => {
@@ -235,19 +234,7 @@ export default {
         changeName: function(name) {
             this.survey.name = name;
         },
-        toggleSection: function(section_id) {
-            var current_view = this.sections[section_id].show_section;
-            this.sections[section_id].show_section = !current_view
-        },
-        toggleSummary: function(show_summary) {
-            this.show_summary = show_summary;
-            for (var section_title in this.sections) {
-                this.sections[section_title].show_section = !show_summary;
-            }
-        },
-        toggleViewMode: function(view_mode) {
-            this.view_mode = view_mode;
-        },
+
         saveRating: function($event) {
             var section = $event.section,
                 competency = $event.competency,
@@ -275,7 +262,6 @@ export default {
             section.name = title;
             section.score = 0;
             section.completed = 0;
-            section.show_section = true;
             section.total = Object.keys(section.competencies).length;
 
             return section;
@@ -287,10 +273,10 @@ export default {
 
             for (var comp_id in competencies) {
                 var rating = competencies[comp_id]['rating'];
-                if (this.polyfill_includes(this.countable_ratings, rating)) {
+                if (this.countable_ratings.includes(rating)) {
                     score += parseInt(rating);
                     completed += 1;
-                } else if (this.polyfill_includes(this.unrating_values, rating)) {
+                } else if (this.unrating_values.includes(rating)) {
                     completed += 1;
                 }
             }
@@ -493,30 +479,6 @@ export default {
                 blob = new Blob([data], options);
 
             saveAs(blob, filename);
-        },
-        printView: function() {
-            this.toggleSummary(true);
-            this.toggleViewMode(true);
-
-            for (var section_title in this.sections) {
-                this.sections[section_title].show_section = true;
-            }
-
-            setTimeout(function() { window.print(); }, 500);
-        },
-
-        polyfill_includes: function(arr, search) {
-            if (typeof arr.includes === 'function') {
-                return arr.includes(search);
-            } else {
-                var filtered = arr.filter(function(element) {
-                    return (element === search);
-                });
-
-                return (filtered.length === 1);
-            }
-
-            return false;
         }
     }
 };

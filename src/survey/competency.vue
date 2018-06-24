@@ -1,7 +1,7 @@
 <template>
     <div class="ui item stackable grid pb-0">
 
-        <template v-if="view_mode">
+        <template v-if="isViewMode">
             <div class="ui two wide column">
                 <div class="ui label">{{ comp_title }}</div>
                 <category :categories="categories" :selected_category="comp.category"></category>
@@ -14,7 +14,7 @@
                         <span class="ui label basic red label">Competency not completed.</span>
                     </template>
                     <template v-else>
-                        <template v-if="polyfill_includes(unrating_values, comp.rating)">
+                        <template v-if="unrating_values.includes(comp.rating)">
                             <span class="ui black circular small label">{{ comp.rating }}</span>
                             {{ unratingDescription(comp.rating) }}
                         </template>
@@ -51,7 +51,7 @@
                 <div v-if="comp.rating === ''" class="ui label">{{ comp_title }}</div>
                 <div v-else class="ui green label position-relative">
                     <template v-if="comp.rating !== ''">
-                        <span v-if="polyfill_includes(unrating_values, comp.rating)" class="ui floating basic black circular mini label">{{ comp.rating }}</span>
+                        <span v-if="unrating_values.includes(comp.rating)" class="ui floating basic black circular mini label">{{ comp.rating }}</span>
                         <span v-else class="ui floating black circular mini label">{{ comp.rating }}</span>
                         {{ comp_title }}
                     </template>
@@ -135,6 +135,7 @@
 
 <script>
 import $ from 'jquery';
+import { mapGetters } from 'vuex';
 import category from './category'
 
 export default {
@@ -149,8 +150,7 @@ export default {
         'comp_title',
         'categories',
         'ratings',
-        'unratings',
-        'view_mode'
+        'unratings'
     ],
 
     data: function() {
@@ -163,6 +163,10 @@ export default {
     },
 
     computed: {
+        ...mapGetters('modes', [
+            'isViewMode'
+        ]),
+
         unrating_values: function() {
             return this.unratings.map(function(v) {
                 return v.value;
@@ -198,20 +202,6 @@ export default {
             }
 
             return match;
-        },
-
-        polyfill_includes: function(arr, search) {
-            if (typeof arr.includes === 'function') {
-                return arr.includes(search);
-            } else {
-                var filtered = arr.filter(function(element) {
-                    return (element === search);
-                });
-
-                return (filtered.length === 1);
-            }
-
-            return false;
         }
     }
 }

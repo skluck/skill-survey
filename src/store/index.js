@@ -1,8 +1,12 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
-import modes from './modules/modes';
-import copy from './modules/copy'
 import createLogger from 'vuex/dist/logger';
+
+import banners from './modules/banners'
+import copy from './modules/copy'
+import modes from './modules/modes';
+import survey from './modules/survey'
+import surveys from './modules/surveys'
 
 Vue.use(Vuex);
 
@@ -10,8 +14,11 @@ const debug = process.env.NODE_ENV !== 'production';
 
 export default new Vuex.Store({
   modules: {
+    banners,
+    copy,
     modes,
-    copy
+    survey,
+    surveys
   },
   strict: debug,
   plugins: debug ? [createLogger()] : []

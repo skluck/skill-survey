@@ -18,9 +18,16 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex';
+import { GETTERS } from '../../store/getters';
+
 export default {
     name: 'SurveyHeader',
 
-    props: ['survey']
+    computed: {
+        ...mapGetters('survey', {
+            survey: GETTERS.SURVEY.GET_META,
+        })
+    }
 };
 </script>

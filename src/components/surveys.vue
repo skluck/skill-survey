@@ -71,28 +71,28 @@
                             </tr>
                           </thead>
                         <tbody>
-                            <template v-for="survey in surveys">
+                            <template v-for="meta in surveys">
                                 <tr>
                                     <td>
-                                        <button class="ui tiny primary icon button" @click="loadSurvey(survey)">
+                                        <button class="ui tiny primary icon button" @click="loadSurvey(meta)">
                                             <i class="download icon"></i> Load
                                         </button>
                                     </td>
-                                    <td>{{ survey.name }}</td>
+                                    <td>{{ meta.name }}</td>
                                     <td>
-                                        {{ survey.type }}
-                                        <span class="ui tiny basic label">{{ survey.version }}</span>
-                                        <span class="ui tiny basic label"><i class="clock icon"></i>{{ survey.updated|local_date }}</span>
+                                        {{ meta.type }}
+                                        <span class="ui tiny basic label">{{ meta.version }}</span>
+                                        <span class="ui tiny basic label"><i class="clock icon"></i>{{ meta.updated|local_date }}</span>
                                     </td>
                                     <td class="right aligned">
-                                        <button class="ui tiny teal icon button" @click="downloadSurvey(survey)">
+                                        <button class="ui tiny teal icon button" @click="downloadSurveyJSON(meta)">
                                             <i class="cloud download icon"></i> Backup
                                         </button>
-                                        <button class="ui tiny teal icon button" @click="downloadSurveyCSV(survey)">
+                                        <button class="ui tiny teal icon button" @click="downloadSurveyCSV(meta)">
                                             <i class="cloud download icon"></i> CSV
                                         </button>
 
-                                        <button class="ui tiny basic red icon button ml-3" @click="deleteSurvey(survey)">
+                                        <button class="ui tiny basic red icon button ml-3" @click="confirmDeleteSurvey(meta)">
                                             <i class="trash icon"></i>
                                         </button>
                                     </td>
@@ -122,8 +122,11 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex';
-import message from '../util/message'
+import $ from 'jquery';
+import { mapActions, mapGetters } from 'vuex';
+import { GETTERS } from '../store/getters';
+import message from '../util/message';
+import { downloadSurveyJSON, downloadSurveyCSV } from '../util/downloader';
 
 function getURLParameter(name) {
     var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
@@ -142,10 +145,6 @@ export default {
       message
     },
 
-    props: [
-        'surveys'
-    ],
-
     data: function() {
         return {
             source: DEFAULT_SURVEY,
@@ -157,9 +156,23 @@ export default {
     created: function() {
         this.loadSources();
     },
+
+    computed: {
+        ...mapGetters('surveys', {
+            surveys: GETTERS.SURVEYS.GET_SURVEYS,
+            getSurvey: GETTERS.SURVEYS.GET_SURVEY,
+        }),
+    },
+
     methods: {
         ...mapActions('modes', [
             'toggleUploader'
+        ]),
+        ...mapActions('surveys', [
+            'deleteSurvey',
+        ]),
+        ...mapActions('survey', [
+            'initializeSurvey',
         ]),
         loadSources: function() {
             var segment = window.location.hash,
@@ -196,6 +209,17 @@ export default {
             this.sources = sources;
         },
 
+        confirmDeleteSurvey: function(meta) {
+            let payload = {
+                survey_id: meta.id,
+                key: meta.survey
+            };
+
+            $('#delete-survey')
+                .modal({ onApprove: () => this.deleteSurvey(payload) })
+                .modal('show');
+        },
+
         fetchBlankSurvey: function (source) {
             this.setBanner('');
             if (typeof source !== 'string') {
@@ -210,7 +234,16 @@ export default {
                 return;
             }
 
-            this.$emit('load-new-survey', response.data);
+            let newSurvey = response.data;
+
+            this.initializeSurvey({
+                id: '',
+                name: '',
+                updated: '',
+                type: newSurvey.type,
+                version: newSurvey.version,
+                sections: newSurvey.sections
+            });
         },
         fetchError: function(response) {
             this.setBanner('Something terrible happened. Cannot load survey.');
@@ -238,17 +271,24 @@ export default {
             this.error = message;
         },
 
-        loadSurvey: function (value) {
-            this.$emit('load-survey', value);
+        loadSurvey: function (meta) {
+            let stored = this.getSurvey(meta.survey);
+
+            this.initializeSurvey({
+                id: meta.id,
+                name: stored.name,
+                updated: stored.updated,
+                type: stored.type,
+                version: stored.version,
+                sections: stored.sections
+            });
         },
-        deleteSurvey: function (value) {
-            this.$emit('delete-survey', value);
-        },
-        downloadSurvey: function (value) {
-            this.$emit('download-survey', value);
+
+        downloadSurveyJSON: function (value) {
+            downloadSurveyJSON(value);
         },
         downloadSurveyCSV: function (value) {
-            this.$emit('download-survey-csv', value);
+            downloadSurveyCSV(value);
         }
     }
 };

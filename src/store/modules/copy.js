@@ -1,5 +1,6 @@
 import { CATEGORIES } from '../../types/categories';
 import { RATINGS, UNRATINGS } from '../../types/ratings';
+import { GETTERS } from '../getters';
 
 // initial state
 const state = {
@@ -10,28 +11,42 @@ const state = {
 
 // getters
 const getters = {
-    rating_values: state => {
+    [GETTERS.COPY.CATEGORIES] (state) {
+        return state.categories;
+    },
+    [GETTERS.COPY.RATINGS] (state) {
+        return state.ratings;
+    },
+    [GETTERS.COPY.UNRATINGS] (state) {
+        return state.unratings;
+    },
+
+    [GETTERS.COPY.RATING_VALUES] (state) {
         return state.ratings.map((v) => v.value);
     },
-    unrating_values: state => {
+
+    [GETTERS.COPY.UNRATING_VALUES] (state) {
         return state.unratings.map((v) => v.value);
     },
-    unrating_description: (state) => (value) => {
-        var match = undefined;
 
-        UNRATINGS.forEach((unrating) => {
-            if (value === unrating.value) {
-                match = unrating;
+    [GETTERS.COPY.UNRATING_DESCRIPTION] (state) {
+        return (value) => {
+            var match = undefined;
+
+            UNRATINGS.forEach((unrating) => {
+                if (value === unrating.value) {
+                    match = unrating;
+                }
+            });
+
+            if (match === undefined) {
+                match = 'Unknown';
+            } else {
+                match = match.human;
             }
-        });
 
-        if (match === undefined) {
-            match = 'Unknown';
-        } else {
-            match = match.human;
-        }
-
-        return match;
+            return match;
+        };
     }
 };
 

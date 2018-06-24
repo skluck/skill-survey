@@ -16,7 +16,11 @@
 export default {
     name: 'category',
 
-    props: ['categories', 'selected_category'],
+    props: [
+        'categories',
+        'selected_category'
+    ],
+
     filters: {
         abbrev: function(v) {
             return v.slice(0, 1);

@@ -116,16 +116,17 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapGetters } from 'vuex';
+import { GETTERS } from '../store/getters';
 
 export default {
     name: 'Introduction',
 
     computed: {
-        ...mapState('copy', {
-            categories: state => state.categories,
-            ratings: state => state.ratings,
-            unratings: state => state.unratings
+        ...mapGetters('copy', {
+            categories: GETTERS.COPY.CATEGORIES,
+            ratings: GETTERS.COPY.RATINGS,
+            unratings: GETTERS.COPY.UNRATINGS
         })
     }
 };

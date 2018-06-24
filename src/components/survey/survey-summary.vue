@@ -28,7 +28,7 @@
                 <div class="ui grey segment grid mt-0">
                     <div class="ui three wide column">
                         <template v-if="survey_completed == survey_total">
-                            <span class="ui label">{{ survey_score }} / {{survey_total * 3 }}</span>
+                            <span class="ui label">{{ survey_score }} / {{ survey_total * 3 }}</span>
                         </template>
                         <template v-else>
                             <span class="ui basic red label"><i class="warning icon"></i> Incomplete</span>
@@ -45,21 +45,21 @@
 
 <script>
 import { mapGetters } from 'vuex';
+import { GETTERS } from '../../store/getters';
 
 export default {
     name: 'SurveySummary',
 
-    props: [
-        'sections',
-        'survey_score',
-        'survey_completed',
-        'survey_total'
-    ],
-
     computed: {
-        ...mapGetters('modes', [
-            'isSummaryMode'
-        ])
-    },
+        ...mapGetters('modes', {
+            isSummaryMode: GETTERS.MODES.SUMMARY_MODE
+        }),
+        ...mapGetters('survey', {
+            sections: GETTERS.SURVEY.GET_SECTIONS,
+            survey_score: GETTERS.SURVEY.GET_SCORE,
+            survey_completed: GETTERS.SURVEY.GET_COMPLETED,
+            survey_total: GETTERS.SURVEY.GET_TOTAL,
+        })
+    }
 };
 </script>

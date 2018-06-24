@@ -1,4 +1,6 @@
 import Vue from 'vue';
+import { GETTERS } from '../getters';
+import { MUTATIONS } from '../mutations';
 
 // initial state
 const state = {
@@ -11,36 +13,44 @@ const state = {
 
 // getters
 const getters = {
-    getUploadStatus: state => state.toggle_upload,
-    isViewMode: state => state.view_mode,
-    isSummaryMode: state => state.show_summary,
-    isSectionHidden: (state) => (section_id) => {
-        if (state.section_hidden.hasOwnProperty(section_id)) {
-            return (state.section_hidden[section_id] === true);
-        }
+    [GETTERS.MODES.UPLOAD_STATUS] (state) {
+        return state.toggle_upload;
+    },
+    [GETTERS.MODES.VIEW_MODE] (state) {
+        return state.view_mode;
+    },
+    [GETTERS.MODES.SUMMARY_MODE] (state) {
+        return state.show_summary;
+    },
+    [GETTERS.MODES.SECTION_HIDDEN] (state) {
+        return (section_id) => {
+            if (state.section_hidden.hasOwnProperty(section_id)) {
+                return (state.section_hidden[section_id] === true);
+            }
 
-        return false;
+            return false;
+        }
     }
 }
 
 // actions
 const actions = {
     toggleUploader ({ commit }) {
-        commit('enableUploader');
+        commit(MUTATIONS.MODES.ENABLE_UPLOADER);
         return new Promise((resolve, reject) => {
             setTimeout(() => {
-                commit('disableUploader')
+                commit(MUTATIONS.MODES.DISABLE_UPLOADER)
                 resolve()
             }, 1000)
         })
     },
 
     enablePrintView (context) {
-        context.commit('enableViewMode');
-        context.commit('enableSummaryMode');
+        context.commit(MUTATIONS.MODES.ENABLE_VIEW_MODE);
+        context.commit(MUTATIONS.MODES.ENABLE_SUIMMARY_MODE);
 
         for (var id in context.state.section_hidden) {
-            context.commit('showSection', { section_id: id });
+            context.commit(MUTATIONS.MODES.SHOW_SECTION, id);
         }
 
         return new Promise((resolve, reject) => {
@@ -54,40 +64,40 @@ const actions = {
 
 // mutations
 const mutations = {
-    disableUploader (state) {
+    [MUTATIONS.MODES.DISABLE_UPLOADER] (state) {
         state.toggle_upload = false;
     },
 
-    enableUploader (state) {
+    [MUTATIONS.MODES.ENABLE_UPLOADER] (state) {
         state.toggle_upload = true;
     },
 
-    toggleViewMode (state) {
+    [MUTATIONS.MODES.TOGGLE_VIEW_MODE] (state) {
         state.view_mode = !state.view_mode;
     },
-    enableViewMode (state) {
+    [MUTATIONS.MODES.ENABLE_VIEW_MODE] (state) {
         state.view_mode = true;
     },
 
-    toggleSummaryMode (state) {
+    [MUTATIONS.MODES.TOGGLE_SUIMMARY_MODE] (state) {
         state.show_summary = !state.show_summary;
     },
-    enableSummaryMode (state) {
+    [MUTATIONS.MODES.ENABLE_SUIMMARY_MODE] (state) {
         state.show_summary = true;
     },
 
-    toggleSection (state, payload) {
-        if (state.section_hidden.hasOwnProperty(payload.section_id)) {
-            state.section_hidden[payload.section_id] = !state.section_hidden[payload.section_id];
+    [MUTATIONS.MODES.TOGGLE_SECTION] (state, section_id) {
+        if (state.section_hidden.hasOwnProperty(section_id)) {
+            state.section_hidden[section_id] = !state.section_hidden[section_id];
         } else {
-            state.section_hidden[payload.section_id] = true;
+            state.section_hidden[section_id] = true;
         }
     },
-    hideSection (state, payload) {
-        Vue.set(state.section_hidden, payload.section_id, true);
+    [MUTATIONS.MODES.HIDE_SECTION] (state, section_id) {
+        Vue.set(state.section_hidden, section_id, true);
     },
-    showSection (state, payload) {
-        Vue.set(state.section_hidden, payload.section_id, false);
+    [MUTATIONS.MODES.SHOW_SECTION] (state, section_id) {
+        Vue.set(state.section_hidden, section_id, false);
     }
 }
 

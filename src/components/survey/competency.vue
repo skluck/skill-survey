@@ -3,7 +3,7 @@
 
         <template v-if="isViewMode">
             <div class="ui two wide column">
-                <div class="ui label">{{ comp_title }}</div>
+                <div class="ui label">{{ title }}</div>
                 <category :categories="categories" :selected_category="comp.category"></category>
             </div>
             <div class="ui fourteen wide column">
@@ -48,12 +48,12 @@
         <template v-else>
 
             <div class="ui two wide column">
-                <div v-if="comp.rating === ''" class="ui label">{{ comp_title }}</div>
+                <div v-if="comp.rating === ''" class="ui label">{{ title }}</div>
                 <div v-else class="ui green label position-relative">
                     <template v-if="comp.rating !== ''">
                         <span v-if="unrating_values.includes(comp.rating)" class="ui floating basic black circular mini label">{{ comp.rating }}</span>
                         <span v-else class="ui floating black circular mini label">{{ comp.rating }}</span>
-                        {{ comp_title }}
+                        {{ title }}
                     </template>
                 </div>
 
@@ -135,7 +135,8 @@
 
 <script>
 import $ from 'jquery';
-import { mapGetters, mapState } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
+import { GETTERS } from '../../store/getters';
 import category from './category'
 
 export default {
@@ -146,8 +147,9 @@ export default {
     },
 
     props: [
+        'section',
         'comp',
-        'comp_title',
+        'title',
     ],
 
     data: function() {
@@ -160,25 +162,30 @@ export default {
     },
 
     computed: {
-        ...mapState('copy', [
-            'unratings'
-        ]),
-        ...mapGetters('modes', [
-            'isViewMode'
-        ]),
-        ...mapGetters('copy', [
-            'unrating_values',
-            'unrating_description'
-        ]),
-        ...mapState('copy', {
-            categories: state => state.categories,
-            ratings: state => state.ratings,
+        ...mapGetters('modes', {
+            isViewMode: GETTERS.MODES.VIEW_MODE
+        }),
+        ...mapGetters('copy', {
+            categories: GETTERS.COPY.CATEGORIES,
+            ratings: GETTERS.COPY.RATINGS,
+            unratings: GETTERS.COPY.UNRATINGS,
+            unrating_values: GETTERS.COPY.UNRATING_VALUES,
+            unrating_description: GETTERS.COPY.UNRATING_DESCRIPTION,
         })
     },
 
     methods: {
+        ...mapActions('survey', [
+            'saveRating',
+        ]),
+
         onChange: function (value) {
-            this.$emit('set-competency', { rating: value, comment: this.changed_comment });
+            this.saveRating({
+                section: this.section,
+                competency: this.title,
+                rating: value,
+                comment: this.changed_comment
+            });
         },
 
         hoverRating: function(event) {

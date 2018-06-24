@@ -62,7 +62,8 @@
 
 <script>
 import $ from 'jquery';
-import { mapGetters } from 'vuex';
+import { mapGetters, mapActions } from 'vuex';
+import { GETTERS } from '../store/getters';
 import { generateUUID } from '../util/generate-uuid';
 
 export default {
@@ -79,7 +80,7 @@ export default {
     },
     computed: {
         ...mapGetters('modes', {
-            uploadTrigger: 'getUploadStatus'
+            uploadTrigger: GETTERS.MODES.UPLOAD_STATUS,
         }),
 
         icon_style: function() {
@@ -106,13 +107,17 @@ export default {
         }
     },
     methods: {
+        ...mapActions('surveys', [
+            'uploadSurveys'
+        ]),
+
         uploadSurveyConfirmation: function() {
             $('#upload-survey')
-            .modal({
-                onApprove : this.uploadFiles,
-                onDeny: this.clearFiles
-            })
-            .modal('show');
+                .modal({
+                    onApprove : this.uploadFiles,
+                    onDeny: this.clearFiles
+                })
+                .modal('show');
         },
 
         uploadHover: function() {
@@ -228,7 +233,7 @@ export default {
         validateUploads: function() {
             // success!
             if (this.dropped.length === this.validated.length) {
-                this.$emit('upload-surveys', this.validated);
+                this.uploadSurveys(this.validated);
                 this.validated = [];
                 this.dropped = [];
                 this.errors = [];

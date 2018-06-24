@@ -5,8 +5,8 @@
             <div class="ui segment">
 
                 <message
-                    :negative="save_last_message.error"
-                    :value="save_last_message.message"></message>
+                    :negative="banner.error"
+                    :value="banner.message"></message>
 
                 <div class="ui form">
                     <div class="four fields">
@@ -17,13 +17,13 @@
                         <div class="field">
                             <label>Survey type/version</label>
                             <div class="ui disabled input">
-                                <input type="text" readonly :value="survey_type + ' [' + survey_version + ']'">
+                                <input type="text" readonly :value="survey.type + ' [' + survey.version + ']'">
                             </div>
                         </div>
                         <div class="field">
                             <label>Last updated</label>
                             <div class="ui disabled input">
-                                <input type="text" readonly :value="survey_updated">
+                                <input type="text" readonly :value="survey.updated">
                             </div>
                         </div>
                         <div class="field">
@@ -35,15 +35,15 @@
                         </div>
                     </div>
 
-                    <button class="ui green button" @click="saveSurvey">
+                    <button class="ui green button" @click="saveSurveyToBrowser">
                         <i class="icon save"></i> Save to Browser Storage
                     </button>
 
-                    <button class="ui teal icon button ml-3" @click="downloadSurvey()">
+                    <button class="ui teal icon button ml-3" @click="saveAndDownloadSurvey('json')">
                         <i class="cloud download icon"></i> Backup (JSON)
                     </button>
 
-                    <button class="ui teal icon button" @click="downloadSurveyCSV()">
+                    <button class="ui teal icon button" @click="saveAndDownloadSurvey('csv')">
                         <i class="cloud download icon"></i> CSV
                     </button>
 
@@ -58,8 +58,9 @@
 </template>
 
 <script>
-import { mapMutations } from 'vuex';
-
+import { mapActions, mapGetters, mapMutations } from 'vuex';
+import { GETTERS } from '../store/getters';
+import store from 'store';
 import message from '../util/message';
 
 export default {
@@ -75,31 +76,68 @@ export default {
         }
     },
     created: function() {
-        this.changed_survey_name = this.survey_name;
+        this.changed_survey_name = this.survey.name;
     },
-    props: [
-        'save_last_message',
-        'survey_name',
-        'survey_type',
-        'survey_version',
-        'survey_updated',
-        'survey_progress'
-    ],
+
+    computed: {
+        ...mapGetters('survey', {
+            survey: GETTERS.SURVEY.GET_META,
+            survey_progress: GETTERS.SURVEY.GET_PROGRESS,
+        }),
+        ...mapGetters('banners', {
+            banner: GETTERS.BANNERS.GET_SAVE_BANNER,
+        })
+    },
 
     methods: {
         ...mapMutations('modes', [
             'enablePrintView',
         ]),
+        ...mapActions('survey', [
+            'saveSurvey',
+        ]),
+        ...mapActions('banners', [
+            'saveBanner',
+            'saveErrorBanner',
+        ]),
 
-        saveSurvey: function () {
-            this.$emit('save-survey', this.changed_survey_name);
+        saveAndDownloadSurvey: function(type) {
+            var meta = this.saveSurveyToBrowser(this.changed_survey_name);
+            if (meta === false) {
+                return;
+            }
+
+            if (type === 'csv') {
+                downloadSurveyCSV(meta);
+            } else if (type === 'json') {
+                downloadSurveyJSON(meta);
+            }
         },
-        downloadSurvey: function(value) {
-            this.$emit('save-download-survey', this.changed_survey_name);
+
+        saveSurveyToBrowser: function() {
+            let new_name = this.changed_survey_name;
+            this.saveBanner({ message: '' });
+
+            if (!store.enabled) {
+                this.saveErrorBanner({ message: 'Browser storage is not supported by your browser.', shouldPop: true });
+                return false;
+            }
+
+            if (new_name.length === 0) {
+                this.saveErrorBanner({ message: 'Please provide a name for this survey.', shouldPop: true });
+                return false;
+            }
+
+            if (new_name.length > 50) {
+                this.saveErrorBanner({ message: 'Survey name too long.', shouldPop: true });
+                return false;
+            }
+
+            this.saveSurvey(new_name);
+            this.saveBanner({ message: 'Survey saved.', shouldPop: true });
+
+            return true;
         },
-        downloadSurveyCSV: function(value) {
-            this.$emit('save-download-survey-csv', this.changed_survey_name);
-        }
     }
 };
 </script>

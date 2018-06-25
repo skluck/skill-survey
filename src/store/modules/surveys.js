@@ -1,33 +1,12 @@
-import store from 'store';
 import { MUTATIONS } from '../mutations';
 import { GETTERS } from '../getters';
-
-function persistToStorage(surveys) {
-    store.set('surveys', surveys);
-}
-
-function saveSurveyToStorage(key, survey) {
-    store.set(key, survey);
-}
-
-function removeSurveyFromStorage(key, surveys) {
-    store.set('surveys', surveys);
-    store.remove(key);
-}
-
-function getSurveyFromStorage(key) {
-    return store.get(key);
-}
-
-function retrieveFromStorage() {
-    let surveys = store.get('surveys');
-
-    if (!Array.isArray(surveys)) {
-        surveys = [];
-    }
-
-    return surveys;
-}
+import {
+    persistToStorage,
+    saveSurveyToStorage,
+    removeSurveyFromStorage,
+    getSurveyFromStorage,
+    retrieveFromStorage
+} from '../../api/surveys';
 
 // initial state
 const state = {

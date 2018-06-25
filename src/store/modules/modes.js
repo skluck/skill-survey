@@ -45,12 +45,12 @@ const actions = {
         })
     },
 
-    enablePrintView (context) {
-        context.commit(MUTATIONS.MODES.ENABLE_VIEW_MODE);
-        context.commit(MUTATIONS.MODES.ENABLE_SUIMMARY_MODE);
+    enablePrintView ({ commit, state }) {
+        commit(MUTATIONS.MODES.ENABLE_VIEW_MODE);
+        commit(MUTATIONS.MODES.ENABLE_SUIMMARY_MODE);
 
-        for (var id in context.state.section_hidden) {
-            context.commit(MUTATIONS.MODES.SHOW_SECTION, id);
+        for (var id in state.section_hidden) {
+            commit(MUTATIONS.MODES.SHOW_SECTION, id);
         }
 
         return new Promise((resolve, reject) => {
@@ -79,10 +79,10 @@ const mutations = {
         state.view_mode = true;
     },
 
-    [MUTATIONS.MODES.TOGGLE_SUIMMARY_MODE] (state) {
+    [MUTATIONS.MODES.TOGGLE_SUMMARY_MODE] (state) {
         state.show_summary = !state.show_summary;
     },
-    [MUTATIONS.MODES.ENABLE_SUIMMARY_MODE] (state) {
+    [MUTATIONS.MODES.ENABLE_SUMMARY_MODE] (state) {
         state.show_summary = true;
     },
 

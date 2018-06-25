@@ -18,10 +18,10 @@
 
                 <div class="ui relaxed divided list">
 
-                    <template v-for="(source_http, source_title) in sources">
+                    <template v-for="(source_http, source_title) in blanks">
                         <div class="item">
                             <div class="right floated content">
-                                <a class="ui tiny green icon button" @click="fetchBlankSurvey(source_http)">
+                                <a class="ui tiny green icon button" @click="fetchNewSurvey(source_http)">
                                     <i class="plus icon"></i>
                                     Start
                                 </a>
@@ -38,9 +38,9 @@
                             <h4 class="header">Custom</h4>
                             <div class="description t-medium">
                                 <div class="ui fluid input">
-                                    <input type="text" v-model="source" class="mr-3">
+                                    <input type="text" v-model="custom_source" class="mr-3">
 
-                                    <a class="ui tiny green icon button" @click="fetchBlankSurvey">
+                                    <a class="ui tiny green icon button" @click="fetchNewSurvey(custom_source)">
                                         <i class="plus icon"></i>
                                         Start
                                     </a>
@@ -125,18 +125,9 @@
 import $ from 'jquery';
 import { mapActions, mapGetters } from 'vuex';
 import { GETTERS } from '../store/getters';
-import message from '../util/message';
+import { MUTATIONS } from '../store/mutations';
+import message from './message';
 import { downloadSurveyJSON, downloadSurveyCSV } from '../util/downloader';
-
-function getURLParameter(name) {
-    var match = RegExp('[?&]' + name + '=([^&]*)').exec(window.location.search);
-    return match && decodeURIComponent(match[1].replace(/\+/g, ' ')).replace('\u200E', '');
-}
-
-const DEFAULT_SURVEY = window.location.origin + window.location.pathname + '/sample-survey.json';
-const DEFAULT_SOURCES = {
-    'Sample': DEFAULT_SURVEY
-};
 
 export default {
     name: 'Surveys',
@@ -145,16 +136,8 @@ export default {
       message
     },
 
-    data: function() {
-        return {
-            source: DEFAULT_SURVEY,
-            sources: DEFAULT_SOURCES,
-            error: ''
-        }
-    },
-
     created: function() {
-        this.loadSources();
+        this.fetchBlanks();
     },
 
     computed: {
@@ -162,6 +145,19 @@ export default {
             surveys: GETTERS.SURVEYS.GET_SURVEYS,
             getSurvey: GETTERS.SURVEYS.GET_SURVEY,
         }),
+        ...mapGetters('blanks', {
+            blanks: GETTERS.BLANKS.GET_SOURCES,
+            error: GETTERS.BLANKS.GET_ERROR,
+        }),
+
+        custom_source: {
+            get () {
+                return this.$store.state.blanks.custom_source;
+            },
+            set (value) {
+                this.$store.commit('blanks/' + MUTATIONS.BLANKS.SET_CUSTOM_SOURCE, value);
+            }
+        }
     },
 
     methods: {
@@ -174,40 +170,10 @@ export default {
         ...mapActions('survey', [
             'initializeSurvey',
         ]),
-        loadSources: function() {
-            var segment = window.location.hash,
-                survey = getURLParameter('survey'),
-                sources = getURLParameter('sources');
-
-            if (survey === null && segment.length > 0) {
-                survey = segment.slice(1);
-            }
-
-            if (/^http(.*).json$/.test(survey)) {
-                this.source = survey;
-            }
-
-            if (sources !== null && /^http(.*).json$/.test(sources)) {
-                this.$http({ url: sources, method: 'GET' })
-                .then(this.fetchSources);
-            } else {
-                this.$http({ url: 'surveys.json', method: 'GET' })
-                .then(this.fetchSources);
-            }
-        },
-        fetchSources: function(response) {
-            if (response.headers.get('Content-Type').indexOf('application/json') === -1) {
-                this.setBanner('Survey source list must be json.');
-                return false;
-            }
-
-            var sources = {};
-            for (var title in response.data) {
-                sources[title] = response.data[title];
-            }
-
-            this.sources = sources;
-        },
+        ...mapActions('blanks', [
+            'fetchBlanks',
+            'fetchNewSurvey'
+        ]),
 
         confirmDeleteSurvey: function(meta) {
             let payload = {
@@ -218,57 +184,6 @@ export default {
             $('#delete-survey')
                 .modal({ onApprove: () => this.deleteSurvey(payload) })
                 .modal('show');
-        },
-
-        fetchBlankSurvey: function (source) {
-            this.setBanner('');
-            if (typeof source !== 'string') {
-                source = this.source;
-            }
-
-            this.$http({ url: source, method: 'GET' })
-            .then(this.fetchSuccess, this.fetchError);
-        },
-        fetchSuccess: function(response) {
-            if (!this.fetchBlankValidate(response)) {
-                return;
-            }
-
-            let newSurvey = response.data;
-
-            this.initializeSurvey({
-                id: '',
-                name: '',
-                updated: '',
-                type: newSurvey.type,
-                version: newSurvey.version,
-                sections: newSurvey.sections
-            });
-        },
-        fetchError: function(response) {
-            this.setBanner('Something terrible happened. Cannot load survey.');
-        },
-        fetchBlankValidate: function(response) {
-            if (response.headers.get('Content-Type').indexOf('application/json') === -1) {
-                this.setBanner('Blank survey data must be json.');
-                return false;
-            }
-
-            var missing = ['type', 'version', 'name', 'updated', 'sections']
-                .filter(function(key) {
-                    return !response.data.hasOwnProperty(key);
-                });
-
-            if (missing.length > 0) {
-                this.setBanner("Survey data is invalid. The following properties are missing: (" + missing.join(', ') + ")");
-                return false;
-            }
-
-            return true;
-        },
-
-        setBanner: function(message) {
-            this.error = message;
         },
 
         loadSurvey: function (meta) {

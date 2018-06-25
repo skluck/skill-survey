@@ -2,6 +2,10 @@ const GETTERS = {
     BANNERS: {
         GET_SAVE_BANNER: 'GET_SAVE_BANNER'
     },
+    BLANKS: {
+        GET_SOURCES: 'GET_SOURCES',
+        GET_ERROR: 'GET_ERROR'
+    },
     COPY: {
         CATEGORIES: 'CATEGORIES',
         RATINGS: 'RATINGS',

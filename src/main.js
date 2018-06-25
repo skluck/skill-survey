@@ -5,8 +5,8 @@ import './sass/overrides.scss';
 
 import Vue from 'vue';
 import VueResource from 'vue-resource';
-import store from './store'
 import app from './app.vue';
+import store from './store';
 
 import { localDate } from './util/local-date';
 import { hoverChildDirective } from './directives/hover-child';

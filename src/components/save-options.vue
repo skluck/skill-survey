@@ -60,8 +60,8 @@
 <script>
 import { mapActions, mapGetters, mapMutations } from 'vuex';
 import { GETTERS } from '../store/getters';
-import store from 'store';
-import message from '../util/message';
+import { isStoreEnabled } from '../api/surveys';
+import message from './message';
 
 export default {
     name: 'SaveOptions',
@@ -118,7 +118,7 @@ export default {
             let new_name = this.changed_survey_name;
             this.saveBanner({ message: '' });
 
-            if (!store.enabled) {
+            if (!isStoreEnabled()) {
                 this.saveErrorBanner({ message: 'Browser storage is not supported by your browser.', shouldPop: true });
                 return false;
             }

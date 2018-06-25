@@ -20,7 +20,12 @@
 export default {
     name: 'message',
 
-    props: ['negative', 'header', 'value'],
+    props: [
+        'negative',
+        'header',
+        'value'
+    ],
+
     computed: {
         icon: function() {
             return (this.negative) ? 'attention' : 'checkmark';

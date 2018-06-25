@@ -1,12 +1,14 @@
-var path = require('path')
-var webpack = require('webpack'),
+const path = require('path')
+const webpack = require('webpack'),
     ProvidePlugin = webpack.ProvidePlugin;
+
+const ASSET_PATH = process.env.ASSET_PATH || '/dist/';
 
 module.exports = {
   entry: './src/main.js',
   output: {
     path: path.resolve(__dirname, './dist'),
-    publicPath: '/dist/',
+    publicPath: ASSET_PATH,
     filename: 'build.js'
   },
   module: {

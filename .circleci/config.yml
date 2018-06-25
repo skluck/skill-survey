@@ -55,7 +55,11 @@ jobs:
         docker: [{image: 'circleci/node:10.4'}]
         steps:
             - *attach_workspace
-            - run: 'yarn build'
+            - run:
+                environment:
+                    ASSET_PATH: "/skill-survey/dist/"
+                name: 'Webpack'
+                command: 'yarn build'
             - run:
                 name: 'Clean up built website'
                 command: |
@@ -63,6 +67,7 @@ jobs:
                     mkdir -p dist/.circleci && cp .circleci/config.simple.yml dist/.circleci/config.yml
                     mv dist2 dist/dist
                     mv index.html dist/
+                    mv surveys.json dist/
                     mv sample-survey.json dist/
                     mv survey-schema.json dist/
                     touch dist/.nojekyll

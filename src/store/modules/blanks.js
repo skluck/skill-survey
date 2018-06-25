@@ -2,10 +2,17 @@ import { loadSources, loadBlank } from '../../api/blanks';
 import { GETTERS } from '../getters';
 import { MUTATIONS } from '../mutations';
 
-const DEFAULT_SOURCES = window.location.origin + window.location.pathname + '/surveys.json';
-const DEFAULT_SURVEY = window.location.origin + window.location.pathname + '/sample-survey.json';
+let pathName = window.location.pathname.endsWith('/') ? window.location.pathname.slice(0, -1) : '';
+
+const DEFAULT_SOURCES = window.location.origin + pathName + '/surveys.json';
+const DEFAULT_SURVEY = window.location.origin + pathName + '/sample-survey.json';
 const DEFAULT_BLANKS = {
-    'Sample': DEFAULT_SURVEY
+    'Examples': [
+        {
+            "Name": 'Sample',
+            "URL": DEFAULT_SURVEY
+        }
+    ]
 };
 
 function getURLParameter(name) {

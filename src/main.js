@@ -1,7 +1,8 @@
 import 'semantic-ui-css/semantic.js';
 import 'semantic-ui-css/semantic.css';
-import './sass/utilities.scss';
-import './sass/overrides.scss';
+
+import '../sass/utilities.scss';
+import '../sass/overrides.scss';
 
 import Vue from 'vue';
 import VueResource from 'vue-resource';

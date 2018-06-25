@@ -1,0 +1,26 @@
+.ui.menu .item .header {
+    max-width: 20em;
+}
+
+.ui.button.white {
+    color: black;
+    background: #fff;
+}
+
+.ui.sticky.blue.inverted {
+    height: 4rem;
+}
+
+.ui.fixed.sticky + div {
+    margin-top: 5rem;
+}
+
+.survey-list .item {
+    position: relative;
+}
+
+.survey-list .item .meta {
+    position:absolute;
+    right:0;
+    top:.5em
+}

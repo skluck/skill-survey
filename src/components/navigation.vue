@@ -1,7 +1,35 @@
 <template>
-    <div class="ui massive stackable container icon menu no-print">
-        <a class="item" :href="app_github_url"><i class="large github icon"></i></a>
-        <div class="header item">{{ app_title }}</div>
+    <div class="ui huge stackable container icon menu no-print">
+
+        <div class="item ">
+            <div class="ui list">
+                <div class="item text-left" v-if="app_confluence_url">
+                    <div class="content">
+                        <a :href="app_confluence_url">
+                            <i class="home icon"></i>
+                            Confluence
+                        </a>
+                    </div>
+                </div>
+                <div class="item text-left">
+                  <div class="content">
+                      <a :href="app_github_url">
+                        <i class="github icon"></i> GitHub
+                    </a>
+                  </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="item text-left">
+            <div class="ui header">
+                <div class="content">
+                    {{ app_title }}
+
+                    <div class="sub header">{{ app_secondary_title }}</div>
+                </div>
+            </div>
+        </div>
 
         <template v-if="isSurveyLoaded">
             <div class="ui right item t-std">
@@ -43,7 +71,9 @@ export default {
 
     props: [
         'app_title',
+        'app_secondary_title',
         'app_github_url',
+        'app_confluence_url',
     ],
 
     computed: {

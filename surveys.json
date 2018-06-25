@@ -1,3 +1,8 @@
 {
-    "Sample": "https://kluck.engineering/skill-survey/sample-survey.json"
+    "Examples": [
+        {
+            "Name": "Sample",
+            "URL": "https://git/pages/SKluck/trac/surveys/sample-survey.json"
+        }
+    ]
 }

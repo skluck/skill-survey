@@ -16,26 +16,36 @@
 
             <div class="ui clearing segment">
 
-                <div class="ui relaxed divided list">
+                <div class="ui relaxed divided list survey-list">
 
-                    <template v-for="(source_http, source_title) in blanks">
-                        <div class="item">
-                            <div class="right floated content">
-                                <a class="ui tiny green icon button" @click="fetchNewSurvey(source_http)">
-                                    <i class="plus icon"></i>
-                                    Start
-                                </a>
+                    <template v-for="(source_surveys, source_group_name) in blanks">
+                        <h2>{{ source_group_name }}</h2>
+                        <template v-for="source_survey in source_surveys">
+                            <div class="item" v-if="source_survey.URL">
+                                <div class="ui middle aligned image">
+                                    <a class="ui tiny green icon button" @click="fetchNewSurvey(source_survey.URL)">
+                                        <i class="plus icon"></i>
+                                        Start
+                                    </a>
+                                </div>
+
+                                <div class="middle aligned content">
+                                    <h3 class="header">{{ source_survey.Name }}</h3>
+                                </div>
+
+                                <div class="meta">
+                                    <a v-if="source_survey.ConfluenceURL" :href="source_survey.ConfluenceURL" class="ui basic mini grey icon button">Learn more or leave feedback in confluence</a>
+                                    <a :href="source_survey.URL" class="ui mini icon button" data-tooltip="Download raw JSON survey file" data-position="top center">
+                                        <i class="file icon"></i>
+                                    </a>
+                                </div>
                             </div>
-                            <div class="content">
-                                <h4 class="header">{{ source_title }}</h4>
-                                <div class="description t-medium">{{ source_http }}</div>
-                            </div>
-                        </div>
+                        </template>
                     </template>
 
                     <div class="item">
                         <div class="content">
-                            <h4 class="header">Custom</h4>
+                            <h4 class="header">Load a custom survey (for development or testing)</h4>
                             <div class="description t-medium">
                                 <div class="ui fluid input">
                                     <input type="text" v-model="custom_source" class="mr-3">

@@ -64,16 +64,16 @@ tbd
 - [ ] Ensure responsive-ness
 
 ### Home page - no survey loaded
-![home](img/1.home.png)
+![home](docs/1.home.png)
 
 ### Taking new survey
-![survey](img/2.survey.png)
+![survey](docs/2.survey.png)
 
 ### Saving surveys
-![saving](img/3.saving.png)
+![saving](docs/3.saving.png)
 
 ### Loading existing surveys
-![loading](img/4.loading.png)
+![loading](docs/4.loading.png)
 
 ### Uploading saved surveys
-![loading](img/5.uploading.png)
+![loading](docs/5.uploading.png)
